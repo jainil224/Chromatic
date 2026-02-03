@@ -8,7 +8,6 @@ interface PaletteSectionProps {
   palettes: Palette[];
   selectedPalette: Palette | null;
   onSelectPalette: (palette: Palette) => void;
-  onDeletePalette?: (paletteId: string) => void;
   animationOffset?: number;
 }
 
@@ -18,7 +17,6 @@ export function PaletteSection({
   palettes,
   selectedPalette,
   onSelectPalette,
-  onDeletePalette,
   animationOffset = 0,
 }: PaletteSectionProps) {
   const Icon = mode === "dark" ? Moon : Sun;
@@ -51,7 +49,6 @@ export function PaletteSection({
             palette={palette}
             isSelected={selectedPalette?.id === palette.id}
             onClick={() => onSelectPalette(palette)}
-            onDelete={palette.isCustom && onDeletePalette ? () => onDeletePalette(palette.id) : undefined}
             index={index}
             animationOffset={animationOffset + 0.1}
           />

@@ -1,43 +1,27 @@
 import { useState } from "react";
-import { Palette as PaletteIcon } from "lucide-react";
-import { toast } from "sonner";
+import { Palette as PaletteIcon, Search, X } from "lucide-react";
 import { darkPalettes, lightPalettes, type Palette } from "@/data/palettes";
 import { PaletteSection } from "@/components/PaletteSection";
 import { PaletteDetail } from "@/components/PaletteDetail";
-import { CustomPaletteCreator } from "@/components/CustomPaletteCreator";
 
 const Index = () => {
-  const [customDarkPalettes, setCustomDarkPalettes] = useState<Palette[]>([]);
-  const [customLightPalettes, setCustomLightPalettes] = useState<Palette[]>([]);
   const [selectedPalette, setSelectedPalette] = useState<Palette | null>(darkPalettes[0]);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const allDarkPalettes = [...darkPalettes, ...customDarkPalettes];
-  const allLightPalettes = [...lightPalettes, ...customLightPalettes];
-
-  const handleCreatePalette = (palette: Palette, mode: "dark" | "light") => {
-    const paletteWithCustomFlag = { ...palette, isCustom: true };
-    if (mode === "dark") {
-      setCustomDarkPalettes((prev) => [...prev, paletteWithCustomFlag]);
-    } else {
-      setCustomLightPalettes((prev) => [...prev, paletteWithCustomFlag]);
-    }
-    setSelectedPalette(paletteWithCustomFlag);
+  // Filter palettes based on search query
+  const filterPalettes = (palettes: Palette[]) => {
+    if (!searchQuery.trim()) return palettes;
+    const query = searchQuery.toLowerCase();
+    return palettes.filter(
+      (p) =>
+        p.name.toLowerCase().includes(query) ||
+        p.tags?.some((tag) => tag.toLowerCase().includes(query))
+    );
   };
 
-  const handleDeletePalette = (paletteId: string, mode: "dark" | "light") => {
-    if (mode === "dark") {
-      setCustomDarkPalettes((prev) => prev.filter((p) => p.id !== paletteId));
-    } else {
-      setCustomLightPalettes((prev) => prev.filter((p) => p.id !== paletteId));
-    }
-    
-    // If deleted palette was selected, select the first dark palette
-    if (selectedPalette?.id === paletteId) {
-      setSelectedPalette(darkPalettes[0]);
-    }
-    
-    toast.success("Palette deleted", { position: "bottom-center" });
-  };
+  const filteredDarkPalettes = filterPalettes(darkPalettes);
+  const filteredLightPalettes = filterPalettes(lightPalettes);
+  const totalResults = filteredDarkPalettes.length + filteredLightPalettes.length;
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -54,52 +38,93 @@ const Index = () => {
 
       <div className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
-        <header className="mb-10 text-center">
-          <div className="inline-flex items-center gap-3 opacity-0 animate-fade-up">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-              <PaletteIcon className="h-6 w-6 text-primary" />
+        <header className="mb-10">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3 opacity-0 animate-fade-up">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                <PaletteIcon className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h1 className="font-display text-3xl text-foreground">
+                  Chromatic
+                </h1>
+                <p className="font-mono text-xs text-muted-foreground">
+                  100 Curated Color Palettes
+                </p>
+              </div>
             </div>
-            <div className="text-left">
-              <h1 className="font-display text-3xl text-foreground">
-                Chromatic
-              </h1>
-              <p className="font-mono text-xs text-muted-foreground">
-                100 Curated Color Palettes
-              </p>
+
+            {/* Search Bar */}
+            <div className="relative w-full max-w-md opacity-0 animate-fade-up" style={{ animationDelay: "0.1s" }}>
+              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by name or tag..."
+                className="w-full rounded-xl border border-border bg-card py-3 pl-11 pr-10 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </div>
+
+          {/* Search Results Count */}
+          {searchQuery && (
+            <div className="mt-4 opacity-0 animate-fade-in" style={{ animationDelay: "0.05s" }}>
+              <p className="font-mono text-xs text-muted-foreground">
+                Found <span className="text-primary">{totalResults}</span> palettes matching "{searchQuery}"
+              </p>
+            </div>
+          )}
         </header>
 
         {/* Main Content */}
         <div className="grid gap-10 xl:grid-cols-[1fr_400px] xl:gap-12">
           {/* Left: Palette Sections */}
           <div className="space-y-10">
-            {/* Custom Palette Creator */}
-            <div className="opacity-0 animate-fade-up" style={{ animationDelay: "0.1s" }}>
-              <CustomPaletteCreator onCreatePalette={handleCreatePalette} />
-            </div>
-
             {/* Dark Palettes Section */}
-            <PaletteSection
-              title="Dark Palettes"
-              mode="dark"
-              palettes={allDarkPalettes}
-              selectedPalette={selectedPalette}
-              onSelectPalette={setSelectedPalette}
-              onDeletePalette={(id) => handleDeletePalette(id, "dark")}
-              animationOffset={0.2}
-            />
+            {filteredDarkPalettes.length > 0 && (
+              <PaletteSection
+                title="Dark Palettes"
+                mode="dark"
+                palettes={filteredDarkPalettes}
+                selectedPalette={selectedPalette}
+                onSelectPalette={setSelectedPalette}
+                animationOffset={0.15}
+              />
+            )}
 
             {/* Light Palettes Section */}
-            <PaletteSection
-              title="Light Palettes"
-              mode="light"
-              palettes={allLightPalettes}
-              selectedPalette={selectedPalette}
-              onSelectPalette={setSelectedPalette}
-              onDeletePalette={(id) => handleDeletePalette(id, "light")}
-              animationOffset={0.3}
-            />
+            {filteredLightPalettes.length > 0 && (
+              <PaletteSection
+                title="Light Palettes"
+                mode="light"
+                palettes={filteredLightPalettes}
+                selectedPalette={selectedPalette}
+                onSelectPalette={setSelectedPalette}
+                animationOffset={0.25}
+              />
+            )}
+
+            {/* No Results */}
+            {totalResults === 0 && searchQuery && (
+              <div className="flex flex-col items-center justify-center py-20 opacity-0 animate-fade-up">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                  <Search className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <h3 className="font-display text-xl text-foreground mb-2">No palettes found</h3>
+                <p className="font-mono text-sm text-muted-foreground text-center max-w-md">
+                  Try searching for different keywords like "warm", "ocean", "minimal", or color names.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Right: Palette Detail (Sticky) */}
