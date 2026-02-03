@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Palette as PaletteIcon } from "lucide-react";
+import { toast } from "sonner";
 import { darkPalettes, lightPalettes, type Palette } from "@/data/palettes";
 import { PaletteSection } from "@/components/PaletteSection";
 import { PaletteDetail } from "@/components/PaletteDetail";
@@ -14,12 +15,28 @@ const Index = () => {
   const allLightPalettes = [...lightPalettes, ...customLightPalettes];
 
   const handleCreatePalette = (palette: Palette, mode: "dark" | "light") => {
+    const paletteWithCustomFlag = { ...palette, isCustom: true };
     if (mode === "dark") {
-      setCustomDarkPalettes((prev) => [...prev, palette]);
+      setCustomDarkPalettes((prev) => [...prev, paletteWithCustomFlag]);
     } else {
-      setCustomLightPalettes((prev) => [...prev, palette]);
+      setCustomLightPalettes((prev) => [...prev, paletteWithCustomFlag]);
     }
-    setSelectedPalette(palette);
+    setSelectedPalette(paletteWithCustomFlag);
+  };
+
+  const handleDeletePalette = (paletteId: string, mode: "dark" | "light") => {
+    if (mode === "dark") {
+      setCustomDarkPalettes((prev) => prev.filter((p) => p.id !== paletteId));
+    } else {
+      setCustomLightPalettes((prev) => prev.filter((p) => p.id !== paletteId));
+    }
+    
+    // If deleted palette was selected, select the first dark palette
+    if (selectedPalette?.id === paletteId) {
+      setSelectedPalette(darkPalettes[0]);
+    }
+    
+    toast.success("Palette deleted", { position: "bottom-center" });
   };
 
   return (
@@ -35,9 +52,9 @@ const Index = () => {
       {/* Grain Overlay */}
       <div className="grain pointer-events-none fixed inset-0 -z-10" />
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
-        <header className="mb-12 text-center">
+        <header className="mb-10 text-center">
           <div className="inline-flex items-center gap-3 opacity-0 animate-fade-up">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
               <PaletteIcon className="h-6 w-6 text-primary" />
@@ -47,14 +64,14 @@ const Index = () => {
                 Chromatic
               </h1>
               <p className="font-mono text-xs text-muted-foreground">
-                Curated Color Palettes
+                100 Curated Color Palettes
               </p>
             </div>
           </div>
         </header>
 
         {/* Main Content */}
-        <div className="grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:gap-16">
+        <div className="grid gap-10 xl:grid-cols-[1fr_400px] xl:gap-12">
           {/* Left: Palette Sections */}
           <div className="space-y-10">
             {/* Custom Palette Creator */}
@@ -69,6 +86,7 @@ const Index = () => {
               palettes={allDarkPalettes}
               selectedPalette={selectedPalette}
               onSelectPalette={setSelectedPalette}
+              onDeletePalette={(id) => handleDeletePalette(id, "dark")}
               animationOffset={0.2}
             />
 
@@ -79,12 +97,13 @@ const Index = () => {
               palettes={allLightPalettes}
               selectedPalette={selectedPalette}
               onSelectPalette={setSelectedPalette}
-              animationOffset={0.4}
+              onDeletePalette={(id) => handleDeletePalette(id, "light")}
+              animationOffset={0.3}
             />
           </div>
 
-          {/* Right: Palette Detail */}
-          <div className="lg:sticky lg:top-8 lg:self-start">
+          {/* Right: Palette Detail (Sticky) */}
+          <div className="xl:sticky xl:top-8 xl:self-start">
             {selectedPalette ? (
               <PaletteDetail palette={selectedPalette} />
             ) : (
@@ -98,7 +117,7 @@ const Index = () => {
         </div>
 
         {/* Footer */}
-        <footer className="mt-20 border-t border-border pt-8 opacity-0 animate-fade-up" style={{ animationDelay: "0.8s" }}>
+        <footer className="mt-16 border-t border-border pt-8 opacity-0 animate-fade-up" style={{ animationDelay: "0.5s" }}>
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <p className="font-mono text-xs text-muted-foreground">
               Click any color to copy its hex value
