@@ -1,32 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Palette as PaletteIcon } from "lucide-react";
 import { darkPalettes, lightPalettes, type Palette } from "@/data/palettes";
-import { ModeToggle } from "@/components/ModeToggle";
-import { PaletteCard } from "@/components/PaletteCard";
+import { PaletteSection } from "@/components/PaletteSection";
 import { PaletteDetail } from "@/components/PaletteDetail";
+import { CustomPaletteCreator } from "@/components/CustomPaletteCreator";
 
 const Index = () => {
-  const [mode, setMode] = useState<"dark" | "light">("dark");
-  const [selectedPalette, setSelectedPalette] = useState<Palette | null>(null);
+  const [customDarkPalettes, setCustomDarkPalettes] = useState<Palette[]>([]);
+  const [customLightPalettes, setCustomLightPalettes] = useState<Palette[]>([]);
+  const [selectedPalette, setSelectedPalette] = useState<Palette | null>(darkPalettes[0]);
 
-  const palettes = mode === "dark" ? darkPalettes : lightPalettes;
+  const allDarkPalettes = [...darkPalettes, ...customDarkPalettes];
+  const allLightPalettes = [...lightPalettes, ...customLightPalettes];
 
-  // Select first palette on mode change
-  useEffect(() => {
-    setSelectedPalette(palettes[0]);
-  }, [mode]);
-
-  // Apply light-mode class to root
-  useEffect(() => {
-    if (mode === "light") {
-      document.documentElement.classList.add("light-mode");
+  const handleCreatePalette = (palette: Palette, mode: "dark" | "light") => {
+    if (mode === "dark") {
+      setCustomDarkPalettes((prev) => [...prev, palette]);
     } else {
-      document.documentElement.classList.remove("light-mode");
+      setCustomLightPalettes((prev) => [...prev, palette]);
     }
-  }, [mode]);
-
-  const toggleMode = () => {
-    setMode((prev) => (prev === "dark" ? "light" : "dark"));
+    setSelectedPalette(palette);
   };
 
   return (
@@ -36,6 +29,7 @@ const Index = () => {
         <div className="absolute inset-0 bg-background" />
         <div className="absolute -left-1/4 top-0 h-[500px] w-[500px] rounded-full bg-primary/5 blur-3xl" />
         <div className="absolute -right-1/4 bottom-0 h-[600px] w-[600px] rounded-full bg-accent/5 blur-3xl" />
+        <div className="absolute left-1/2 top-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-muted/30 blur-3xl" />
       </div>
 
       {/* Grain Overlay */}
@@ -43,13 +37,13 @@ const Index = () => {
 
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
-        <header className="mb-12 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3 opacity-0 animate-fade-up">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-              <PaletteIcon className="h-5 w-5 text-primary" />
+        <header className="mb-12 text-center">
+          <div className="inline-flex items-center gap-3 opacity-0 animate-fade-up">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+              <PaletteIcon className="h-6 w-6 text-primary" />
             </div>
-            <div>
-              <h1 className="font-display text-2xl text-foreground">
+            <div className="text-left">
+              <h1 className="font-display text-3xl text-foreground">
                 Chromatic
               </h1>
               <p className="font-mono text-xs text-muted-foreground">
@@ -57,37 +51,50 @@ const Index = () => {
               </p>
             </div>
           </div>
-
-          <div className="opacity-0 animate-fade-up stagger-2">
-            <ModeToggle mode={mode} onToggle={toggleMode} />
-          </div>
         </header>
 
         {/* Main Content */}
-        <div className="grid gap-12 lg:grid-cols-[1fr_1.5fr] lg:gap-16">
-          {/* Palette Grid */}
-          <section>
-            <h2 className="mb-6 font-mono text-xs uppercase tracking-widest text-muted-foreground opacity-0 animate-fade-up stagger-3">
-              {mode === "dark" ? "Dark" : "Light"} Palettes
-              <span className="ml-2 text-primary">({palettes.length})</span>
-            </h2>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-              {palettes.map((palette, index) => (
-                <PaletteCard
-                  key={palette.id}
-                  palette={palette}
-                  isSelected={selectedPalette?.id === palette.id}
-                  onClick={() => setSelectedPalette(palette)}
-                  index={index}
-                />
-              ))}
+        <div className="grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:gap-16">
+          {/* Left: Palette Sections */}
+          <div className="space-y-10">
+            {/* Custom Palette Creator */}
+            <div className="opacity-0 animate-fade-up" style={{ animationDelay: "0.1s" }}>
+              <CustomPaletteCreator onCreatePalette={handleCreatePalette} />
             </div>
-          </section>
 
-          {/* Palette Detail */}
-          <section className="lg:sticky lg:top-8 lg:self-start">
-            {selectedPalette && <PaletteDetail palette={selectedPalette} />}
-          </section>
+            {/* Dark Palettes Section */}
+            <PaletteSection
+              title="Dark Palettes"
+              mode="dark"
+              palettes={allDarkPalettes}
+              selectedPalette={selectedPalette}
+              onSelectPalette={setSelectedPalette}
+              animationOffset={0.2}
+            />
+
+            {/* Light Palettes Section */}
+            <PaletteSection
+              title="Light Palettes"
+              mode="light"
+              palettes={allLightPalettes}
+              selectedPalette={selectedPalette}
+              onSelectPalette={setSelectedPalette}
+              animationOffset={0.4}
+            />
+          </div>
+
+          {/* Right: Palette Detail */}
+          <div className="lg:sticky lg:top-8 lg:self-start">
+            {selectedPalette ? (
+              <PaletteDetail palette={selectedPalette} />
+            ) : (
+              <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-border">
+                <p className="font-mono text-sm text-muted-foreground">
+                  Select a palette to view details
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Footer */}

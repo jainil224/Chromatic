@@ -5,9 +5,10 @@ interface PaletteCardProps {
   isSelected: boolean;
   onClick: () => void;
   index: number;
+  animationOffset?: number;
 }
 
-export function PaletteCard({ palette, isSelected, onClick, index }: PaletteCardProps) {
+export function PaletteCard({ palette, isSelected, onClick, index, animationOffset = 0 }: PaletteCardProps) {
   return (
     <button
       onClick={onClick}
@@ -16,7 +17,7 @@ export function PaletteCard({ palette, isSelected, onClick, index }: PaletteCard
           ? "border-primary glow-accent"
           : "border-border hover:border-muted-foreground/50"
       }`}
-      style={{ animationDelay: `${index * 0.05}s` }}
+      style={{ animationDelay: `${animationOffset + index * 0.05}s` }}
     >
       {/* Color Preview */}
       <div className="mb-4 flex h-16 overflow-hidden rounded-md">
