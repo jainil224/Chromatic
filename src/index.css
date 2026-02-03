@@ -40,7 +40,7 @@
     --glow-primary: 38 92% 70%;
     --surface-elevated: 240 5% 14%;
     --text-dim: 40 6% 45%;
-    
+
     /* Typography */
     --font-display: 'Instrument Serif', Georgia, serif;
     --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
@@ -86,14 +86,102 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-body);
+    /* 1. Background Enhancement */
+    background: radial-gradient(circle at top center, hsl(var(--background) / 0.8), hsl(var(--background))),
+      linear-gradient(to bottom, hsl(var(--background)), #0a0a0a);
+    min-height: 100vh;
   }
 
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-display);
+    /* 5. Typography Enhancement */
+    color: hsl(var(--foreground));
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
   }
 
-  code, pre {
+  h1 {
+    letter-spacing: -0.02em;
+  }
+
+  code,
+  pre {
     font-family: var(--font-mono);
+  }
+}
+
+@layer components {
+  /* 2. Palette Cards Enhancement */
+  /* Targeting the card buttons specifically. 
+     Using :where() to lower specificity if needed, but here simple class selection is fine.
+     We rely on the classes used in PaletteCard.tsx: `group relative w-full overflow-hidden rounded-lg border bg-card p-4...` 
+  */
+
+  /* Select buttons that are palette cards. They have bg-card and border classes. */
+  button.bg-card.border {
+    position: relative;
+    /* Glassmorphism */
+    background-color: hsl(var(--card) / 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    /* Modern rounded corners are already applied (rounded-lg), keeping them. */
+
+    /* Smooth transition */
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    border-color: hsl(var(--border) / 0.6);
+  }
+
+  button.bg-card.border:hover {
+    /* Hover Animation */
+    transform: scale(1.02);
+    /* Soft glow using accent */
+    box-shadow: 0 0 30px -5px hsl(var(--accent) / 0.15);
+    border-color: hsl(var(--accent) / 0.3);
+    background-color: hsl(var(--card) / 0.6);
+    z-index: 10;
+  }
+
+  /* 3. Selected Palette (Active Card) */
+  /* The active card has .border-primary and .glow-accent applied in JS. 
+     We can target it via these classes.
+  */
+  button.bg-card.border-primary {
+    /* Soft red glow border override/enhancement */
+    border-color: hsl(var(--primary) / 0.8);
+    box-shadow: 0 0 40px -5px hsl(var(--primary) / 0.25),
+      0 0 15px -2px hsl(var(--primary) / 0.1);
+
+    /* Slightly brighter background */
+    background-color: hsl(var(--card) / 0.8);
+
+    /* Ensure it doesn't scale on selection unless hovered, but usually selected is static? 
+       If we want it 'elegant', maybe no huge scale, just the glow. 
+       Let's keep the scale if hovered, but base state is just glowing.
+    */
+  }
+
+  /* 4. Color Swatches Enhancement */
+  /* In PaletteDetail.tsx, swatches are buttons inside the grid.
+     They don't have a specific class name but are 'group relative flex flex-1...'.
+     We can stick to a broad rule or add a specific check? 
+     Let's try a safer approach: Targeting buttons inside the swatch container usually works, 
+     but since we can't change HTML structure, we look for buttons that have inline styles for background color or similar characteristics.
+     Actually, ColorSwatch.tsx uses `animate-scale-in`. We can use that!
+  */
+  button.animate-scale-in {
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    cursor: pointer;
+  }
+
+  button.animate-scale-in:hover {
+    /* Slight lift */
+    transform: translateY(-4px) scale(1.02);
+    /* Subtle shadow */
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3);
+    z-index: 20;
   }
 }
 
@@ -107,16 +195,42 @@
   }
 
   /* Staggered animation delays */
-  .stagger-1 { animation-delay: 0.05s; }
-  .stagger-2 { animation-delay: 0.1s; }
-  .stagger-3 { animation-delay: 0.15s; }
-  .stagger-4 { animation-delay: 0.2s; }
-  .stagger-5 { animation-delay: 0.25s; }
-  .stagger-6 { animation-delay: 0.3s; }
-  .stagger-7 { animation-delay: 0.35s; }
-  .stagger-8 { animation-delay: 0.4s; }
+  .stagger-1 {
+    animation-delay: 0.05s;
+  }
 
-  /* Glow effect */
+  .stagger-2 {
+    animation-delay: 0.1s;
+  }
+
+  .stagger-3 {
+    animation-delay: 0.15s;
+  }
+
+  .stagger-4 {
+    animation-delay: 0.2s;
+  }
+
+  .stagger-5 {
+    animation-delay: 0.25s;
+  }
+
+  .stagger-6 {
+    animation-delay: 0.3s;
+  }
+
+  .stagger-7 {
+    animation-delay: 0.35s;
+  }
+
+  .stagger-8 {
+    animation-delay: 0.4s;
+  }
+
+  /* Glow effect - Updating to be more subtle/refined if needed, 
+     but the component implementation overrides this mostly. 
+     We can leave it as a utility helper. 
+  */
   .glow-accent {
     box-shadow: 0 0 40px -10px hsl(var(--primary) / 0.4);
   }
@@ -126,8 +240,9 @@
     content: '';
     position: absolute;
     inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.04;
+    mix-blend-mode: overlay;
     pointer-events: none;
     z-index: 1;
   }
@@ -144,7 +259,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--border));
+  background: hsl(var(--border) / 0.5);
   border-radius: 4px;
 }
 

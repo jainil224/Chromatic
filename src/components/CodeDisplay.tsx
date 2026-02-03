@@ -15,23 +15,23 @@ export function CodeDisplay({ palette }: CodeDisplayProps) {
 
   const generateCode = (): string => {
     const colorNames = ["primary", "secondary", "accent", "muted", "background"];
-    
+
     switch (format) {
       case "css":
         return `:root {
 ${palette.colors.map((c, i) => `  --color-${colorNames[i] || `shade-${i + 1}`}: ${c};`).join("\n")}
 }`;
-      
+
       case "tailwind":
         return `// tailwind.config.js
 colors: {
 ${palette.colors.map((c, i) => `  '${colorNames[i] || `shade-${i + 1}`}': '${c}',`).join("\n")}
 }`;
-      
+
       case "scss":
         return `// _variables.scss
 ${palette.colors.map((c, i) => `$color-${colorNames[i] || `shade-${i + 1}`}: ${c};`).join("\n")}`;
-      
+
       default:
         return "";
     }
@@ -57,18 +57,17 @@ ${palette.colors.map((c, i) => `$color-${colorNames[i] || `shade-${i + 1}`}: ${c
           <Code2 className="h-4 w-4" />
           <span className="font-mono text-xs uppercase tracking-widest">Generated Code</span>
         </div>
-        
+
         {/* Format Toggle */}
         <div className="flex gap-1 rounded-lg bg-muted p-1">
           {(["css", "tailwind", "scss"] as CodeFormat[]).map((f) => (
             <button
               key={f}
               onClick={() => setFormat(f)}
-              className={`rounded-md px-3 py-1 font-mono text-xs uppercase transition-all ${
-                format === f
+              className={`rounded-md px-3 py-1 font-mono text-xs uppercase transition-all ${format === f
                   ? "bg-card text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
-              }`}
+                }`}
             >
               {f}
             </button>
@@ -81,11 +80,11 @@ ${palette.colors.map((c, i) => `$color-${colorNames[i] || `shade-${i + 1}`}: ${c
         <pre className="overflow-x-auto p-4 font-mono text-sm leading-relaxed text-foreground">
           <code>{code}</code>
         </pre>
-        
+
         {/* Copy Button */}
         <button
           onClick={copyCode}
-          className="absolute right-3 top-3 flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 font-mono text-xs transition-all hover:border-primary hover:text-primary"
+          className="absolute right-2 top-2 z-10 flex items-center gap-1.5 rounded-md border border-border bg-card/80 backdrop-blur-sm px-3 py-1.5 font-mono text-xs shadow-sm transition-all hover:border-primary hover:text-primary hover:bg-card"
         >
           {copied ? (
             <>
