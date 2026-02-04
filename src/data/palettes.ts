@@ -467,5 +467,28 @@ export const earthPalettes: Palette[] = [
   { id: "dark-canyon", name: "Dark Canyon", colors: ["#2D2822", "#5C5144", "#998975", "#CDBFAF", "#F2EEE6"], tags: ["earth", "canyon", "dark"] },
 ];
 
+export const spacePalettes: Palette[] = [
+  { id: "cosmic-depths", name: "Cosmic Depths", colors: ["#0B0F2B", "#121A4A", "#2C3E91", "#6A7FDB", "#050714"], tags: ["space", "cosmic", "blue"] },
+  { id: "star-field", name: "Star Field", colors: ["#0A1024", "#161D3D", "#3A4CC0", "#7E8EFF", "#060913"], tags: ["space", "star", "night"] },
+  { id: "nebula-core", name: "Nebula Core", colors: ["#090C1F", "#1B214F", "#4A5DFF", "#9AA6FF", "#040611"], tags: ["space", "nebula", "blue"] },
+  { id: "galactic-blue", name: "Galactic Blue", colors: ["#0D0E1C", "#23275A", "#5E6CFF", "#AEB6FF", "#05050D"], tags: ["space", "galactic", "blue"] },
+  { id: "astral-plane", name: "Astral Plane", colors: ["#06081A", "#1C234D", "#3F51E0", "#8794FF", "#03040A"], tags: ["space", "astral", "blue"] },
+  { id: "void-walker", name: "Void Walker", colors: ["#0C0A21", "#2A2E6A", "#6A5CFF", "#B0A7FF", "#05040E"], tags: ["space", "void", "purple"] },
+  { id: "deep-night-sky", name: "Deep Night Sky", colors: ["#070B18", "#1F2A44", "#445C9C", "#8EA3E3", "#03060F"], tags: ["space", "night", "sky"] },
+  { id: "starlight", name: "Starlight", colors: ["#090A1E", "#252B5E", "#6C72E8", "#B4B7FF", "#040412"], tags: ["space", "star", "light"] },
+  { id: "cosmos", name: "Cosmos", colors: ["#0E0C22", "#2E3377", "#7B7DFF", "#C1C2FF", "#050418"], tags: ["space", "cosmos", "purple"] },
+  { id: "blue-nova", name: "Blue Nova", colors: ["#050818", "#1A2D5C", "#3F7CFF", "#8FB9FF", "#02040C"], tags: ["space", "nova", "blue"] },
+  { id: "interstellar", name: "Interstellar", colors: ["#0A0E27", "#1E3A6D", "#4FA3FF", "#9FD0FF", "#040717"], tags: ["space", "interstellar", "blue"] },
+  { id: "cyan-nebula", name: "Cyan Nebula", colors: ["#060C1E", "#163C5F", "#00A6FF", "#7FD4FF", "#030610"], tags: ["space", "cyan", "nebula"] },
+  { id: "galaxy-edge", name: "Galaxy Edge", colors: ["#090E23", "#2B4B7A", "#5BB8FF", "#A5DBFF", "#05081A"], tags: ["space", "galaxy", "blue"] },
+  { id: "teal-star", name: "Teal Star", colors: ["#070D1D", "#1F4663", "#4DD0E1", "#9BE7F0", "#03060E"], tags: ["space", "teal", "star"] },
+  { id: "aqua-space", name: "Aqua Space", colors: ["#0B0C1A", "#263A52", "#5FE1FF", "#A8F0FF", "#04050C"], tags: ["space", "aqua", "bright"] },
+  { id: "purple-haze-space", name: "Purple Space", colors: ["#080A16", "#2A2F4F", "#8C7CFF", "#C7BEFF", "#03040A"], tags: ["space", "purple", "haze"] },
+  { id: "violet-void", name: "Violet Void", colors: ["#0C0A19", "#3B2E5A", "#B388FF", "#E1CFFF", "#05030D"], tags: ["space", "violet", "void"] },
+  { id: "lavender-galaxy", name: "Lavender Galaxy", colors: ["#0A0917", "#332A44", "#9C7BFF", "#D2C1FF", "#04030A"], tags: ["space", "lavender", "soft"] },
+  { id: "indigo-depths", name: "Indigo Depths", colors: ["#050612", "#241E3F", "#6F5BFF", "#B3A9FF", "#020309"], tags: ["space", "indigo", "deep"] },
+  { id: "neon-cosmos", name: "Neon Cosmos", colors: ["#060715", "#2C254D", "#FF5CF4", "#FF9BF8", "#03030A"], tags: ["space", "neon", "pink"] },
+];
+
 
 
