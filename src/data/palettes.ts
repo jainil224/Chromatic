@@ -444,5 +444,28 @@ export const naturePalettes: Palette[] = [
   { id: "alpine-spruce", name: "Alpine Spruce", colors: ["#182C28", "#326750", "#6B9D80", "#B8D6C1", "#F1F7F3"], tags: ["nature", "spruce", "green"] },
 ];
 
+export const earthPalettes: Palette[] = [
+  { id: "clay-earth", name: "Clay Earth", colors: ["#4B3F2F", "#78624A", "#A88F6A", "#D4BFA6", "#F6EFE6"], tags: ["earth", "clay", "brown"] },
+  { id: "muddy-ground", name: "Muddy Ground", colors: ["#3E352B", "#6B5C4F", "#8D7B68", "#BFAF9F", "#EFE8DD"], tags: ["earth", "mud", "brown"] },
+  { id: "deep-soil", name: "Deep Soil", colors: ["#3B3026", "#5D4A3A", "#8F7864", "#C5B4A6", "#F1EDE7"], tags: ["earth", "soil", "dark"] },
+  { id: "rocky-path", name: "Rocky Path", colors: ["#2F251E", "#59493E", "#89745F", "#C0B3A8", "#EFEBE4"], tags: ["earth", "rock", "stone"] },
+  { id: "sandstone", name: "Sandstone", colors: ["#4C3E31", "#7B6A59", "#B09B87", "#D8CBBF", "#F7F2ED"], tags: ["earth", "sand", "beige"] },
+  { id: "granite-earth", name: "Granite Earth", colors: ["#40362F", "#6B6257", "#9F8F82", "#CCBEAF", "#F5EFE7"], tags: ["earth", "granite", "grey"] },
+  { id: "dusty-trail", name: "Dusty Trail", colors: ["#3C2F25", "#5F4A3E", "#927B6B", "#C5B9AE", "#EFEEE9"], tags: ["earth", "dust", "brown"] },
+  { id: "dried-mud", name: "Dried Mud", colors: ["#40352C", "#6A594D", "#9F8775", "#CDBCA9", "#F6F1EA"], tags: ["earth", "dry", "warm"] },
+  { id: "limestone", name: "Limestone", colors: ["#453D33", "#7A705E", "#B09F8A", "#D7CBBB", "#F8F4EC"], tags: ["earth", "stone", "light"] },
+  { id: "cave-rock", name: "Cave Rock", colors: ["#352E26", "#5F5346", "#947E6D", "#CBB9A7", "#EFE9E2"], tags: ["earth", "cave", "dark"] },
+  { id: "basalt-grey", name: "Basalt Grey", colors: ["#2B271F", "#564D42", "#867A6B", "#C2B8AA", "#F1EFE9"], tags: ["earth", "basalt", "grey"] },
+  { id: "taupe-ground", name: "Taupe Ground", colors: ["#4D4539", "#7F6F61", "#B19F8D", "#D9CFC1", "#F8F4EE"], tags: ["earth", "taupe", "neutral"] },
+  { id: "fossil-stone", name: "Fossil Stone", colors: ["#493F33", "#776958", "#B09D88", "#D8CBB9", "#F6EFE6"], tags: ["earth", "fossil", "ancient"] },
+  { id: "river-bed", name: "River Bed", colors: ["#3A3128", "#64584D", "#9B8F82", "#CFC6BA", "#F5F1EB"], tags: ["earth", "river", "bed"] },
+  { id: "slate-earth", name: "Slate Earth", colors: ["#342E27", "#5D544A", "#948974", "#CBBBAD", "#EFE9E1"], tags: ["earth", "slate", "grey"] },
+  { id: "pebble-beach", name: "Pebble Beach", colors: ["#3F3328", "#6C5F52", "#A5917F", "#D0C2B4", "#F8F2EC"], tags: ["earth", "pebble", "beach"] },
+  { id: "volcanic-ash", name: "Volcanic Ash", colors: ["#231F1C", "#524B42", "#8C7F72", "#C6BFB4", "#F2EFE8"], tags: ["earth", "ash", "dark"] },
+  { id: "desert-sand", name: "Desert Sand", colors: ["#564938", "#8D7F6F", "#C2B6A5", "#E3D9CC", "#F8F4EE"], tags: ["earth", "desert", "sand"] },
+  { id: "loam-soil", name: "Loam Soil", colors: ["#3A3027", "#6A5F51", "#A18F7F", "#D1C3B7", "#F4EFE8"], tags: ["earth", "loam", "soil"] },
+  { id: "dark-canyon", name: "Dark Canyon", colors: ["#2D2822", "#5C5144", "#998975", "#CDBFAF", "#F2EEE6"], tags: ["earth", "canyon", "dark"] },
+];
+
 
 

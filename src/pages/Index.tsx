@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Palette as PaletteIcon, Search, X, Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
-import { darkPalettes, lightPalettes, pastelPalettes, vintagePalettes, retroPalettes, neonPalettes, goldPalettes, coldPalettes, fallPalettes, winterPalettes, springPalettes, happyPalettes, naturePalettes, type Palette } from "@/data/palettes";
+import { darkPalettes, lightPalettes, pastelPalettes, vintagePalettes, retroPalettes, neonPalettes, goldPalettes, coldPalettes, fallPalettes, winterPalettes, springPalettes, happyPalettes, naturePalettes, earthPalettes, type Palette } from "@/data/palettes";
 import { PaletteSection } from "@/components/PaletteSection";
 import { PaletteDetail } from "@/components/PaletteDetail";
 import { CategoryMenu } from "@/components/CategoryMenu";
@@ -24,7 +24,7 @@ const Index = () => {
   };
 
   // Combine and filter palettes
-  const allPalettes = [...darkPalettes, ...lightPalettes, ...pastelPalettes, ...vintagePalettes, ...retroPalettes, ...neonPalettes, ...goldPalettes, ...coldPalettes, ...fallPalettes, ...winterPalettes, ...springPalettes, ...happyPalettes, ...naturePalettes];
+  const allPalettes = [...darkPalettes, ...lightPalettes, ...pastelPalettes, ...vintagePalettes, ...retroPalettes, ...neonPalettes, ...goldPalettes, ...coldPalettes, ...fallPalettes, ...winterPalettes, ...springPalettes, ...happyPalettes, ...naturePalettes, ...earthPalettes];
 
   // Derive favorite palette objects
   const favoritePalettes = allPalettes.filter(p => isFavorite(p.id));
