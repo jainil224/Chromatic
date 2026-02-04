@@ -11,6 +11,7 @@ interface PaletteSectionProps {
   animationOffset?: number;
   isFavorite?: (id: string) => boolean;
   onToggleFavorite?: (id: string) => void;
+  gridClassName?: string;
 }
 
 export function PaletteSection({
@@ -22,6 +23,7 @@ export function PaletteSection({
   animationOffset = 0,
   isFavorite,
   onToggleFavorite,
+  gridClassName,
 }: PaletteSectionProps) {
   const Icon = mode === "dark" ? Moon : Sun;
 
@@ -44,7 +46,7 @@ export function PaletteSection({
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className={`grid gap-3 ${gridClassName || "sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
         {palettes.map((palette, index) => (
           <PaletteCard
             key={palette.id}

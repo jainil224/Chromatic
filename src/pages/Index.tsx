@@ -203,19 +203,7 @@ const Index = () => {
 
           {/* Middle: Palette Sections */}
           <div className="space-y-10 min-w-0">
-            {/* Favorites Section - Only show when no search/filter or if it matches criteria if we wanted, but request says "Favorite section" */}
-            {favoritePalettes.length > 0 && !searchQuery && !selectedCategory && (
-              <PaletteSection
-                title="Your Favorite Palettes"
-                mode="dark"
-                palettes={favoritePalettes}
-                selectedPalette={selectedPalette}
-                onSelectPalette={handleSelectPalette}
-                animationOffset={0}
-                isFavorite={isFavorite}
-                onToggleFavorite={toggleFavorite}
-              />
-            )}
+
 
             {/* Unified Palettes Section */}
             {filteredPalettes.length > 0 && (
@@ -254,8 +242,25 @@ const Index = () => {
             )}
           </div>
 
-          {/* Right: Palette Detail (Sticky) */}
-          <div className="hidden xl:block xl:sticky xl:top-8 xl:self-start">
+          {/* Right: Palette Detail & Favorites (Sticky) */}
+          <div className="hidden xl:flex xl:flex-col xl:gap-8 xl:sticky xl:top-8 xl:h-[calc(100vh-4rem)] overflow-y-auto no-scrollbar pb-10">
+            {/* Favorites Section in Sidebar - Always show if exists */}
+            {favoritePalettes.length > 0 && (
+              <div className="border-b border-border pb-6">
+                <PaletteSection
+                  title="Your Favorites"
+                  mode="dark"
+                  palettes={favoritePalettes}
+                  selectedPalette={selectedPalette}
+                  onSelectPalette={handleSelectPalette}
+                  animationOffset={0}
+                  isFavorite={isFavorite}
+                  onToggleFavorite={toggleFavorite}
+                  gridClassName="grid-cols-1 sm:grid-cols-2 lg:grid-cols-1"
+                />
+              </div>
+            )}
+
             {selectedPalette ? (
               <PaletteDetail palette={selectedPalette} />
             ) : (
