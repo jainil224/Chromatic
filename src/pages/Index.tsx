@@ -77,6 +77,8 @@ const Index = () => {
 
   const { title: sectionTitle, mode: sectionMode } = getSectionProps();
 
+  const showRightPanel = favoritePalettes.length > 0;
+
   return (
     <div className="relative min-h-screen overflow-hidden">
       {/* Gradient Background */}
@@ -182,9 +184,12 @@ const Index = () => {
         {/* Main Content Grid */}
         <div className={cn(
           "grid gap-8 transition-all duration-300 ease-in-out",
-          isSidebarOpen
-            ? "lg:grid-cols-[220px_1fr] xl:grid-cols-[220px_1fr_400px]"
-            : "lg:grid-cols-[0px_1fr] xl:grid-cols-[0px_1fr_400px]"
+          // Left sidebar logic
+          isSidebarOpen ? "lg:grid-cols-[220px_1fr]" : "lg:grid-cols-[0px_1fr]",
+          // Right panel logic (XL screens)
+          showRightPanel
+            ? (isSidebarOpen ? "xl:grid-cols-[220px_1fr_400px]" : "xl:grid-cols-[0px_1fr_400px]")
+            : (isSidebarOpen ? "xl:grid-cols-[220px_1fr]" : "xl:grid-cols-[0px_1fr]")
         )}>
 
           {/* Left: Category Menu (Desktop) */}
@@ -203,7 +208,6 @@ const Index = () => {
 
           {/* Middle: Palette Sections */}
           <div className="space-y-10 min-w-0">
-
 
             {/* Unified Palettes Section */}
             {filteredPalettes.length > 0 && (
@@ -243,34 +247,26 @@ const Index = () => {
           </div>
 
           {/* Right: Palette Detail & Favorites (Sticky) */}
-          <div className="hidden xl:flex xl:flex-col xl:gap-8 xl:sticky xl:top-8 xl:h-[calc(100vh-4rem)] overflow-y-auto no-scrollbar pb-10">
-            {/* Favorites Section in Sidebar - Always show if exists */}
-            {favoritePalettes.length > 0 && (
-              <div className="border-b border-border pb-6">
-                <PaletteSection
-                  title="Your Favorites"
-                  mode="dark"
-                  palettes={favoritePalettes}
-                  selectedPalette={selectedPalette}
-                  onSelectPalette={handleSelectPalette}
-                  animationOffset={0}
-                  isFavorite={isFavorite}
-                  onToggleFavorite={toggleFavorite}
-                  gridClassName="grid-cols-1 sm:grid-cols-2 lg:grid-cols-1"
-                />
-              </div>
-            )}
-
-            {selectedPalette ? (
-              <PaletteDetail palette={selectedPalette} />
-            ) : (
-              <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-border">
-                <p className="font-mono text-sm text-muted-foreground">
-                  Select a palette to view details
-                </p>
-              </div>
-            )}
-          </div>
+          {showRightPanel && (
+            <div className="hidden xl:flex xl:flex-col xl:gap-8 xl:sticky xl:top-8 xl:h-[calc(100vh-4rem)] overflow-y-auto no-scrollbar pb-10">
+              {/* Favorites Section in Sidebar - Always show if exists */}
+              {favoritePalettes.length > 0 && (
+                <div className="border-b border-border pb-6">
+                  <PaletteSection
+                    title="Your Favorites"
+                    mode="dark"
+                    palettes={favoritePalettes}
+                    selectedPalette={selectedPalette}
+                    onSelectPalette={handleSelectPalette}
+                    animationOffset={0}
+                    isFavorite={isFavorite}
+                    onToggleFavorite={toggleFavorite}
+                    gridClassName="grid-cols-1 sm:grid-cols-2 lg:grid-cols-1"
+                  />
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Mobile Palette Detail Sheet */}
           <Sheet open={mobileDetailOpen} onOpenChange={setMobileDetailOpen}>
