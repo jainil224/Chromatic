@@ -15,7 +15,13 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [mobileDetailOpen, setMobileDetailOpen] = useState(false);
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
+
+  const handleSelectPalette = (palette: Palette) => {
+    setSelectedPalette(palette);
+    setMobileDetailOpen(true);
+  };
 
   // Combine and filter palettes
   const allPalettes = [...darkPalettes, ...lightPalettes, ...pastelPalettes, ...vintagePalettes, ...retroPalettes, ...neonPalettes, ...goldPalettes, ...coldPalettes];
@@ -204,7 +210,7 @@ const Index = () => {
                 mode="dark"
                 palettes={favoritePalettes}
                 selectedPalette={selectedPalette}
-                onSelectPalette={setSelectedPalette}
+                onSelectPalette={handleSelectPalette}
                 animationOffset={0}
                 isFavorite={isFavorite}
                 onToggleFavorite={toggleFavorite}
@@ -218,7 +224,7 @@ const Index = () => {
                 mode={sectionMode}
                 palettes={filteredPalettes}
                 selectedPalette={selectedPalette}
-                onSelectPalette={setSelectedPalette}
+                onSelectPalette={handleSelectPalette}
                 animationOffset={0.15}
                 isFavorite={isFavorite}
                 onToggleFavorite={toggleFavorite}
@@ -260,6 +266,17 @@ const Index = () => {
               </div>
             )}
           </div>
+
+          {/* Mobile Palette Detail Sheet */}
+          <Sheet open={mobileDetailOpen} onOpenChange={setMobileDetailOpen}>
+            <SheetContent side="right" className="w-full sm:w-[400px] border-l-border bg-background/95 backdrop-blur-xl overflow-y-auto">
+              {selectedPalette && (
+                <div className="mt-6">
+                  <PaletteDetail palette={selectedPalette} />
+                </div>
+              )}
+            </SheetContent>
+          </Sheet>
         </div>
 
         {/* Footer */}
