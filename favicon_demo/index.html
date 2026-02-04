@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favicon Collection Demo</title>
+    <!-- Favicon Support -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Favicon Collector</h1>
+        <p>Click the big icon below to add it to your collection!</p>
+    </header>
+
+    <!-- Interactive Favicon Area -->
+    <div class="favicon-container" id="clickable-favicon" title="Click me!">
+        <img src="/favicon.ico" alt="Website Favicon" id="main-favicon">
+    </div>
+
+    <div class="instructions">
+        👉 Click the icon above to collect it. Items are saved automatically.
+    </div>
+
+    <!-- Collection Section -->
+    <section class="collection-section">
+        <div class="collection-header">
+            <h2>My Collection</h2>
+            <button id="clear-btn"
+                style="padding: 0.5rem 1rem; border: none; background: #e74c3c; color: white; border-radius: 4px; cursor: pointer;">Clear</button>
+        </div>
+        <div class="collection-grid" id="collection-grid">
+            <!-- Items will be injected here via JS -->
+            <div class="empty-message">Your collection is empty. Start clicking!</div>
+        </div>
+    </section>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="notification">Added to Collection!</div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
