@@ -8,11 +8,20 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+import { useFavorites } from "@/hooks/useFavorites";
+
 const Index = () => {
   const [selectedPalette, setSelectedPalette] = useState<Palette | null>(darkPalettes[0]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const { favorites, toggleFavorite, isFavorite } = useFavorites();
+
+  // Combine and filter palettes
+  const allPalettes = [...darkPalettes, ...lightPalettes, ...pastelPalettes, ...vintagePalettes, ...retroPalettes, ...neonPalettes, ...goldPalettes, ...coldPalettes];
+
+  // Derive favorite palette objects
+  const favoritePalettes = allPalettes.filter(p => isFavorite(p.id));
 
   // Filter palettes based on search query and category
   const filterPalettes = (palettes: Palette[]) => {
@@ -40,8 +49,6 @@ const Index = () => {
     return filtered;
   };
 
-  // Combine and filter palettes
-  const allPalettes = [...darkPalettes, ...lightPalettes, ...pastelPalettes, ...vintagePalettes, ...retroPalettes, ...neonPalettes, ...goldPalettes, ...coldPalettes];
   const filteredPalettes = filterPalettes(allPalettes);
   const totalResults = filteredPalettes.length;
 
@@ -190,6 +197,20 @@ const Index = () => {
 
           {/* Middle: Palette Sections */}
           <div className="space-y-10 min-w-0">
+            {/* Favorites Section - Only show when no search/filter or if it matches criteria if we wanted, but request says "Favorite section" */}
+            {favoritePalettes.length > 0 && !searchQuery && !selectedCategory && (
+              <PaletteSection
+                title="Your Favorite Palettes"
+                mode="dark"
+                palettes={favoritePalettes}
+                selectedPalette={selectedPalette}
+                onSelectPalette={setSelectedPalette}
+                animationOffset={0}
+                isFavorite={isFavorite}
+                onToggleFavorite={toggleFavorite}
+              />
+            )}
+
             {/* Unified Palettes Section */}
             {filteredPalettes.length > 0 && (
               <PaletteSection
@@ -199,6 +220,8 @@ const Index = () => {
                 selectedPalette={selectedPalette}
                 onSelectPalette={setSelectedPalette}
                 animationOffset={0.15}
+                isFavorite={isFavorite}
+                onToggleFavorite={toggleFavorite}
               />
             )}
 

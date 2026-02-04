@@ -9,6 +9,8 @@ interface PaletteSectionProps {
   selectedPalette: Palette | null;
   onSelectPalette: (palette: Palette) => void;
   animationOffset?: number;
+  isFavorite?: (id: string) => boolean;
+  onToggleFavorite?: (id: string) => void;
 }
 
 export function PaletteSection({
@@ -18,21 +20,21 @@ export function PaletteSection({
   selectedPalette,
   onSelectPalette,
   animationOffset = 0,
+  isFavorite,
+  onToggleFavorite,
 }: PaletteSectionProps) {
   const Icon = mode === "dark" ? Moon : Sun;
 
   return (
     <section className="space-y-4">
-      <div 
+      <div
         className="flex items-center gap-3 opacity-0 animate-fade-up"
         style={{ animationDelay: `${animationOffset}s` }}
       >
-        <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${
-          mode === "dark" ? "bg-slate-800" : "bg-amber-100"
-        }`}>
-          <Icon className={`h-4 w-4 ${
-            mode === "dark" ? "text-slate-300" : "text-amber-600"
-          }`} />
+        <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${mode === "dark" ? "bg-slate-800" : "bg-amber-100"
+          }`}>
+          <Icon className={`h-4 w-4 ${mode === "dark" ? "text-slate-300" : "text-amber-600"
+            }`} />
         </div>
         <div>
           <h2 className="font-display text-xl text-foreground">{title}</h2>
@@ -51,6 +53,8 @@ export function PaletteSection({
             onClick={() => onSelectPalette(palette)}
             index={index}
             animationOffset={animationOffset + 0.1}
+            isFavorite={isFavorite?.(palette.id)}
+            onToggleFavorite={onToggleFavorite}
           />
         ))}
       </div>
