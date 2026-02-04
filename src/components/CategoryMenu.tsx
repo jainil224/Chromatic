@@ -14,7 +14,7 @@ const MENU_SECTIONS = [
     title: "Vibes",
     icon: Palette,
     items: [
-      "Pastel", "Vintage", "Retro", "Neon", "Gold", 
+      "Pastel", "Vintage", "Retro", "Neon", "Gold",
       "Light", "Dark", "Warm", "Cold"
     ]
   },
@@ -27,7 +27,7 @@ const MENU_SECTIONS = [
     title: "Themes",
     icon: Leaf,
     items: [
-      "Nature", "Earth", "Night", "Space", "Rainbow", 
+      "Nature", "Earth", "Night", "Space", "Rainbow",
       "Gradient", "Sunset", "Sky", "Sea"
     ]
   },
@@ -35,7 +35,7 @@ const MENU_SECTIONS = [
     title: "Special",
     icon: Gift,
     items: [
-      "Kids", "Skin", "Food", "Cream", "Coffee", 
+      "Kids", "Skin", "Food", "Cream", "Coffee",
       "Wedding", "Christmas"
     ]
   }
@@ -43,19 +43,9 @@ const MENU_SECTIONS = [
 
 export function CategoryMenu({ selectedCategory, onSelectCategory, className }: CategoryMenuProps) {
   return (
-    <div className={cn("flex flex-col gap-6 py-2", className)}>
-      <button
-        onClick={() => onSelectCategory(null)}
-        className={cn(
-          "group flex w-full items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-all duration-300",
-          selectedCategory === null
-            ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 scale-[1.02]"
-            : "hover:bg-muted text-muted-foreground hover:text-foreground"
-        )}
-      >
-        <Sparkles className="h-4 w-4" />
-        <span className="font-mono text-xs uppercase tracking-wider font-medium">All Palettes</span>
-      </button>
+    <div className={cn("flex flex-col gap-6 py-2 pb-10", className)}>
+
+
 
       <div className="space-y-6">
         {MENU_SECTIONS.map((section) => (
@@ -64,7 +54,7 @@ export function CategoryMenu({ selectedCategory, onSelectCategory, className }: 
               <section.icon className="h-3.5 w-3.5" />
               <h3 className="font-display text-sm tracking-wide">{section.title}</h3>
             </div>
-            
+
             <div className="flex flex-col gap-1">
               {section.items.map((item) => (
                 <button

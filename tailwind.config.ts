@@ -125,6 +125,15 @@ export default {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
         },
+        glitch: {
+          "0%, 100%": { transform: "translate(0)", opacity: "1" },
+          "33%": { transform: "translate(-0.5px, 0.5px)", opacity: "0.9" },
+          "66%": { transform: "translate(0.5px, -0.5px)", opacity: "0.95" },
+        },
+        pop: {
+          "0%, 100%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.02)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -134,8 +143,28 @@ export default {
         "scale-in": "scale-in 0.3s ease-out forwards",
         "slide-in-right": "slide-in-right 0.4s ease-out forwards",
         shimmer: "shimmer 2s linear infinite",
+        glitch: "glitch 0.3s cubic-bezier(.25,.46,.45,.94) both infinite",
+        "pop-pulse": "pop 3s ease-in-out infinite",
       },
     },
   },
-  plugins: [tailwindcssAnimate],
+  plugins: [
+    tailwindcssAnimate,
+    function ({ addUtilities }: any) {
+      addUtilities({
+        '.will-change-transform': {
+          'will-change': 'transform',
+        },
+        '.will-change-opacity': {
+          'will-change': 'opacity',
+        },
+        '.will-change-composite': {
+          'will-change': 'transform, opacity',
+        },
+        '.backface-hidden': {
+          'backface-visibility': 'hidden',
+        },
+      });
+    },
+  ],
 } satisfies Config;
