@@ -133,6 +133,25 @@ export const useLikes = () => {
                 if (error) {
                     throw error;
                 }
+
+                // Confirm state update after successful database update
+                // This ensures all sections see the updated count
+                setLikes(prevLikes => ({
+                    ...prevLikes,
+                    [paletteId]: {
+                        count: Math.max(0, newCount),
+                        isLiked: !wasLiked,
+                    },
+                }));
+
+                // Update localStorage backup with confirmed count
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                    ...newLikes,
+                    [paletteId]: {
+                        count: Math.max(0, newCount),
+                        isLiked: !wasLiked,
+                    },
+                }));
             }
             // If palette doesn't exist in database, it's a hardcoded palette
             // Just keep the like in localStorage (already done above)
