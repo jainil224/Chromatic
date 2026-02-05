@@ -4,8 +4,10 @@ import { Copy, Check } from 'lucide-react';
 interface SingleColorPickerProps {
     color: string;
     textColor: string;
+    backgroundColor: string;
     onColorChange: (color: string) => void;
     onTextColorChange: (color: string) => void;
+    onBackgroundColorChange: (color: string) => void;
     onSave: () => void;
     onReset: () => void;
 }
@@ -13,8 +15,10 @@ interface SingleColorPickerProps {
 export const SingleColorPicker = memo(function SingleColorPicker({
     color,
     textColor,
+    backgroundColor,
     onColorChange,
     onTextColorChange,
+    onBackgroundColorChange,
     onSave,
     onReset,
 }: SingleColorPickerProps) {
@@ -141,6 +145,54 @@ export const SingleColorPicker = memo(function SingleColorPicker({
                             <button
                                 onClick={() => {
                                     navigator.clipboard.writeText(textColor);
+                                    setCopied(true);
+                                    setTimeout(() => setCopied(false), 2000);
+                                }}
+                                className="p-2 hover:bg-muted rounded-lg transition-colors border border-border flex-shrink-0"
+                                title="Copy color"
+                            >
+                                {copied ? (
+                                    <Check className="h-4 w-4 text-green-500" />
+                                ) : (
+                                    <Copy className="h-4 w-4 text-muted-foreground" />
+                                )}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Background Color Picker Card */}
+                    <div className="p-6 rounded-xl bg-card border-2 border-border space-y-4">
+                        <div>
+                            <h3 className="text-lg font-semibold text-foreground mb-1">Background Color</h3>
+                            <p className="text-sm text-muted-foreground">Main background color for the preview</p>
+                        </div>
+
+                        {/* Background Color Picker */}
+                        <div className="relative">
+                            <input
+                                type="color"
+                                value={backgroundColor}
+                                onChange={(e) => onBackgroundColorChange(e.target.value)}
+                                className="w-full h-24 rounded-lg cursor-pointer border-2 border-border hover:border-primary transition-colors"
+                                style={{
+                                    WebkitAppearance: 'none',
+                                    appearance: 'none',
+                                }}
+                            />
+                        </div>
+
+                        {/* Background Hex Input with Copy */}
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="text"
+                                value={backgroundColor}
+                                onChange={(e) => onBackgroundColorChange(e.target.value)}
+                                className="flex-1 px-3 py-2 text-sm font-mono bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                                placeholder="#FFFFFF"
+                            />
+                            <button
+                                onClick={() => {
+                                    navigator.clipboard.writeText(backgroundColor);
                                     setCopied(true);
                                     setTimeout(() => setCopied(false), 2000);
                                 }}

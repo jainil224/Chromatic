@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chromatic - Color Palette Likes Demo</title>
+  
+  <!-- Supabase Client (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="palette-styles.css">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 2rem 0;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    header {
+      text-align: center;
+      color: white;
+      margin-bottom: 3rem;
+    }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .subtitle {
+      font-size: 1.25rem;
+      opacity: 0.9;
+    }
+
+    .loading {
+      text-align: center;
+      color: white;
+      font-size: 1.5rem;
+      padding: 4rem;
+    }
+
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 2rem auto;
+      max-width: 600px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎨 Chromatic</h1>
+      <p class="subtitle">Beautiful Color Palettes with Global Likes</p>
+    </header>
+
+    <!-- Palettes will be rendered here -->
+    <div id="palettes-container">
+      <div class="loading">Loading palettes...</div>
+    </div>
+  </div>
+
+  <!-- Supabase Client Script -->
+  <script src="supabase-client.js"></script>
+</body>
+</html>

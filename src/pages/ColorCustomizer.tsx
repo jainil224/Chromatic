@@ -7,11 +7,12 @@ import { toast } from 'sonner';
 
 const ColorCustomizer = () => {
     const navigate = useNavigate();
-    const { color, textColor, updateColor, updateTextColor, resetColor, saveColor, saveTextColor } = useSingleColor();
+    const { color, textColor, backgroundColor, updateColor, updateTextColor, updateBackgroundColor, resetColor, saveColor, saveTextColor, saveBackgroundColor } = useSingleColor();
 
     const handleSave = () => {
         saveColor(color);
         saveTextColor(textColor);
+        saveBackgroundColor(backgroundColor);
         toast.success('Configuration saved successfully!');
     };
 
@@ -25,7 +26,7 @@ const ColorCustomizer = () => {
   --demo-primary: ${color};
   --demo-accent: ${color};
   --demo-text: ${textColor};
-  --demo-background: #f3f4f6;
+  --demo-background: ${backgroundColor};
   --demo-secondary: #e5e7eb;
 }`;
 
@@ -71,8 +72,10 @@ const ColorCustomizer = () => {
                             <SingleColorPicker
                                 color={color}
                                 textColor={textColor}
+                                backgroundColor={backgroundColor}
                                 onColorChange={updateColor}
                                 onTextColorChange={updateTextColor}
+                                onBackgroundColorChange={updateBackgroundColor}
                                 onSave={handleSave}
                                 onReset={handleReset}
                             />

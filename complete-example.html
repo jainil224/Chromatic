@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chromatic - Create & Share Color Palettes</title>
+
+    <!-- Supabase Client (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="palette-styles.css">
+    <link rel="stylesheet" href="add-palette-form.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+        }
+
+        .section-divider {
+            margin: 3rem 0;
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        }
+
+        .section-title {
+            text-align: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.5rem;
+            padding: 4rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 Chromatic</h1>
+            <p class="subtitle">Create, Share & Like Beautiful Color Palettes</p>
+        </header>
+
+        <!-- CREATE NEW PALETTE SECTION -->
+        <section class="create-palette-section">
+            <h2 class="form-title">✨ Create New Palette</h2>
+
+            <form id="create-palette-form">
+                <!-- Palette Name -->
+                <div class="form-group">
+                    <label for="palette-name" class="form-label">Palette Name</label>
+                    <input type="text" id="palette-name" class="form-input"
+                        placeholder="e.g., Sunset Dreams, Ocean Vibes" required minlength="3" maxlength="50">
+                </div>
+
+                <!-- Color Inputs -->
+                <div class="form-group">
+                    <label class="form-label">Colors (1-10)</label>
+                    <div id="color-inputs-container">
+                        <!-- Initial color inputs -->
+                        <div class="color-input-group">
+                            <input type="color" class="color-input" value="#FF6B6B" required>
+                            <button type="button" class="remove-color-btn" onclick="removeColorInput(this)">✕</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" class="color-input" value="#4ECDC4" required>
+                            <button type="button" class="remove-color-btn" onclick="removeColorInput(this)">✕</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" class="color-input" value="#45B7D1" required>
+                            <button type="button" class="remove-color-btn" onclick="removeColorInput(this)">✕</button>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" class="color-input" value="#FFA07A" required>
+                            <button type="button" class="remove-color-btn" onclick="removeColorInput(this)">✕</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Color Button -->
+                <button type="button" id="add-color-btn" class="btn btn-secondary">
+                    + Add Another Color
+                </button>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary">
+                    Create Palette
+                </button>
+            </form>
+        </section>
+
+        <hr class="section-divider">
+
+        <!-- ALL PALETTES SECTION -->
+        <h2 class="section-title">🌈 All Palettes</h2>
+        <div id="palettes-container">
+            <div class="loading">Loading palettes...</div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="supabase-client.js"></script>
+    <script src="add-palette-form.js"></script>
+</body>
+
+</html>
