@@ -21,7 +21,7 @@ import { useUserPalettes, type UserPalette } from "@/hooks/useUserPalettes";
 const Index = () => {
   const [selectedPalette, setSelectedPalette] = useState<Palette | null>(darkPalettes[0]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>("Pastel");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
