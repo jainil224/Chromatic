@@ -19,6 +19,9 @@ interface PaletteCardProps {
   isCustom?: boolean;
   onEdit?: (palette: any) => void;
   onDelete?: (id: string) => void;
+  likeCount?: number;
+  isLiked?: boolean;
+  onToggleLike?: (id: string) => void;
 }
 
 export const PaletteCard = memo(function PaletteCard({
@@ -31,7 +34,10 @@ export const PaletteCard = memo(function PaletteCard({
   onToggleFavorite,
   isCustom = false,
   onEdit,
-  onDelete
+  onDelete,
+  likeCount = 0,
+  isLiked = false,
+  onToggleLike
 }: PaletteCardProps) {
   return (
     <div className="relative group">
@@ -85,6 +91,34 @@ export const PaletteCard = memo(function PaletteCard({
               </span>
             ))}
           </div>
+
+          {/* Like Counter */}
+          {onToggleLike && (
+            <div className="flex items-center gap-1.5 mt-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleLike(palette.id);
+                }}
+                className="transition-transform active:scale-90 hover:scale-110"
+                aria-label={isLiked ? "Unlike palette" : "Like palette"}
+              >
+                <Heart
+                  className={`h-4 w-4 transition-all duration-200 ${isLiked
+                      ? "fill-red-500 text-red-500 animate-[heart-pulse_0.3s_ease-in-out]"
+                      : "text-muted-foreground hover:text-red-400"
+                    }`}
+                />
+              </button>
+              <span className="font-mono text-xs text-muted-foreground tabular-nums">
+                {(() => {
+                  if (likeCount >= 1000000) return `${(likeCount / 1000000).toFixed(1)}M`;
+                  if (likeCount >= 1000) return `${(likeCount / 1000).toFixed(1)}K`;
+                  return likeCount.toString();
+                })()}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Selection Indicator */}

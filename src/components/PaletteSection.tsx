@@ -5,6 +5,7 @@ import { Moon, Sun } from "lucide-react";
 
 interface PaletteSectionProps {
   title: string;
+  subtitle?: string;
   mode: "dark" | "light";
   palettes: Palette[];
   selectedPalette: Palette | null;
@@ -15,10 +16,14 @@ interface PaletteSectionProps {
   gridClassName?: string;
   onEditPalette?: (palette: any) => void;
   onDeletePalette?: (id: string) => void;
+  getLikeCount?: (id: string) => number;
+  isPaletteLiked?: (id: string) => boolean;
+  onToggleLike?: (id: string) => void;
 }
 
 export const PaletteSection = memo(function PaletteSection({
   title,
+  subtitle,
   mode,
   palettes,
   selectedPalette,
@@ -29,6 +34,9 @@ export const PaletteSection = memo(function PaletteSection({
   gridClassName,
   onEditPalette,
   onDeletePalette,
+  getLikeCount,
+  isPaletteLiked,
+  onToggleLike,
 }: PaletteSectionProps) {
   const Icon = mode === "dark" ? Moon : Sun;
 
@@ -46,9 +54,15 @@ export const PaletteSection = memo(function PaletteSection({
           </div>
           <div>
             <h2 className="font-display text-xl text-foreground">{title}</h2>
-            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-              {palettes.length} palettes
-            </p>
+            {subtitle ? (
+              <p className="font-mono text-xs text-muted-foreground mt-0.5">
+                {subtitle}
+              </p>
+            ) : (
+              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                {palettes.length} palettes
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -67,6 +81,9 @@ export const PaletteSection = memo(function PaletteSection({
             isCustom={(palette as any).isCustom}
             onEdit={onEditPalette}
             onDelete={onDeletePalette}
+            likeCount={getLikeCount?.(palette.id)}
+            isLiked={isPaletteLiked?.(palette.id)}
+            onToggleLike={onToggleLike}
           />
         ))}
       </div>

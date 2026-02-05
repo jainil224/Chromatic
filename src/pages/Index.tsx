@@ -14,9 +14,12 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { ColorCounter } from "@/components/ColorCounter";
+
 
 import { useFavorites } from "@/hooks/useFavorites";
 import { useUserPalettes, type UserPalette } from "@/hooks/useUserPalettes";
+import { useLikes } from "@/hooks/useLikes";
 
 const Index = () => {
   const [selectedPalette, setSelectedPalette] = useState<Palette | null>(darkPalettes[0]);
@@ -29,6 +32,7 @@ const Index = () => {
   const [editingPalette, setEditingPalette] = useState<UserPalette | null>(null);
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const { userPalettes, addPalette, updatePalette, deletePalette } = useUserPalettes();
+  const { toggleLike, getLikeCount, isLiked: isPaletteLiked } = useLikes();
 
   // Defer search query to keep input responsive
   const deferredSearchQuery = useDeferredValue(searchQuery);
@@ -211,6 +215,19 @@ const Index = () => {
 
   const totalResults = filteredPalettes.length;
 
+  // Calculate total number of palettes
+  const totalPalettes = useMemo(() => {
+    return allPalettes.length;
+  }, [allPalettes]);
+
+  // Filter newly arrived palettes (user-created with isNew flag)
+  const newlyArrivedPalettes = useMemo(() =>
+    userPalettes
+      .filter(p => p.isNew)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
+    [userPalettes]
+  );
+
   // Determine section properties based on current filter
   const getSectionProps = () => {
     if (searchQuery) return { title: "Search Results", mode: "dark" as const };
@@ -234,6 +251,9 @@ const Index = () => {
 
   return (
     <div className="relative min-h-screen overflow-x-hidden">
+      {/* Live Palette Counter */}
+      <ColorCounter totalPalettes={totalPalettes} />
+
       {/* Navbar Section */}
       <Navbar
         isSidebarOpen={isSidebarOpen}
@@ -298,7 +318,7 @@ const Index = () => {
 
           {/* Left: Category Menu (Desktop) */}
           <aside className={cn(
-            "hidden lg:block sticky top-[80px] h-[calc(100vh-80px)] overflow-y-auto thin-scrollbar pb-10",
+            "hidden lg:block sticky top-[80px] h-[calc(100vh-80px)] thin-scrollbar pb-10",
             "transition-all duration-300 ease-in-out py-4",
             isSidebarOpen
               ? "opacity-100 translate-x-0 w-full pr-4"
@@ -314,6 +334,31 @@ const Index = () => {
 
           {/* Middle: Palette Sections */}
           <div className="space-y-10 min-w-0">
+
+            {/* Newly Arrived Section */}
+            {newlyArrivedPalettes.length > 0 && (
+              <Suspense fallback={<div className="h-48 rounded-lg bg-muted animate-pulse" />}>
+                <PaletteSection
+                  title="Newly Arrived"
+                  subtitle="Fresh colors added by the community"
+                  mode="dark"
+                  palettes={newlyArrivedPalettes}
+                  selectedPalette={selectedPalette}
+                  onSelectPalette={handleSelectPalette}
+                  animationOffset={0}
+                  isFavorite={isFavorite}
+                  onToggleFavorite={toggleFavorite}
+                  onEditPalette={(p: UserPalette) => {
+                    setEditingPalette(p);
+                    setIsModalOpen(true);
+                  }}
+                  onDeletePalette={deletePalette}
+                  getLikeCount={getLikeCount}
+                  isPaletteLiked={isPaletteLiked}
+                  onToggleLike={toggleLike}
+                />
+              </Suspense>
+            )}
 
             {/* Unified Palettes Section */}
             <Suspense fallback={<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{Array.from({ length: 9 }).map((_, i) => <div key={i} className="h-48 rounded-lg bg-muted animate-pulse" />)}</div>}>
@@ -333,6 +378,9 @@ const Index = () => {
                     setIsModalOpen(true);
                   }}
                   onDeletePalette={deletePalette}
+                  getLikeCount={getLikeCount}
+                  isPaletteLiked={isPaletteLiked}
+                  onToggleLike={toggleLike}
                 />
               )}
             </Suspense>

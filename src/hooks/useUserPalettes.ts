@@ -6,6 +6,7 @@ const STORAGE_KEY = 'chromatic_user_palettes';
 export interface UserPalette extends Palette {
     createdAt: string;
     isCustom: boolean;
+    isNew?: boolean;
 }
 
 export const useUserPalettes = () => {
@@ -27,12 +28,13 @@ export const useUserPalettes = () => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(palettes));
     };
 
-    const addPalette = (palette: Omit<UserPalette, 'id' | 'createdAt' | 'isCustom'>) => {
+    const addPalette = (palette: Omit<UserPalette, 'id' | 'createdAt' | 'isCustom' | 'isNew'>) => {
         const newPalette: UserPalette = {
             ...palette,
             id: `user-${Date.now()}`,
             createdAt: new Date().toISOString(),
             isCustom: true,
+            isNew: true,
         };
         const updated = [newPalette, ...userPalettes];
         savePalettes(updated);

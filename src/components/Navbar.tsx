@@ -1,8 +1,9 @@
-import { Palette as PaletteIcon, Search, X, Menu, PanelLeftClose, PanelLeftOpen, Plus, Image as ImageIcon } from "lucide-react";
+import { Palette as PaletteIcon, Search, X, Menu, PanelLeftClose, PanelLeftOpen, Plus, Image as ImageIcon, Paintbrush } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { CategoryMenu } from "@/components/CategoryMenu";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 interface NavbarProps {
     isSidebarOpen: boolean;
@@ -31,6 +32,8 @@ export const Navbar = ({
     onPickFromImage,
     onSearchSubmit
 }: NavbarProps) => {
+    const navigate = useNavigate();
+
     return (
         <header className="fixed top-0 left-0 right-0 z-50 w-full border-b border-white/5 bg-background/80 backdrop-blur-xl">
             <div className="mx-auto max-w-[1800px] px-4 py-4 sm:px-6 lg:px-8">
@@ -121,6 +124,15 @@ export const Navbar = ({
                             >
                                 <ImageIcon className="h-3.5 w-3.5 mr-1.5" />
                                 From Image
+                            </Button>
+
+                            <Button
+                                variant="outline"
+                                onClick={() => navigate('/customize')}
+                                className="flex-1 sm:flex-none rounded-full border-white/10 bg-white/5 hover:bg-white/10 transition-all font-mono text-[10px] uppercase h-10 px-5"
+                            >
+                                <Paintbrush className="h-3.5 w-3.5 mr-1.5" />
+                                Customize
                             </Button>
                         </div>
                     </div>
