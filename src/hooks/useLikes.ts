@@ -16,9 +16,45 @@ export const useLikes = () => {
     const [likes, setLikes] = useState<LikeData>({});
     const [loading, setLoading] = useState(true);
 
-    // Load likes from Supabase on mount
+    // Load likes from Supabase on mount and setup realtime subscription
     useEffect(() => {
         fetchLikes();
+
+        // Setup Realtime subscription for palette updates
+        const channel = supabase
+            .channel('palettes-likes-sync')
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'palettes'
+                },
+                (payload) => {
+                    // When any palette is updated (like count changed), update local state
+                    const updatedPalette = payload.new as { id: string; likes: number };
+
+                    setLikes(prevLikes => {
+                        // Get current liked status from localStorage
+                        const likedPalettesStr = localStorage.getItem(LIKED_PALETTES_KEY);
+                        const likedPalettes: string[] = likedPalettesStr ? JSON.parse(likedPalettesStr) : [];
+
+                        return {
+                            ...prevLikes,
+                            [updatedPalette.id]: {
+                                count: updatedPalette.likes || 0,
+                                isLiked: likedPalettes.includes(updatedPalette.id),
+                            },
+                        };
+                    });
+                }
+            )
+            .subscribe();
+
+        // Cleanup subscription on unmount
+        return () => {
+            supabase.removeChannel(channel);
+        };
     }, []);
 
     const fetchLikes = async () => {
