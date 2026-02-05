@@ -63,9 +63,15 @@ CREATE POLICY "Allow public like increment"
     likes >= 0
   );
 
--- Policy 4: Prevent deleting rows (no delete policy = no deletes allowed)
--- By not creating a DELETE policy, we prevent all deletions
--- This protects user-created palettes from being removed
+-- Policy 4: Allow public delete for palettes
+-- Anyone can delete any palette (no auth required)
+-- WARNING: This allows anyone to delete any palette!
+-- Consider adding authentication in the future to restrict deletes to palette owners
+CREATE POLICY "Allow public delete"
+  ON palettes
+  FOR DELETE
+  TO public
+  USING (true);
 
 -- ============================================
 -- Sample Data (Optional - for testing)

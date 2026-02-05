@@ -538,7 +538,7 @@ export const DemoWebsitePreview = memo(function DemoWebsitePreview() {
                         className="transition-colors duration-300 opacity-60"
                         style={{ color: 'var(--demo-text)' }}
                     >
-                        © 2025-2026 ColorStudio. All rights reserved.
+                        © 2026 ColorStudio. All rights reserved.
                     </p>
                     <p
                         className="transition-colors duration-300 opacity-60 mt-2"

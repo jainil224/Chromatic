@@ -165,26 +165,29 @@ export const useUserPalettes = () => {
     // Delete palette from Supabase
     const deletePalette = async (id: string) => {
         try {
-            // Note: This will only work if RLS allows deletes
-            // Current schema doesn't have DELETE policy, so this might fail
             const { error: deleteError } = await supabase
                 .from('palettes')
                 .delete()
                 .eq('id', id);
 
             if (deleteError) {
-                // If delete fails due to RLS, just remove from local state
-                console.warn('Cannot delete from Supabase (protected by RLS):', deleteError);
-                toast.warning('Palette hidden locally (cannot delete shared palettes)');
-            } else {
-                toast.success('Palette deleted!');
+                throw deleteError;
             }
 
-            // Remove from local state regardless
+            // Remove from local state
             setUserPalettes(prev => prev.filter(p => p.id !== id));
+
+            // Update localStorage backup
+            const updated = userPalettes.filter(p => p.id !== id);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+
+            toast.success('Palette deleted from database!');
         } catch (err) {
             console.error('Error deleting palette:', err);
-            toast.error('Failed to delete palette');
+            toast.error('Failed to delete palette from database');
+
+            // Still remove from local state as fallback
+            setUserPalettes(prev => prev.filter(p => p.id !== id));
         }
     };
 
