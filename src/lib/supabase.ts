@@ -4,7 +4,13 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 
-// Create Supabase client
+// Validate environment variables
+if (!supabaseUrl || !supabaseAnonKey) {
+    console.warn('⚠️ Supabase credentials missing! Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your environment variables.')
+    console.warn('The app will work in offline mode using localStorage.')
+}
+
+// Create Supabase client (will work even with empty credentials, but queries will fail gracefully)
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Database types
