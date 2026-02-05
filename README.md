@@ -4,7 +4,7 @@ A curated collection of beautiful color palettes designed for designers and deve
 
 ## 🌐 Live Website
 
-[Insert Live Website Link Here]
+https://chromatic-colorpalette.vercel.app/
 
 ## ✨ Features
 
