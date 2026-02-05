@@ -116,15 +116,26 @@ export const useLikes = () => {
         localStorage.setItem(LIKED_PALETTES_KEY, JSON.stringify(likedPalettes));
 
         try {
-            // Update database
-            const { error } = await supabase
+            // Check if palette exists in database first
+            const { data: existingPalette } = await supabase
                 .from('palettes')
-                .update({ likes: Math.max(0, newCount) })
-                .eq('id', paletteId);
+                .select('id')
+                .eq('id', paletteId)
+                .single();
 
-            if (error) {
-                throw error;
+            // Only update database if palette exists there
+            if (existingPalette) {
+                const { error } = await supabase
+                    .from('palettes')
+                    .update({ likes: Math.max(0, newCount) })
+                    .eq('id', paletteId);
+
+                if (error) {
+                    throw error;
+                }
             }
+            // If palette doesn't exist in database, it's a hardcoded palette
+            // Just keep the like in localStorage (already done above)
 
             // Show feedback
             if (!wasLiked) {
@@ -133,14 +144,23 @@ export const useLikes = () => {
         } catch (err) {
             console.error('Error toggling like:', err);
 
-            // Revert optimistic update on error
-            setLikes(currentLikes);
+            // Only revert if it was a real error (not just palette not found)
+            const errorMessage = (err as any)?.message || '';
+            if (!errorMessage.includes('No rows found')) {
+                // Revert optimistic update on error
+                setLikes(currentLikes);
 
-            // Revert localStorage
-            const revertedLiked: string[] = likedPalettesStr ? JSON.parse(likedPalettesStr) : [];
-            localStorage.setItem(LIKED_PALETTES_KEY, JSON.stringify(revertedLiked));
+                // Revert localStorage
+                const revertedLiked: string[] = likedPalettesStr ? JSON.parse(likedPalettesStr) : [];
+                localStorage.setItem(LIKED_PALETTES_KEY, JSON.stringify(revertedLiked));
 
-            toast.error('Failed to update like');
+                toast.error('Failed to update like');
+            } else {
+                // Palette not in database, but like still works locally
+                if (!wasLiked) {
+                    toast.success('Liked! ❤️');
+                }
+            }
         }
     };
 
