@@ -166,7 +166,7 @@
   */
 
   /* Select buttons that are palette cards. They have bg-card and border classes. */
-  button.bg-card.border {
+  .palette-card-btn {
     position: relative;
     /* Glassmorphism */
     background-color: hsl(var(--card) / 0.45);
@@ -180,7 +180,7 @@
     border-color: hsl(var(--border) / 0.6);
   }
 
-  button.bg-card.border:hover {
+  .palette-card-btn:hover {
     /* Hover Animation */
     transform: scale(1.02);
     /* Soft glow using accent */
@@ -194,7 +194,7 @@
   /* The active card has .border-primary and .glow-accent applied in JS. 
      We can target it via these classes.
   */
-  button.bg-card.border-primary {
+  .palette-card-btn.border-primary {
     /* Soft red glow border override/enhancement */
     border-color: hsl(var(--primary) / 0.8);
     box-shadow: 0 0 40px -5px hsl(var(--primary) / 0.25),
@@ -217,12 +217,12 @@
      but since we can't change HTML structure, we look for buttons that have inline styles for background color or similar characteristics.
      Actually, ColorSwatch.tsx uses `animate-scale-in`. We can use that!
   */
-  button.animate-scale-in {
+  .swatch-btn {
     transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     cursor: pointer;
   }
 
-  button.animate-scale-in:hover {
+  .swatch-btn:hover {
     /* Slight lift */
     transform: translateY(-4px) scale(1.02);
     /* Subtle shadow */

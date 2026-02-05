@@ -36,22 +36,22 @@ export function ColorSwatch({ color, index }: ColorSwatchProps) {
   return (
     <button
       onClick={copyToClipboard}
-      className="group relative flex flex-1 min-w-0 flex-col items-center justify-end overflow-hidden py-6 transition-all duration-300 hover:flex-[1.5] opacity-0 animate-scale-in"
-      style={{ 
+      className="swatch-btn group relative flex flex-1 min-w-0 flex-col items-center justify-end overflow-hidden py-6 transition-all duration-300 hover:flex-[1.5] opacity-0 animate-scale-in"
+      style={{
         backgroundColor: color,
         animationDelay: `${0.3 + index * 0.08}s`,
       }}
     >
       {/* Hover overlay */}
-      <div 
+      <div
         className="absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-        style={{ 
-          background: `linear-gradient(to top, ${color}ee, ${color}88)` 
+        style={{
+          background: `linear-gradient(to top, ${color}ee, ${color}88)`
         }}
       />
 
       {/* Content */}
-      <div 
+      <div
         className="relative z-10 flex flex-col items-center gap-2 opacity-0 transition-all duration-200 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0"
         style={{ color: textColor }}
       >
@@ -66,7 +66,7 @@ export function ColorSwatch({ color, index }: ColorSwatchProps) {
       </div>
 
       {/* Always visible color code on mobile */}
-      <span 
+      <span
         className="relative z-10 font-mono text-[10px] font-medium uppercase tracking-wider opacity-50 transition-opacity group-hover:opacity-0 md:hidden"
         style={{ color: textColor }}
       >

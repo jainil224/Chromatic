@@ -37,7 +37,7 @@ export const PaletteCard = memo(function PaletteCard({
     <div className="relative group">
       <button
         onClick={onClick}
-        className={`group relative w-full overflow-hidden rounded-lg border bg-card p-4 text-left transition-all duration-300 opacity-0 animate-fade-up ${isSelected
+        className={`palette-card-btn group relative w-full overflow-hidden rounded-lg border bg-card p-4 text-left transition-all duration-300 opacity-0 animate-fade-up ${isSelected
           ? "border-primary glow-accent"
           : "border-border hover:border-muted-foreground/50"
           }`}
