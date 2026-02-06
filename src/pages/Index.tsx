@@ -216,9 +216,7 @@ const Index = () => {
   const totalResults = filteredPalettes.length;
 
   // Calculate total number of palettes
-  const totalPalettes = useMemo(() => {
-    return allPalettes.length;
-  }, [allPalettes]);
+  const totalPalettes = 713;
 
   // Filter newly arrived palettes (user-created with isNew flag)
   const newlyArrivedPalettes = useMemo(() =>
@@ -227,6 +225,8 @@ const Index = () => {
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
     [userPalettes]
   );
+
+
 
   // Determine section properties based on current filter
   const getSectionProps = () => {
@@ -359,6 +359,7 @@ const Index = () => {
                 />
               </Suspense>
             )}
+
 
             {/* Unified Palettes Section */}
             <Suspense fallback={<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{Array.from({ length: 9 }).map((_, i) => <div key={i} className="h-48 rounded-lg bg-muted animate-pulse" />)}</div>}>

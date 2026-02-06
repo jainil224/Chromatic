@@ -75,7 +75,7 @@ export const Navbar = ({
                             </h1>
                             <p className="font-mono text-[10px] text-muted-foreground mt-0.5">
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent font-bold">
-                                    {allPalettesCount}
+                                    713
                                 </span> Curated Palettes
                             </p>
                         </div>
