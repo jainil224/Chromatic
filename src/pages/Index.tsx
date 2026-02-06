@@ -188,21 +188,19 @@ const Index = () => {
     if (selectedCategory) {
       const cat = selectedCategory.toLowerCase();
       filtered = filtered.filter(p => {
-        // 1. Exact category match
+        // 1. Exact category match (case-insensitive)
         if (p.category?.toLowerCase() === cat) return true;
 
-        // 2. Tag-based match for virtual categories (like 'Warm', 'Summer', 'Night')
-        const hasTag = p.tags?.some(tag => tag.toLowerCase() === cat);
-        if (hasTag) return true;
+        // 2. Tag-based match for virtual categories
+        const hasMatchingTag = p.tags?.some(tag => tag.toLowerCase() === cat);
+        if (hasMatchingTag) return true;
 
-        // 3. Fallback: Tag or name inclusion (more liberal)
-        // Only if it's a search-like category or we want broader results
-        if (["warm", "cold", "bright", "dark", "light"].includes(cat)) {
-          return (
-            p.tags?.some(tag => tag.toLowerCase().includes(cat)) ||
-            p.name.toLowerCase().includes(cat)
-          );
-        }
+        // 3. Partial match for broader categories
+        const hasPartialTag = p.tags?.some(tag => tag.toLowerCase().includes(cat));
+        const hasPartialName = p.name.toLowerCase().includes(cat);
+        const hasPartialCategory = p.category?.toLowerCase().includes(cat);
+
+        if (hasPartialTag || hasPartialName || hasPartialCategory) return true;
 
         return false;
       });
