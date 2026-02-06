@@ -66,6 +66,7 @@ export function usePalettes() {
                     colors: p.colors,
                     category: p.category || undefined,
                     tags: p.tags || undefined,
+                    created_at: p.created_at,
                 }));
 
                 setPalettes(transformedPalettes);

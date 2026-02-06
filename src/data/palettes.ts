@@ -5,6 +5,7 @@
   tags?: string[];
   category?: string;
   isCustom?: boolean;
+  created_at?: string;
 }
 
 export const darkPalettes: Palette[] = [

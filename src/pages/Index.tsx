@@ -147,44 +147,32 @@ const Index = () => {
 
   // Filter palettes based on search query and category
   const filteredPalettes = useMemo(() => {
-    let filtered = allPalettes;
-
     // Filter by Search Query
     if (deferredSearchQuery.trim()) {
       const query = deferredSearchQuery.toLowerCase();
-      filtered = filtered.filter(
+      return allPalettes.filter(
         (p) =>
           p.name.toLowerCase().includes(query) ||
           p.tags?.some((tag) => tag.toLowerCase().includes(query))
       );
-      return filtered;
     }
 
-    // Filter by Category
+    // Filter by Category (only show when category is selected)
     if (selectedCategory) {
       const cat = selectedCategory.toLowerCase();
-      filtered = filtered.filter(p => {
+      return allPalettes.filter(p => {
         // 1. Exact category match (case-insensitive)
         if (p.category?.toLowerCase() === cat) return true;
 
         // 2. Tag-based match for virtual categories
-        const hasMatchingTag = p.tags?.some(tag => tag.toLowerCase() === cat);
-        if (hasMatchingTag) return true;
-
-        // 3. Partial match for broader categories
-        const hasPartialTag = p.tags?.some(tag => tag.toLowerCase().includes(cat));
-        const hasPartialName = p.name.toLowerCase().includes(cat);
-        const hasPartialCategory = p.category?.toLowerCase().includes(cat);
-
-        if (hasPartialTag || hasPartialName || hasPartialCategory) return true;
+        if (p.tags?.some(tag => tag.toLowerCase() === cat)) return true;
 
         return false;
       });
-      return filtered;
     }
 
-    // Default: Return all palettes if no filters applied
-    return filtered;
+    // No filters: return empty (user must select category)
+    return [];
   }, [allPalettes, selectedCategory, deferredSearchQuery]);
 
   const totalResults = filteredPalettes.length;
@@ -192,13 +180,17 @@ const Index = () => {
   // Calculate total number of palettes
   const totalPalettes = 713;
 
-  // Filter newly arrived palettes (user-created with isNew flag)
-  const newlyArrivedPalettes = useMemo(() =>
-    userPalettes
-      .filter(p => p.isNew)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
-    [userPalettes]
-  );
+  // Newly Arrived: Latest palettes from ALL sources (Supabase + user-created)
+  const newlyArrivedPalettes = useMemo(() => {
+    return allPalettes
+      .filter(p => p.created_at) // Only palettes with created_at timestamp
+      .sort((a, b) => {
+        const dateA = new Date(a.created_at!).getTime();
+        const dateB = new Date(b.created_at!).getTime();
+        return dateB - dateA; // Newest first
+      })
+      .slice(0, 12); // Show top 12 newest
+  }, [allPalettes]);
 
 
 
