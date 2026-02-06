@@ -1,4 +1,4 @@
-import { Palette as PaletteIcon, Search, X, Menu, PanelLeftClose, PanelLeftOpen, Plus, Image as ImageIcon, Paintbrush } from "lucide-react";
+import { Palette as PaletteIcon, Search, X, Menu, PanelLeftClose, PanelLeftOpen, Image as ImageIcon, Paintbrush } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { CategoryMenu } from "@/components/CategoryMenu";
@@ -109,13 +109,7 @@ export const Navbar = ({
                         </div>
 
                         <div className="flex items-center gap-2 w-full sm:w-auto">
-                            <Button
-                                onClick={onAddNew}
-                                className="flex-1 sm:flex-none rounded-full bg-gradient-to-r from-primary to-accent hover:shadow-lg hover:shadow-primary/20 transition-all font-mono text-[10px] uppercase h-10 px-5"
-                            >
-                                <Plus className="h-3.5 w-3.5 mr-1.5" />
-                                Add Palette
-                            </Button>
+
 
                             <Button
                                 variant="outline"
