@@ -372,6 +372,31 @@ const Index = () => {
                 )}
               </div>
             )}
+
+            {/* About the Creator Section */}
+            <div className="mt-32">
+              <AboutCreator />
+            </div>
+
+            {/* Footer */}
+            <footer className="mt-32 border-t border-white/[0.03] pt-16 pb-20 opacity-0 animate-fade-up group" style={{ animationDelay: "1s" }}>
+              <div className="container mx-auto px-4">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-center">
+                  <span className="inline-block animate-pop-pulse">
+                    <span className="font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.3em] font-medium text-primary/90 drop-shadow-[0_0_8px_rgba(var(--primary),0.3)] cursor-default transition-all duration-500 animate-glitch inline-block">
+                      © 2026 Jainil Patel
+                    </span>
+                  </span>
+                  <span className="hidden sm:block h-1 w-1 rounded-full bg-white/10" />
+                  <span className="font-display text-[11px] sm:text-[12px] tracking-wide font-light text-white transition-all duration-700">
+                    Chromatic — A curated color palette platform for designers and developers.
+                  </span>
+                </div>
+                <div className="mt-8 flex justify-center opacity-10">
+                  <div className="h-px w-24 bg-gradient-to-r from-transparent via-foreground to-transparent" />
+                </div>
+              </div>
+            </footer>
           </div>
 
           {/* Right: Palette Detail & Favorites (Sticky) */}
@@ -410,30 +435,7 @@ const Index = () => {
           </Sheet>
         </div>
 
-        {/* About the Creator Section */}
-        <div className="mt-32">
-          <AboutCreator />
-        </div>
 
-        {/* Footer */}
-        <footer className="mt-32 border-t border-white/[0.03] pt-16 pb-20 opacity-0 animate-fade-up group" style={{ animationDelay: "1s" }}>
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-center">
-              <span className="inline-block animate-pop-pulse">
-                <span className="font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.3em] font-medium text-primary/90 drop-shadow-[0_0_8px_rgba(var(--primary),0.3)] cursor-default transition-all duration-500 animate-glitch inline-block">
-                  © 2026 Jainil Patel
-                </span>
-              </span>
-              <span className="hidden sm:block h-1 w-1 rounded-full bg-white/10" />
-              <span className="font-display text-[11px] sm:text-[12px] tracking-wide font-light text-white transition-all duration-700">
-                Chromatic — A curated color palette platform for designers and developers.
-              </span>
-            </div>
-            <div className="mt-8 flex justify-center opacity-10">
-              <div className="h-px w-24 bg-gradient-to-r from-transparent via-foreground to-transparent" />
-            </div>
-          </div>
-        </footer>
       </div>
       <Suspense fallback={null}>
         <PaletteCreatorModal

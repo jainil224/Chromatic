@@ -389,14 +389,20 @@ export function ImagePickerModal({
         URL.revokeObjectURL(url);
     };
 
-    const handleExport = () => {
-        if (onExport) {
-            onExport({
-                name: "Image Palette",
-                colors: localMarkers.map(m => m.color)
-            });
-            onClose();
-        }
+    const handleDownloadCode = () => {
+        const cssContent = `:root {\n${localMarkers.map((m, i) => `  --color-${i + 1}: ${m.color};`).join('\n')}\n}`;
+
+        const blob = new Blob([cssContent], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "palette-colors.txt";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        toast.success("Code downloaded successfully!");
     };
 
     return (
@@ -699,7 +705,7 @@ export function ImagePickerModal({
                                     <Copy className="mr-2 h-4 w-4" /> Copy RGB
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => {
-                                    const css = localMarkers.map((m, i) => `--color-${i + 1}: ${m.color};`).join('\n');
+                                    const css = `:root {\n${localMarkers.map((m, i) => `  --color-${i + 1}: ${m.color.toUpperCase()};`).join('\n')}\n}`;
                                     copyToClipboard(css, "CSS Variables");
                                 }} className="h-10 cursor-pointer font-mono text-[10px] uppercase">
                                     <Copy className="mr-2 h-4 w-4" /> Copy CSS Variables
@@ -716,11 +722,11 @@ export function ImagePickerModal({
                             Cancel
                         </Button>
                         <Button
-                            onClick={handleExport}
+                            onClick={handleDownloadCode}
                             disabled={!savedImage || localMarkers.length === 0}
                             className="h-11 px-8 font-mono text-xs uppercase tracking-wider bg-gradient-to-r from-primary to-accent hover:shadow-lg hover:shadow-primary/20 transition-all"
                         >
-                            Export Palette
+                            <Download className="mr-2 h-4 w-4" /> Download Code
                         </Button>
                     </div>
                 </DialogFooter>

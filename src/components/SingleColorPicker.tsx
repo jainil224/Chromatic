@@ -1,13 +1,20 @@
 import { memo, useState } from 'react';
 import { Copy, Check } from 'lucide-react';
+import { CssImportSection } from './CssImportSection';
 
 interface SingleColorPickerProps {
     color: string;
     textColor: string;
     backgroundColor: string;
+    secondaryColor: string;
+    accentColor: string;
+    mutedColor: string;
     onColorChange: (color: string) => void;
     onTextColorChange: (color: string) => void;
     onBackgroundColorChange: (color: string) => void;
+    onSecondaryColorChange: (color: string) => void;
+    onAccentColorChange: (color: string) => void;
+    onMutedColorChange: (color: string) => void;
     onSave: () => void;
     onReset: () => void;
 }
@@ -16,9 +23,15 @@ export const SingleColorPicker = memo(function SingleColorPicker({
     color,
     textColor,
     backgroundColor,
+    secondaryColor,
+    accentColor,
+    mutedColor,
     onColorChange,
     onTextColorChange,
     onBackgroundColorChange,
+    onSecondaryColorChange,
+    onAccentColorChange,
+    onMutedColorChange,
     onSave,
     onReset,
 }: SingleColorPickerProps) {
@@ -41,6 +54,25 @@ export const SingleColorPicker = memo(function SingleColorPicker({
                         <p className="text-sm text-muted-foreground">
                             Change the color below to instantly update <strong>all components</strong> across the preview
                         </p>
+                    </div>
+
+                    {/* How it works Info Box */}
+                    <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
+                        <p className="text-xs text-foreground">
+                            <strong>💡 System Logic:</strong> This panel controls global application theme variables.
+                            Updating these colors will instantly propagate to <strong>all components</strong> in the live preview.
+                        </p>
+                    </div>
+
+                    {/* CSS Import Section */}
+                    <div className="pb-2">
+                        <CssImportSection
+                            onUpdatePrimary={onColorChange}
+                            onUpdateSecondary={onSecondaryColorChange}
+                            onUpdateAccent={onAccentColorChange}
+                            onUpdateMuted={onMutedColorChange}
+                            onUpdateBackground={onBackgroundColorChange}
+                        />
                     </div>
 
                     {/* Main Color Picker Card */}
@@ -208,13 +240,102 @@ export const SingleColorPicker = memo(function SingleColorPicker({
                         </div>
                     </div>
 
-                    {/* Info Box */}
-                    <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
-                        <p className="text-xs text-foreground">
-                            <strong>💡 How it works:</strong> All components are linked to this single color via CSS variables.
-                            Change the color above and watch <strong>every component</strong> update instantly across the entire preview.
-                        </p>
+                    {/* Secondary Color Picker Card */}
+                    <div className="p-6 rounded-xl bg-card border-2 border-border space-y-4">
+                        <div>
+                            <h3 className="text-lg font-semibold text-foreground mb-1">Secondary Color</h3>
+                            <p className="text-sm text-muted-foreground">Secondary brand color</p>
+                        </div>
+                        <div className="relative">
+                            <input
+                                type="color"
+                                value={secondaryColor}
+                                onChange={(e) => onSecondaryColorChange(e.target.value)}
+                                className="w-full h-24 rounded-lg cursor-pointer border-2 border-border hover:border-primary transition-colors"
+                                style={{ WebkitAppearance: 'none', appearance: 'none' }}
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="text"
+                                value={secondaryColor}
+                                onChange={(e) => onSecondaryColorChange(e.target.value)}
+                                className="flex-1 px-3 py-2 text-sm font-mono bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                            />
+                            <button
+                                onClick={() => { navigator.clipboard.writeText(secondaryColor); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+                                className="p-2 hover:bg-muted rounded-lg transition-colors border border-border flex-shrink-0"
+                            >
+                                {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4 text-muted-foreground" />}
+                            </button>
+                        </div>
                     </div>
+
+                    {/* Accent Color Picker Card */}
+                    <div className="p-6 rounded-xl bg-card border-2 border-border space-y-4">
+                        <div>
+                            <h3 className="text-lg font-semibold text-foreground mb-1">Accent Color</h3>
+                            <p className="text-sm text-muted-foreground">Highlights and active states</p>
+                        </div>
+                        <div className="relative">
+                            <input
+                                type="color"
+                                value={accentColor}
+                                onChange={(e) => onAccentColorChange(e.target.value)}
+                                className="w-full h-24 rounded-lg cursor-pointer border-2 border-border hover:border-primary transition-colors"
+                                style={{ WebkitAppearance: 'none', appearance: 'none' }}
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="text"
+                                value={accentColor}
+                                onChange={(e) => onAccentColorChange(e.target.value)}
+                                className="flex-1 px-3 py-2 text-sm font-mono bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                            />
+                            <button
+                                onClick={() => { navigator.clipboard.writeText(accentColor); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+                                className="p-2 hover:bg-muted rounded-lg transition-colors border border-border flex-shrink-0"
+                            >
+                                {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4 text-muted-foreground" />}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Muted Color Picker Card */}
+                    <div className="p-6 rounded-xl bg-card border-2 border-border space-y-4">
+                        <div>
+                            <h3 className="text-lg font-semibold text-foreground mb-1">Muted Color</h3>
+                            <p className="text-sm text-muted-foreground">Subtle backgrounds and borders</p>
+                        </div>
+                        <div className="relative">
+                            <input
+                                type="color"
+                                value={mutedColor}
+                                onChange={(e) => onMutedColorChange(e.target.value)}
+                                className="w-full h-24 rounded-lg cursor-pointer border-2 border-border hover:border-primary transition-colors"
+                                style={{ WebkitAppearance: 'none', appearance: 'none' }}
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="text"
+                                value={mutedColor}
+                                onChange={(e) => onMutedColorChange(e.target.value)}
+                                className="flex-1 px-3 py-2 text-sm font-mono bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                            />
+                            <button
+                                onClick={() => { navigator.clipboard.writeText(mutedColor); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+                                className="p-2 hover:bg-muted rounded-lg transition-colors border border-border flex-shrink-0"
+                            >
+                                {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4 text-muted-foreground" />}
+                            </button>
+                        </div>
+                    </div>
+
+
+
+
                 </div>
             </div>
 

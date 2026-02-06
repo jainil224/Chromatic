@@ -41,8 +41,16 @@ export const PaletteCard = memo(function PaletteCard({
 }: PaletteCardProps) {
   return (
     <div className="relative group">
-      <button
+      <div
+        role="button"
+        tabIndex={0}
         onClick={onClick}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onClick();
+          }
+        }}
         className={`palette-card-btn group relative w-full overflow-hidden rounded-lg border bg-card p-4 text-left transition-all duration-300 opacity-0 animate-fade-up ${isSelected
           ? "border-primary glow-accent"
           : "border-border hover:border-muted-foreground/50"
@@ -96,7 +104,9 @@ export const PaletteCard = memo(function PaletteCard({
           {onToggleLike && (
             <div className="flex items-center gap-1.5 mt-2">
               <button
+                type="button"
                 onClick={(e) => {
+                  e.preventDefault();
                   e.stopPropagation();
                   onToggleLike(palette.id);
                 }}
@@ -105,8 +115,8 @@ export const PaletteCard = memo(function PaletteCard({
               >
                 <Heart
                   className={`h-4 w-4 transition-all duration-200 ${isLiked
-                      ? "fill-red-500 text-red-500 animate-[heart-pulse_0.3s_ease-in-out]"
-                      : "text-muted-foreground hover:text-red-400"
+                    ? "fill-red-500 text-red-500 animate-[heart-pulse_0.3s_ease-in-out]"
+                    : "text-muted-foreground hover:text-red-400"
                     }`}
                 />
               </button>
@@ -129,7 +139,7 @@ export const PaletteCard = memo(function PaletteCard({
             </svg>
           </div>
         )}
-      </button>
+      </div>
 
       {/* Action Buttons Container */}
       <div className="absolute right-4 bottom-4 z-10 flex items-center gap-1">
@@ -137,7 +147,10 @@ export const PaletteCard = memo(function PaletteCard({
         {isCustom && (onEdit || onDelete) && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-all hover:bg-muted hover:text-foreground">
+              <button
+                type="button"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+              >
                 <MoreVertical className="h-4 w-4" />
               </button>
             </DropdownMenuTrigger>
@@ -164,7 +177,9 @@ export const PaletteCard = memo(function PaletteCard({
         {/* Favorite Button */}
         {onToggleFavorite && (
           <button
+            type="button"
             onClick={(e) => {
+              e.preventDefault();
               e.stopPropagation();
               onToggleFavorite(palette.id);
             }}

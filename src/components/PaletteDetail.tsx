@@ -1,19 +1,80 @@
+import { useState, useRef, useCallback } from "react";
+import { Download, Loader2 } from "lucide-react";
+import { toPng } from "html-to-image";
+import { toast } from "sonner";
 import type { Palette } from "@/data/palettes";
 import { ColorSwatch } from "./ColorSwatch";
 import { CodeDisplay } from "./CodeDisplay";
+import { PaletteExportCard } from "./PaletteExportCard";
+import { Button } from "@/components/ui/button";
 
 interface PaletteDetailProps {
   palette: Palette;
 }
 
 export function PaletteDetail({ palette }: PaletteDetailProps) {
+  const [isExporting, setIsExporting] = useState(false);
+  const exportCardRef = useRef<HTMLDivElement>(null);
+
+  const handleExport = useCallback(async () => {
+    if (exportCardRef.current === null) {
+      return;
+    }
+
+    try {
+      setIsExporting(true);
+
+      // Small delay to ensure render
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      const dataUrl = await toPng(exportCardRef.current, {
+        cacheBust: true,
+        pixelRatio: 2, // Higher quality
+        backgroundColor: '#000000', // Ensure dark bg doesn't show transparently if theme varies
+      });
+
+      const link = document.createElement('a');
+      link.download = `${palette.name.toLowerCase().replace(/\s+/g, '-')}-palette.png`;
+      link.href = dataUrl;
+      link.click();
+
+      toast.success("Palette image exported!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to export image");
+    } finally {
+      setIsExporting(false);
+    }
+  }, [palette.name]);
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 relative">
+      {/* Hidden Export Card */}
+      <div className="absolute left-[9999px] top-0 overflow-hidden pointer-events-none opacity-0">
+        <PaletteExportCard ref={exportCardRef} palette={palette} />
+      </div>
+
       {/* Header */}
       <div className="space-y-2 opacity-0 animate-fade-up" style={{ animationDelay: "0.1s" }}>
-        <h2 className="font-display text-4xl italic text-foreground md:text-5xl">
-          {palette.name}
-        </h2>
+        <div className="flex items-start justify-between gap-4">
+          <h2 className="font-display text-4xl italic text-foreground md:text-5xl">
+            {palette.name}
+          </h2>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleExport}
+            disabled={isExporting}
+            className="shrink-0 rounded-full hover:bg-muted"
+            title="Export as Image"
+          >
+            {isExporting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
         <p className="font-mono text-sm text-muted-foreground">
           {palette.colors.length} colors · Click any swatch to copy
         </p>

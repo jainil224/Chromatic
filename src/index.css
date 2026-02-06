@@ -173,7 +173,6 @@
     font-family: var(--font-display);
     /* 5. Typography Enhancement */
     color: hsl(var(--foreground));
-    text-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
   }
 
   h1 {

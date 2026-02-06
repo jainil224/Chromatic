@@ -7,12 +7,19 @@ import { toast } from 'sonner';
 
 const ColorCustomizer = () => {
     const navigate = useNavigate();
-    const { color, textColor, backgroundColor, updateColor, updateTextColor, updateBackgroundColor, resetColor, saveColor, saveTextColor, saveBackgroundColor } = useSingleColor();
+    const {
+        color, textColor, backgroundColor, secondaryColor, accentColor, mutedColor,
+        updateColor, updateTextColor, updateBackgroundColor, updateSecondaryColor, updateAccentColor, updateMutedColor,
+        resetColor, saveColor, saveTextColor, saveBackgroundColor, saveSecondaryColor, saveAccentColor, saveMutedColor
+    } = useSingleColor();
 
     const handleSave = () => {
         saveColor(color);
         saveTextColor(textColor);
         saveBackgroundColor(backgroundColor);
+        saveSecondaryColor(secondaryColor);
+        saveAccentColor(accentColor);
+        saveMutedColor(mutedColor);
         toast.success('Configuration saved successfully!');
     };
 
@@ -24,15 +31,16 @@ const ColorCustomizer = () => {
     const handleExportCSS = () => {
         const cssContent = `:root {
   --demo-primary: ${color};
-  --demo-accent: ${color};
+  --demo-secondary: ${secondaryColor};
+  --demo-accent: ${accentColor};
+  --demo-muted: ${mutedColor};
   --demo-text: ${textColor};
   --demo-background: ${backgroundColor};
-  --demo-secondary: #e5e7eb;
 }`;
 
         const blob = new Blob([cssContent], { type: 'text/css' });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
         a.download = 'color-config.css';
         document.body.appendChild(a);
@@ -73,9 +81,15 @@ const ColorCustomizer = () => {
                                 color={color}
                                 textColor={textColor}
                                 backgroundColor={backgroundColor}
+                                secondaryColor={secondaryColor}
+                                accentColor={accentColor}
+                                mutedColor={mutedColor}
                                 onColorChange={updateColor}
                                 onTextColorChange={updateTextColor}
                                 onBackgroundColorChange={updateBackgroundColor}
+                                onSecondaryColorChange={updateSecondaryColor}
+                                onAccentColorChange={updateAccentColor}
+                                onMutedColorChange={updateMutedColor}
                                 onSave={handleSave}
                                 onReset={handleReset}
                             />

@@ -62,11 +62,12 @@ ${palette.colors.map((c, i) => `$color-${colorNames[i] || `shade-${i + 1}`}: ${c
         <div className="flex gap-1 rounded-lg bg-muted p-1">
           {(["css", "tailwind", "scss"] as CodeFormat[]).map((f) => (
             <button
+              type="button"
               key={f}
               onClick={() => setFormat(f)}
               className={`rounded-md px-3 py-1 font-mono text-xs uppercase transition-all ${format === f
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
                 }`}
             >
               {f}
@@ -83,6 +84,7 @@ ${palette.colors.map((c, i) => `$color-${colorNames[i] || `shade-${i + 1}`}: ${c
 
         {/* Copy Button */}
         <button
+          type="button"
           onClick={copyCode}
           className="absolute right-2 top-2 z-10 flex items-center gap-1.5 rounded-md border border-border bg-card/80 backdrop-blur-sm px-3 py-1.5 font-mono text-xs shadow-sm transition-all hover:border-primary hover:text-primary hover:bg-card"
         >
