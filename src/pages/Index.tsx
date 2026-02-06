@@ -183,8 +183,8 @@ const Index = () => {
       return filtered;
     }
 
-    // Default: Return empty if no category or search
-    return [];
+    // Default: Return all palettes if no filters applied
+    return filtered;
   }, [allPalettes, selectedCategory, deferredSearchQuery]);
 
   const totalResults = filteredPalettes.length;
