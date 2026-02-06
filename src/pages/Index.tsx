@@ -177,20 +177,7 @@ const Index = () => {
 
   const totalResults = filteredPalettes.length;
 
-  // Calculate total number of palettes
-  const totalPalettes = 713;
 
-  // Newly Arrived: Latest palettes from ALL sources (Supabase + user-created)
-  const newlyArrivedPalettes = useMemo(() => {
-    return allPalettes
-      .filter(p => p.created_at) // Only palettes with created_at timestamp
-      .sort((a, b) => {
-        const dateA = new Date(a.created_at!).getTime();
-        const dateB = new Date(b.created_at!).getTime();
-        return dateB - dateA; // Newest first
-      })
-      .slice(0, 12); // Show top 12 newest
-  }, [allPalettes]);
 
 
 
@@ -301,30 +288,7 @@ const Index = () => {
           {/* Middle: Palette Sections */}
           <div className="space-y-10 min-w-0">
 
-            {/* Newly Arrived Section */}
-            {newlyArrivedPalettes.length > 0 && (
-              <Suspense fallback={<div className="h-48 rounded-lg bg-muted animate-pulse" />}>
-                <PaletteSection
-                  title="Newly Arrived"
-                  subtitle="Fresh colors added by the community"
-                  mode="dark"
-                  palettes={newlyArrivedPalettes}
-                  selectedPalette={selectedPalette}
-                  onSelectPalette={handleSelectPalette}
-                  animationOffset={0}
-                  isFavorite={isFavorite}
-                  onToggleFavorite={toggleFavorite}
-                  onEditPalette={(p: UserPalette) => {
-                    setEditingPalette(p);
-                    setIsModalOpen(true);
-                  }}
-                  onDeletePalette={deletePalette}
-                  getLikeCount={getLikeCount}
-                  isPaletteLiked={isPaletteLiked}
-                  onToggleLike={toggleLike}
-                />
-              </Suspense>
-            )}
+
 
 
             {/* Unified Palettes Section */}
