@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { getUserId, getUserLikedPalettes } from '../lib/likesApi';
 import { toast } from 'sonner';
 
 const STORAGE_KEY = 'chromatic_likes';
-const LIKED_PALETTES_KEY = 'chromatic_liked_palettes';
 
 interface LikeData {
     [paletteId: string]: {
@@ -12,6 +12,10 @@ interface LikeData {
     };
 }
 
+/**
+ * Global hook to manage likes for all palettes
+ * Uses palette_likes junction table for persistent, global like tracking
+ */
 export const useLikes = () => {
     const [likes, setLikes] = useState<LikeData>({});
     const [loading, setLoading] = useState(true);
@@ -34,19 +38,13 @@ export const useLikes = () => {
                     // When any palette is updated (like count changed), update local state
                     const updatedPalette = payload.new as { id: string; likes: number };
 
-                    setLikes(prevLikes => {
-                        // Get current liked status from localStorage
-                        const likedPalettesStr = localStorage.getItem(LIKED_PALETTES_KEY);
-                        const likedPalettes: string[] = likedPalettesStr ? JSON.parse(likedPalettesStr) : [];
-
-                        return {
-                            ...prevLikes,
-                            [updatedPalette.id]: {
-                                count: updatedPalette.likes || 0,
-                                isLiked: likedPalettes.includes(updatedPalette.id),
-                            },
-                        };
-                    });
+                    setLikes(prevLikes => ({
+                        ...prevLikes,
+                        [updatedPalette.id]: {
+                            count: updatedPalette.likes || 0,
+                            isLiked: prevLikes[updatedPalette.id]?.isLiked || false,
+                        },
+                    }));
                 }
             )
             .subscribe();
@@ -70,16 +68,15 @@ export const useLikes = () => {
                 throw error;
             }
 
-            // Load which palettes the user has liked from localStorage
-            const likedPalettesStr = localStorage.getItem(LIKED_PALETTES_KEY);
-            const likedPalettes: string[] = likedPalettesStr ? JSON.parse(likedPalettesStr) : [];
+            // Get which palettes the current user has liked from database
+            const likedPaletteIds = await getUserLikedPalettes();
 
             // Build likes object
             const likesData: LikeData = {};
             data?.forEach(palette => {
                 likesData[palette.id] = {
                     count: palette.likes || 0,
-                    isLiked: likedPalettes.includes(palette.id),
+                    isLiked: likedPaletteIds.includes(palette.id),
                 };
             });
 
@@ -110,7 +107,7 @@ export const useLikes = () => {
             const newLikes = {
                 ...likes,
                 [paletteId]: {
-                    count: 5, // Default count
+                    count: 0, // Default count for new palettes
                     isLiked: false,
                 },
             };
@@ -125,31 +122,18 @@ export const useLikes = () => {
         const currentLikes = ensurePaletteInitialized(paletteId);
         const currentLike = currentLikes[paletteId];
         const wasLiked = currentLike.isLiked;
-        const newCount = wasLiked ? currentLike.count - 1 : currentLike.count + 1;
+        const userId = getUserId();
 
         // Optimistically update UI
+        const optimisticCount = wasLiked ? currentLike.count - 1 : currentLike.count + 1;
         const newLikes = {
             ...currentLikes,
             [paletteId]: {
-                count: Math.max(0, newCount),
+                count: Math.max(0, optimisticCount),
                 isLiked: !wasLiked,
             },
         };
         setLikes(newLikes);
-
-        // Update localStorage for liked palettes
-        const likedPalettesStr = localStorage.getItem(LIKED_PALETTES_KEY);
-        const likedPalettes: string[] = likedPalettesStr ? JSON.parse(likedPalettesStr) : [];
-
-        if (wasLiked) {
-            const index = likedPalettes.indexOf(paletteId);
-            if (index > -1) likedPalettes.splice(index, 1);
-        } else {
-            if (!likedPalettes.includes(paletteId)) {
-                likedPalettes.push(paletteId);
-            }
-        }
-        localStorage.setItem(LIKED_PALETTES_KEY, JSON.stringify(likedPalettes));
 
         try {
             // Check if palette exists in database first
@@ -161,68 +145,101 @@ export const useLikes = () => {
 
             // Only update database if palette exists there
             if (existingPalette) {
-                const { error } = await supabase
-                    .from('palettes')
-                    .update({ likes: Math.max(0, newCount) })
-                    .eq('id', paletteId);
+                if (wasLiked) {
+                    // Unlike: Delete from palette_likes
+                    const { error: deleteError } = await supabase
+                        .from('palette_likes')
+                        .delete()
+                        .eq('palette_id', paletteId)
+                        .eq('user_id', userId);
 
-                if (error) {
-                    throw error;
+                    if (deleteError) throw deleteError;
+
+                    // Decrement like count using RPC
+                    const { data: newCount, error: rpcError } = await supabase.rpc('decrement_palette_likes', {
+                        palette_id: paletteId
+                    });
+
+                    if (rpcError) throw rpcError;
+
+                    // Update state with actual count from database
+                    setLikes(prevLikes => ({
+                        ...prevLikes,
+                        [paletteId]: {
+                            count: newCount || 0,
+                            isLiked: false,
+                        },
+                    }));
+
+                    toast.success('Removed from favorites');
+                } else {
+                    // Like: Insert into palette_likes
+                    const { error: insertError } = await supabase
+                        .from('palette_likes')
+                        .insert({
+                            palette_id: paletteId,
+                            user_id: userId
+                        });
+
+                    // Check if it's a duplicate key error (user already liked)
+                    if (insertError) {
+                        if (insertError.code === '23505') {
+                            // Already liked, just refetch to sync state
+                            await fetchLikes();
+                            return;
+                        }
+                        throw insertError;
+                    }
+
+                    // Increment like count using RPC
+                    const { data: newCount, error: rpcError } = await supabase.rpc('increment_palette_likes', {
+                        palette_id: paletteId
+                    });
+
+                    if (rpcError) {
+                        // Rollback: delete the like we just inserted
+                        await supabase
+                            .from('palette_likes')
+                            .delete()
+                            .eq('palette_id', paletteId)
+                            .eq('user_id', userId);
+                        throw rpcError;
+                    }
+
+                    // Update state with actual count from database
+                    setLikes(prevLikes => ({
+                        ...prevLikes,
+                        [paletteId]: {
+                            count: newCount || 0,
+                            isLiked: true,
+                        },
+                    }));
+
+                    toast.success('Liked! ❤️');
                 }
 
-                // Confirm state update after successful database update
-                // This ensures all sections see the updated count
-                setLikes(prevLikes => ({
-                    ...prevLikes,
-                    [paletteId]: {
-                        count: Math.max(0, newCount),
-                        isLiked: !wasLiked,
-                    },
-                }));
-
-                // Update localStorage backup with confirmed count
-                localStorage.setItem(STORAGE_KEY, JSON.stringify({
-                    ...newLikes,
-                    [paletteId]: {
-                        count: Math.max(0, newCount),
-                        isLiked: !wasLiked,
-                    },
-                }));
-            }
-            // If palette doesn't exist in database, it's a hardcoded palette
-            // Just keep the like in localStorage (already done above)
-
-            // Show feedback
-            if (!wasLiked) {
-                toast.success('Liked! ❤️');
-            }
-        } catch (err) {
-            console.error('Error toggling like:', err);
-
-            // Only revert if it was a real error (not just palette not found)
-            const errorMessage = (err as any)?.message || '';
-            if (!errorMessage.includes('No rows found')) {
-                // Revert optimistic update on error
-                setLikes(currentLikes);
-
-                // Revert localStorage
-                const revertedLiked: string[] = likedPalettesStr ? JSON.parse(likedPalettesStr) : [];
-                localStorage.setItem(LIKED_PALETTES_KEY, JSON.stringify(revertedLiked));
-
-                toast.error('Failed to update like');
+                // Update localStorage backup
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(likes));
             } else {
-                // Palette not in database, but like still works locally
+                // Palette doesn't exist in database (hardcoded palette)
+                // Just keep the optimistic update
                 if (!wasLiked) {
                     toast.success('Liked! ❤️');
                 }
             }
+        } catch (err) {
+            console.error('Error toggling like:', err);
+
+            // Revert optimistic update on error
+            setLikes(currentLikes);
+            toast.error('Failed to update like');
         }
     };
 
     // Get like count for a palette
     const getLikeCount = (paletteId: string): number => {
         if (!likes[paletteId]) {
-            return 5; // Return default without initializing yet
+            return 0; // Return 0 for uninitialized palettes
         }
         return likes[paletteId].count;
     };
@@ -240,3 +257,4 @@ export const useLikes = () => {
         refetch: fetchLikes,
     };
 };
+

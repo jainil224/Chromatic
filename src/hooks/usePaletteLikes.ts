@@ -1,78 +1,81 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { hasUserLikedPalette, likePalette, unlikePalette } from '../lib/likesApi';
 import { toast } from 'sonner';
 
-const LIKED_PALETTES_KEY = 'chromatic_liked_palettes';
+/**
+ * Custom hook to manage palette like state
+ * @param paletteId - UUID of the palette
+ * @param initialLikes - Initial like count from database
+ * @returns Object with likes count, isLiked status, loading state, and toggleLike function
+ */
+export const usePaletteLikes = (paletteId: string, initialLikes: number) => {
+    const [likes, setLikes] = useState(initialLikes);
+    const [isLiked, setIsLiked] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [checkingStatus, setCheckingStatus] = useState(true);
 
-export const usePaletteLikes = () => {
-    // Track which palettes the user has liked (stored in localStorage)
-    const [likedPalettes, setLikedPalettes] = useState<Set<string>>(() => {
-        const stored = localStorage.getItem(LIKED_PALETTES_KEY);
-        return stored ? new Set(JSON.parse(stored)) : new Set();
-    });
-
-    // Save liked palettes to localStorage whenever it changes
+    // Check if user has already liked this palette on mount
     useEffect(() => {
-        localStorage.setItem(LIKED_PALETTES_KEY, JSON.stringify(Array.from(likedPalettes)));
-    }, [likedPalettes]);
+        const checkLikeStatus = async () => {
+            setCheckingStatus(true);
+            const liked = await hasUserLikedPalette(paletteId);
+            setIsLiked(liked);
+            setCheckingStatus(false);
+        };
+        checkLikeStatus();
+    }, [paletteId]);
 
-    // Check if a palette is liked by the current user
-    const isLiked = (paletteId: string): boolean => {
-        return likedPalettes.has(paletteId);
-    };
+    const toggleLike = async () => {
+        if (loading || checkingStatus) return;
 
-    // Toggle like status for a palette
-    const toggleLike = async (paletteId: string, currentLikes: number) => {
-        const wasLiked = likedPalettes.has(paletteId);
-        const newLikes = wasLiked ? currentLikes - 1 : currentLikes + 1;
+        setLoading(true);
 
-        try {
+        // Optimistic update
+        const previousLikes = likes;
+        const previousIsLiked = isLiked;
+
+        if (isLiked) {
             // Optimistically update UI
-            setLikedPalettes(prev => {
-                const next = new Set(prev);
-                if (wasLiked) {
-                    next.delete(paletteId);
-                } else {
-                    next.add(paletteId);
-                }
-                return next;
-            });
+            setIsLiked(false);
+            setLikes(prev => Math.max(0, prev - 1));
 
-            // Update database
-            const { error } = await supabase
-                .from('palettes')
-                .update({ likes: Math.max(0, newLikes) }) // Prevent negative likes
-                .eq('id', paletteId);
-
-            if (error) {
-                throw error;
+            // Unlike
+            const result = await unlikePalette(paletteId);
+            if (result.success) {
+                setLikes(result.newLikeCount);
+                toast.success('Removed from favorites');
+            } else {
+                // Rollback on error
+                setIsLiked(previousIsLiked);
+                setLikes(previousLikes);
+                toast.error('Failed to unlike palette');
             }
+        } else {
+            // Optimistically update UI
+            setIsLiked(true);
+            setLikes(prev => prev + 1);
 
-            // Show feedback
-            if (!wasLiked) {
-                toast.success('Liked! ❤️');
+            // Like
+            const result = await likePalette(paletteId);
+            if (result.success) {
+                setLikes(result.newLikeCount);
+                toast.success('Added to favorites! ❤️');
+            } else {
+                // Rollback on error
+                setIsLiked(previousIsLiked);
+                setLikes(previousLikes);
+                toast.error('Failed to like palette');
             }
-        } catch (err) {
-            console.error('Error toggling like:', err);
-
-            // Revert optimistic update on error
-            setLikedPalettes(prev => {
-                const next = new Set(prev);
-                if (wasLiked) {
-                    next.add(paletteId);
-                } else {
-                    next.delete(paletteId);
-                }
-                return next;
-            });
-
-            toast.error('Failed to update like');
         }
+
+        setLoading(false);
     };
 
     return {
+        likes,
         isLiked,
-        toggleLike,
-        likedPalettes,
+        loading: loading || checkingStatus,
+        toggleLike
     };
 };
+
