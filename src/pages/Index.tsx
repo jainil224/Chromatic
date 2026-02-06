@@ -177,6 +177,9 @@ const Index = () => {
 
   const totalResults = filteredPalettes.length;
 
+  // Calculate total number of palettes
+  const totalPalettes = allPalettes.length;
+
 
 
 
