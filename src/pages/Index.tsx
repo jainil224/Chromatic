@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, memo, lazy, Suspense, useDeferredValue } from "react";
 import { Palette as PaletteIcon, Search, X, Menu, PanelLeftClose, PanelLeftOpen, Plus, Image as ImageIcon } from "lucide-react";
-import { darkPalettes, lightPalettes, pastelPalettes, vintagePalettes, retroPalettes, neonPalettes, goldPalettes, coldPalettes, fallPalettes, winterPalettes, springPalettes, happyPalettes, naturePalettes, earthPalettes, spacePalettes, rainbowPalettes, gradientPalettes, sunsetPalettes, skyPalettes, seaPalettes, kidPalettes, skinPalettes, foodPalettes, creamPalettes, coffeePalettes, weddingPalettes, christmasPalettes, type Palette } from "@/data/palettes";
+import type { Palette } from "@/data/palettes";
 const PaletteSection = lazy(() => import("@/components/PaletteSection").then(m => ({ default: m.PaletteSection })));
 const PaletteDetail = lazy(() => import("@/components/PaletteDetail").then(m => ({ default: m.PaletteDetail })));
 const CategoryMenu = lazy(() => import("@/components/CategoryMenu").then(m => ({ default: m.CategoryMenu })));
@@ -20,9 +20,10 @@ import { ColorCounter } from "@/components/ColorCounter";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useUserPalettes, type UserPalette } from "@/hooks/useUserPalettes";
 import { useLikes } from "@/hooks/useLikes";
+import { usePalettes } from "@/hooks/usePalettes";
 
 const Index = () => {
-  const [selectedPalette, setSelectedPalette] = useState<Palette | null>(darkPalettes[0]);
+  const [selectedPalette, setSelectedPalette] = useState<Palette | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>("Pastel");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -33,6 +34,7 @@ const Index = () => {
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const { userPalettes, addPalette, updatePalette, deletePalette } = useUserPalettes();
   const { toggleLike, getLikeCount, isLiked: isPaletteLiked } = useLikes();
+  const { palettes: supabasePalettes, loading: palettesLoading, error: palettesError } = usePalettes();
 
   // Defer search query to keep input responsive
   const deferredSearchQuery = useDeferredValue(searchQuery);
@@ -131,37 +133,11 @@ const Index = () => {
     setMobileDetailOpen(true);
   };
 
-  // Combine all palettes into a unified list with explicit categories
-  const allPalettes = (useMemo(() => [
-    ...userPalettes.map(p => ({ ...p, category: "Custom" })),
-    ...darkPalettes.map(p => ({ ...p, category: "Dark" })),
-    ...lightPalettes.map(p => ({ ...p, category: "Light" })),
-    ...pastelPalettes.map(p => ({ ...p, category: "Pastel" })),
-    ...vintagePalettes.map(p => ({ ...p, category: "Vintage" })),
-    ...retroPalettes.map(p => ({ ...p, category: "Retro" })),
-    ...neonPalettes.map(p => ({ ...p, category: "Neon" })),
-    ...goldPalettes.map(p => ({ ...p, category: "Gold" })),
-    ...coldPalettes.map(p => ({ ...p, category: "Cold" })),
-    ...fallPalettes.map(p => ({ ...p, category: "Fall" })),
-    ...winterPalettes.map(p => ({ ...p, category: "Winter" })),
-    ...springPalettes.map(p => ({ ...p, category: "Spring" })),
-    ...happyPalettes.map(p => ({ ...p, category: "Happy" })),
-    ...naturePalettes.map(p => ({ ...p, category: "Nature" })),
-    ...earthPalettes.map(p => ({ ...p, category: "Earth" })),
-    ...spacePalettes.map(p => ({ ...p, category: "Space" })),
-    ...rainbowPalettes.map(p => ({ ...p, category: "Rainbow" })),
-    ...gradientPalettes.map(p => ({ ...p, category: "Gradient" })),
-    ...sunsetPalettes.map(p => ({ ...p, category: "Sunset" })),
-    ...skyPalettes.map(p => ({ ...p, category: "Sky" })),
-    ...seaPalettes.map(p => ({ ...p, category: "Sea" })),
-    ...kidPalettes.map(p => ({ ...p, category: "Kids" })),
-    ...skinPalettes.map(p => ({ ...p, category: "Skin" })),
-    ...foodPalettes.map(p => ({ ...p, category: "Food" })),
-    ...creamPalettes.map(p => ({ ...p, category: "Cream" })),
-    ...coffeePalettes.map(p => ({ ...p, category: "Coffee" })),
-    ...weddingPalettes.map(p => ({ ...p, category: "Wedding" })),
-    ...christmasPalettes.map(p => ({ ...p, category: "Christmas" })),
-  ], [userPalettes])) as Palette[];
+  // Combine Supabase palettes with user-created palettes
+  const allPalettes = useMemo(() => [
+    ...userPalettes.map(p => ({ ...p, category: p.category || "Custom" })),
+    ...supabasePalettes,
+  ], [userPalettes, supabasePalettes]);
 
   // Derive favorite palette objects
   const favoritePalettes = useMemo(() =>
@@ -361,7 +337,28 @@ const Index = () => {
 
             {/* Unified Palettes Section */}
             <Suspense fallback={<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{Array.from({ length: 9 }).map((_, i) => <div key={i} className="h-48 rounded-lg bg-muted animate-pulse" />)}</div>}>
-              {filteredPalettes.length > 0 && (
+              {/* Loading State */}
+              {palettesLoading && (
+                <div className="flex items-center justify-center py-20">
+                  <div className="text-center space-y-4">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto"></div>
+                    <p className="text-muted-foreground">Loading palettes...</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Error State */}
+              {palettesError && (
+                <div className="flex items-center justify-center py-20">
+                  <div className="text-center space-y-4">
+                    <p className="text-destructive">Error loading palettes: {palettesError}</p>
+                    <p className="text-muted-foreground text-sm">Please check your connection and try again.</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Palettes Section */}
+              {!palettesLoading && !palettesError && filteredPalettes.length > 0 && (
                 <PaletteSection
                   key={selectedCategory || "all"}
                   title={sectionTitle}
