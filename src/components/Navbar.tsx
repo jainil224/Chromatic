@@ -1,4 +1,4 @@
-import { Palette as PaletteIcon, Search, X, Menu, PanelLeftClose, PanelLeftOpen, Image as ImageIcon, Paintbrush } from "lucide-react";
+import { Palette as PaletteIcon, Search, X, Menu, Image as ImageIcon, Paintbrush } from "lucide-react";
 import { ModeToggle, type ThemeMode } from "./ModeToggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 
 interface NavbarProps {
     isSidebarOpen: boolean;
-    setIsSidebarOpen: (open: boolean) => void;
     selectedCategory: string | null;
     setSelectedCategory: (category: string | null) => void;
     searchQuery: string;
@@ -24,7 +23,6 @@ interface NavbarProps {
 
 export const Navbar = ({
     isSidebarOpen,
-    setIsSidebarOpen,
     selectedCategory,
     setSelectedCategory,
     searchQuery,
@@ -44,16 +42,7 @@ export const Navbar = ({
             <div className="mx-auto max-w-[1800px] px-4 py-4 sm:px-6 lg:px-8">
                 <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
-                        {/* Desktop Sidebar Toggle */}
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="hidden lg:flex mr-2 text-secondary-foreground/70 hover:text-foreground transition-colors"
-                            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
-                        >
-                            {isSidebarOpen ? <PanelLeftClose className="h-5 w-5" /> : <PanelLeftOpen className="h-5 w-5" />}
-                        </Button>
+
 
                         {/* Mobile Menu Trigger */}
                         <Sheet>

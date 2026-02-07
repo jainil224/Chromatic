@@ -256,7 +256,6 @@ const Index = () => {
       {/* Navbar Section */}
       <Navbar
         isSidebarOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
         selectedCategory={selectedCategory}
         setSelectedCategory={setSelectedCategory}
         searchQuery={searchQuery}

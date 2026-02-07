@@ -31,19 +31,16 @@ export function AboutCreator() {
                     {/* Left: Avatar with Glowing Ring */}
                     <div className="flex justify-center lg:justify-end animate-fade-in" style={{ animationDelay: "0.2s" }}>
                         <div className="relative group">
-                            {/* Outer Glow Ring (Amplify intensity) */}
-                            <div className="absolute -inset-4 bg-gradient-to-r from-primary/40 via-cyan-500/30 to-primary/40 rounded-full blur-2xl opacity-80 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse" />
+                            {/* Colorful Outer Ring */}
+                            <div className="absolute -inset-[3px] bg-gradient-to-tr from-primary via-accent to-primary rounded-full opacity-100" />
 
-                            <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full bg-white flex items-center justify-center overflow-hidden border-4 border-primary/20 shadow-[0_0_60px_rgba(var(--primary),0.3)]">
+                            <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full bg-black flex items-center justify-center overflow-hidden border-4 border-black shadow-[0_0_60px_rgba(var(--primary),0.2)]">
                                 <img
-                                    src="/logo.png"
+                                    src="/creator_logo.png"
                                     alt="CP Branding"
-                                    className="relative w-full h-full object-contain p-12 invert transition-all duration-700 scale-[1.2] mix-blend-multiply"
+                                    className="relative w-full h-full object-contain p-2 transition-all duration-700 scale-[1.35]"
                                 />
                             </div>
-
-                            {/* Decorative glitch accent (Amplify size and color) */}
-                            <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-primary/40 rounded-full blur-3xl animate-glitch mix-blend-screen" />
                         </div>
                     </div>
 
