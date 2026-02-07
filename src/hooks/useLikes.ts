@@ -22,7 +22,7 @@ export const useLikes = () => {
 
     // Load likes from Supabase on mount and setup realtime subscription
     useEffect(() => {
-        fetchLikes();
+        fetchLikes(false); // Initial load is not silent
 
         // Setup Realtime subscription for palette updates
         const channel = supabase
@@ -55,9 +55,11 @@ export const useLikes = () => {
         };
     }, []);
 
-    const fetchLikes = async () => {
+    const fetchLikes = async (silent = false) => {
         try {
-            setLoading(true);
+            if (!silent) {
+                setLoading(true);
+            }
 
             // Fetch all palettes with their like counts
             const { data, error } = await supabase
@@ -97,7 +99,9 @@ export const useLikes = () => {
                 }
             }
         } finally {
-            setLoading(false);
+            if (!silent) {
+                setLoading(false);
+            }
         }
     };
 
@@ -185,7 +189,7 @@ export const useLikes = () => {
                     if (insertError) {
                         if (insertError.code === '23505') {
                             // Already liked, just refetch to sync state
-                            await fetchLikes();
+                            await fetchLikes(true);
                             return;
                         }
                         throw insertError;

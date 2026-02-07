@@ -369,7 +369,7 @@ const Index = () => {
               )}
 
               {/* Palettes Section */}
-              {!palettesLoading && !palettesError && filteredPalettes.length > 0 && (
+              {!palettesError && filteredPalettes.length > 0 && (
                 <PaletteSection
                   key={selectedCategory || "all"}
                   title={sectionTitle}
