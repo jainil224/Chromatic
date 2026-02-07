@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, memo, lazy, Suspense, useDeferredValue, u
 import { useNavigate } from "react-router-dom";
 import { Palette as PaletteIcon, Search, X, Menu, PanelLeftClose, PanelLeftOpen, Plus, Image as ImageIcon } from "lucide-react";
 import type { ThemeMode } from "@/components/ModeToggle";
-import type { Palette } from "@/data/palettes";
+import { type Palette, staticPalettes } from "@/data/palettes";
 const PaletteSection = lazy(() => import("@/components/PaletteSection").then(m => ({ default: m.PaletteSection })));
 const PaletteDetail = lazy(() => import("@/components/PaletteDetail").then(m => ({ default: m.PaletteDetail })));
 const CategoryMenu = lazy(() => import("@/components/CategoryMenu").then(m => ({ default: m.CategoryMenu })));
@@ -161,7 +161,10 @@ const Index = () => {
   const allPalettes = useMemo(() => {
     const map = new Map<string, Palette>();
 
-    // Add Supabase palettes first as the base
+    // Add static fallback palettes first
+    staticPalettes.forEach(p => map.set(p.id, p));
+
+    // Add Supabase palettes (might override static ones with fresher data)
     supabasePalettes.forEach(p => map.set(p.id, p));
 
     // Add user palettes (they might override or add new ones)
