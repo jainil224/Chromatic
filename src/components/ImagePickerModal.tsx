@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { toPng } from "html-to-image";
 
 interface Marker {
     x: number;
@@ -57,6 +58,7 @@ export function ImagePickerModal({
     const [activeIndex, setActiveIndex] = useState<number>(0);
     const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
     const [pickerSize, setPickerSize] = useState(96); // Loupe Size control (default 96px)
+    const exportRef = useRef<HTMLDivElement>(null);
 
     // Loupe State
     const [isLoupeVisible, setIsLoupeVisible] = useState(false);
@@ -286,12 +288,19 @@ export function ImagePickerModal({
         };
     }, [updateMarkerPosition, onMarkersChange]);
 
-    // Handle number of colors change - Single Source of Truth Sync
+    // Handle number of colors change - Sync Logic
     useEffect(() => {
         if (!isOpen || !savedImage) return;
 
-        // Force local markers to match the target count
+        // Only sync if there is a mismatch that wasn't handled by the manual handlers
+        // This acts as a fallback or initial sync
         if (savedNumColors !== localMarkers.length) {
+            // If the length is different, we trust the savedNumColors as the source of truth for LENGTH,
+            // but we try to preserve existing markers where possible.
+
+            // However, to avoid race conditions with binding, we often want to let the handlers do the work.
+            // But if specific external changes happen (like reset), this catches it.
+
             setLocalMarkers(prev => {
                 if (savedNumColors === prev.length) return prev;
 
@@ -305,6 +314,7 @@ export function ImagePickerModal({
                         if (ctx && canvas) {
                             const logicalWidth = canvas.width / dpr;
                             const logicalHeight = canvas.height / dpr;
+                            // Attempt to find a random spot
                             const x = Math.floor(Math.random() * logicalWidth);
                             const y = Math.floor(Math.random() * logicalHeight);
                             const color = getPixelColor(ctx, x, y);
@@ -317,8 +327,14 @@ export function ImagePickerModal({
                     next = prev.slice(0, savedNumColors);
                 }
 
-                // Important: Notify parent of the new marker list to maintain global sync
-                onMarkersChange(next);
+                // Only notify parent if we actually changed something here that wasn't initiated by parent
+                // But onMarkersChange updates the parent's marker state... 
+                // We should be careful not to cause loops. 
+                // For now, if we changed length, we sync up.
+                if (next.length !== prev.length) {
+                    // Defer this to avoid strict mode double-invocations causing issues
+                    setTimeout(() => onMarkersChange(next), 0);
+                }
                 return next;
             });
         }
@@ -326,7 +342,47 @@ export function ImagePickerModal({
         if (activeIndex >= savedNumColors) {
             setActiveIndex(Math.max(0, savedNumColors - 1));
         }
-    }, [savedNumColors, isOpen, savedImage, localMarkers.length, onMarkersChange, activeIndex]);
+    }, [savedNumColors, isOpen, savedImage, activeIndex, onMarkersChange]); // Removed localMarkers.length to avoid loops, rely on savedNumColors
+
+    const handleDataChange = useCallback((newMarkers: Marker[]) => {
+        setLocalMarkers(newMarkers);
+        onMarkersChange(newMarkers);
+        onNumColorsChange(newMarkers.length);
+    }, [onMarkersChange, onNumColorsChange]);
+
+    const handleIncreaseColors = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (savedNumColors >= 8) return;
+
+        const canvas = canvasRef.current;
+        const ctx = canvas?.getContext("2d");
+        const dpr = window.devicePixelRatio || 1;
+
+        const next = [...localMarkers];
+
+        if (ctx && canvas) {
+            const logicalWidth = canvas.width / dpr;
+            const logicalHeight = canvas.height / dpr;
+            const x = Math.floor(Math.random() * logicalWidth);
+            const y = Math.floor(Math.random() * logicalHeight);
+            const color = getPixelColor(ctx, x, y);
+            next.push({ x, y, color });
+        } else {
+            next.push({ x: 0, y: 0, color: "#AAAAAA" });
+        }
+
+        handleDataChange(next);
+    };
+
+    const handleDecreaseColors = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (savedNumColors <= 2) return;
+
+        const next = localMarkers.slice(0, -1);
+        handleDataChange(next);
+    };
 
     const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
         if (draggingIndex !== null) return;
@@ -403,6 +459,27 @@ export function ImagePickerModal({
         URL.revokeObjectURL(url);
 
         toast.success("Code downloaded successfully!");
+    };
+
+    const handleDownloadImage = async () => {
+        if (!exportRef.current) return;
+
+        try {
+            const dataUrl = await toPng(exportRef.current, {
+                quality: 1,
+                pixelRatio: 2,
+                backgroundColor: '#09090b', // zinc-950
+            });
+
+            const link = document.createElement('a');
+            link.download = `palette-${Date.now()}.png`;
+            link.href = dataUrl;
+            link.click();
+            toast.success("Palette image downloaded!");
+        } catch (error) {
+            console.error('oops, something went wrong!', error);
+            toast.error("Failed to download image");
+        }
     };
 
     return (
@@ -582,21 +659,22 @@ export function ImagePickerModal({
                                             <div className="flex items-center gap-4 relative z-50">
                                                 <button
                                                     type="button"
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        e.stopPropagation();
-                                                        setPickerSize(prev => Math.max(64, prev - 16));
-                                                    }}
+                                                    onClick={handleDecreaseColors}
                                                     className="h-10 w-10 rounded-full border-2 border-border bg-card hover:bg-secondary shadow-sm flex items-center justify-center transition-all active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                                                    disabled={pickerSize <= 64}
-                                                    title="Decrease Picker Size"
+                                                    disabled={savedNumColors <= 2}
+                                                    title="Decrease Number of Colors"
                                                 >
                                                     <Minus className="h-5 w-5 text-foreground" />
                                                 </button>
                                                 <div className="flex-1 flex items-center px-4">
                                                     <Slider
                                                         value={[savedNumColors]}
-                                                        onValueChange={(val) => onNumColorsChange(val[0])}
+                                                        onValueChange={(val) => {
+                                                            // For slider dragging, we might still want to rely on the effect because it's continuous
+                                                            // Or we can implement a smarter handler here too.
+                                                            // For now, let the effect handle the slider drags as that's less "clicky"
+                                                            onNumColorsChange(val[0]);
+                                                        }}
                                                         min={2}
                                                         max={8}
                                                         step={1}
@@ -605,14 +683,10 @@ export function ImagePickerModal({
                                                 </div>
                                                 <button
                                                     type="button"
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        e.stopPropagation();
-                                                        setPickerSize(prev => Math.min(160, prev + 16));
-                                                    }}
+                                                    onClick={handleIncreaseColors}
                                                     className="h-10 w-10 rounded-full border-2 border-border bg-card hover:bg-secondary shadow-sm flex items-center justify-center transition-all active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                                                    disabled={pickerSize >= 160}
-                                                    title="Increase Picker Size"
+                                                    disabled={savedNumColors >= 8}
+                                                    title="Increase Number of Colors"
                                                 >
                                                     <Plus className="h-5 w-5 text-foreground" />
                                                 </button>
@@ -713,6 +787,9 @@ export function ImagePickerModal({
                                 <DropdownMenuItem onClick={downloadJson} className="h-10 cursor-pointer font-mono text-[10px] uppercase">
                                     <Download className="mr-2 h-4 w-4" /> Download JSON
                                 </DropdownMenuItem>
+                                <DropdownMenuItem onClick={handleDownloadCode} className="h-10 cursor-pointer font-mono text-[10px] uppercase">
+                                    <Download className="mr-2 h-4 w-4" /> Download Code
+                                </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -722,15 +799,61 @@ export function ImagePickerModal({
                             Cancel
                         </Button>
                         <Button
-                            onClick={handleDownloadCode}
+                            onClick={handleDownloadImage}
                             disabled={!savedImage || localMarkers.length === 0}
-                            className="h-11 px-8 font-mono text-xs uppercase tracking-wider bg-gradient-to-r from-primary to-accent hover:shadow-lg hover:shadow-primary/20 transition-all"
+                            className="h-11 px-8 font-mono text-xs uppercase tracking-wider bg-gradient-to-r from-primary to-accent hover:shadow-lg hover:shadow-primary/20 transition-all font-bold"
                         >
-                            <Download className="mr-2 h-4 w-4" /> Download Code
+                            <ImageIcon className="mr-2 h-4 w-4" /> Download Image
                         </Button>
                     </div>
                 </DialogFooter>
             </DialogContent>
+
+            {/* Hidden Palette Export Template */}
+            <div className="fixed -left-[9999px] top-0 pointer-events-none">
+                <div
+                    ref={exportRef}
+                    className="w-[800px] bg-black p-16 flex flex-col gap-12"
+                >
+                    {/* Header */}
+                    <div className="flex items-start justify-between">
+                        <div className="space-y-2">
+                            <h2 className="text-6xl font-display text-white italic leading-tight">
+                                Chromatic Palette
+                            </h2>
+                            <p className="text-sm font-mono text-zinc-500 tracking-[0.3em] uppercase">
+                                Curated by Yours Truly
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-2 text-[#0ea5e9] font-mono text-sm font-bold tracking-widest bg-[#0ea5e9]/5 px-4 py-2 rounded-full border border-[#0ea5e9]/20">
+                            <div className="w-2 h-2 rounded-full bg-[#0ea5e9] shadow-[0_0_10px_#0ea5e9]" />
+                            CHROMATIC
+                        </div>
+                    </div>
+
+                    {/* Main Palette Card */}
+                    <div className="w-full aspect-[4/3] bg-zinc-900 rounded-[3.5rem] overflow-hidden flex flex-col border border-white/5 shadow-2xl">
+                        {localMarkers.map((marker, i) => (
+                            <div
+                                key={i}
+                                className="flex-1 flex items-center px-12 group"
+                                style={{ backgroundColor: marker.color }}
+                            >
+                                <span className="font-mono text-xl font-bold mix-blend-difference opacity-80" style={{ color: 'white' }}>
+                                    {marker.color.toUpperCase()}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Footer */}
+                    <div className="flex items-center justify-end mt-4">
+                        <div className="text-3xl">
+                            💜
+                        </div>
+                    </div>
+                </div>
+            </div>
         </Dialog>
     );
 }
