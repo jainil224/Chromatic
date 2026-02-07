@@ -31,14 +31,14 @@ export function AboutCreator() {
                     {/* Left: Avatar with Glowing Ring */}
                     <div className="flex justify-center lg:justify-end animate-fade-in" style={{ animationDelay: "0.2s" }}>
                         <div className="relative group">
-                            {/* Colorful Outer Ring */}
-                            <div className="absolute -inset-[3px] bg-gradient-to-tr from-primary via-accent to-primary rounded-full opacity-100" />
+                            {/* Colorful Outer Ring (Thicker) */}
+                            <div className="absolute -inset-[6px] bg-gradient-to-tr from-primary via-accent to-primary rounded-full opacity-100 animate-hue-rotate" />
 
                             <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full bg-black flex items-center justify-center overflow-hidden border-4 border-black shadow-[0_0_60px_rgba(var(--primary),0.2)]">
                                 <img
-                                    src="/creator_logo.png"
+                                    src="/logo_1_upscaled.png?v=2"
                                     alt="CP Branding"
-                                    className="relative w-full h-full object-contain p-2 transition-all duration-700 scale-[1.35]"
+                                    className="relative w-full h-full object-contain p-0 transition-all duration-700 scale-[1.6] translate-y-[12%]"
                                 />
                             </div>
                         </div>

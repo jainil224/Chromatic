@@ -171,6 +171,19 @@
     --surface-elevated: 222 47% 14%;
     --text-dim: 215 20% 50%;
   }
+
+  @keyframes hue-rotate {
+    from {
+      filter: hue-rotate(0deg);
+    }
+    to {
+      filter: hue-rotate(360deg);
+    }
+  }
+
+  .animate-hue-rotate {
+    animation: hue-rotate 4s linear infinite;
+  }
 }
 
 @layer base {

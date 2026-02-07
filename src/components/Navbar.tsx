@@ -61,7 +61,7 @@ export const Navbar = ({
                         </Sheet>
 
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 overflow-hidden ring-1 ring-white/10">
-                            <img src="/logo.png" alt="Chromatic Logo" className="h-full w-full object-cover" />
+                            <img src="/logo_1_upscaled.png?v=2" alt="Chromatic Logo" className="h-full w-full object-cover" />
                         </div>
                         <div className="hidden xs:block">
                             <h1 className="font-display text-2xl text-foreground leading-none">
