@@ -7,8 +7,8 @@ export const Hero = ({ onBrowse, onCreate }: { onBrowse: () => void; onCreate: (
         <section className="relative w-full overflow-hidden py-24 lg:py-32">
             {/* Cinematic Gradient Background */}
             <div className="absolute inset-0 -z-10 overflow-hidden">
-                <div className="absolute inset-0 bg-[#080808]" />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#121212]/50 to-transparent" />
+                <div className="absolute inset-0 bg-background" />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-foreground/5 to-transparent" />
                 <div className="absolute -left-[10%] top-[-10%] h-[70%] w-[50%] rounded-[100%] bg-primary/10 blur-[120px] animate-pulse" style={{ animationDuration: '8s' }} />
                 <div className="absolute -right-[5%] bottom-[10%] h-[60%] w-[40%] rounded-[100%] bg-accent/5 blur-[100px] animate-pulse" style={{ animationDuration: '10s' }} />
             </div>

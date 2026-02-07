@@ -1,4 +1,5 @@
 import { Palette as PaletteIcon, Search, X, Menu, PanelLeftClose, PanelLeftOpen, Image as ImageIcon, Paintbrush } from "lucide-react";
+import { ModeToggle, type ThemeMode } from "./ModeToggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { CategoryMenu } from "@/components/CategoryMenu";
@@ -17,6 +18,8 @@ interface NavbarProps {
     onAddNew: () => void;
     onPickFromImage: () => void;
     onSearchSubmit?: () => void;
+    themeMode: ThemeMode;
+    onToggleTheme: () => void;
 }
 
 export const Navbar = ({
@@ -30,7 +33,9 @@ export const Navbar = ({
     totalResults,
     onAddNew,
     onPickFromImage,
-    onSearchSubmit
+    onSearchSubmit,
+    themeMode,
+    onToggleTheme
 }: NavbarProps) => {
     const navigate = useNavigate();
 
@@ -108,8 +113,8 @@ export const Navbar = ({
                             )}
                         </div>
 
-                        <div className="flex items-center gap-2 w-full sm:w-auto">
-
+                        <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto no-scrollbar pb-1 sm:pb-0">
+                            <ModeToggle mode={themeMode} onToggle={onToggleTheme} />
 
                             <Button
                                 variant="outline"

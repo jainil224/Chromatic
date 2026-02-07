@@ -1,5 +1,6 @@
-import { useState, useMemo, useEffect, memo, lazy, Suspense, useDeferredValue } from "react";
+import { useState, useMemo, useEffect, memo, lazy, Suspense, useDeferredValue, useCallback } from "react";
 import { Palette as PaletteIcon, Search, X, Menu, PanelLeftClose, PanelLeftOpen, Plus, Image as ImageIcon } from "lucide-react";
+import type { ThemeMode } from "@/components/ModeToggle";
 import type { Palette } from "@/data/palettes";
 const PaletteSection = lazy(() => import("@/components/PaletteSection").then(m => ({ default: m.PaletteSection })));
 const PaletteDetail = lazy(() => import("@/components/PaletteDetail").then(m => ({ default: m.PaletteDetail })));
@@ -23,6 +24,9 @@ import { useLikes } from "@/hooks/useLikes";
 import { usePalettes } from "@/hooks/usePalettes";
 
 const Index = () => {
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() =>
+    (localStorage.getItem('chromatic_theme') as ThemeMode) || 'dark'
+  );
   const [selectedPalette, setSelectedPalette] = useState<Palette | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>("Pastel");
@@ -79,6 +83,24 @@ const Index = () => {
     if (wasOpen && !isImagePickerOpen) {
       setIsImagePickerOpen(true);
     }
+  }, []);
+
+  // Theme Handling
+  useEffect(() => {
+    localStorage.setItem('chromatic_theme', themeMode);
+    // Apply theme class to body for global styles
+    document.body.classList.remove('light-mode', 'midnight-mode');
+    if (themeMode !== 'dark') {
+      document.body.classList.add(`${themeMode}-mode`);
+    }
+  }, [themeMode]);
+
+  const toggleTheme = useCallback(() => {
+    setThemeMode(prev => {
+      if (prev === 'dark') return 'light';
+      if (prev === 'light') return 'midnight';
+      return 'dark';
+    });
   }, []);
 
   // Category keyword mapping for smart search
@@ -206,7 +228,10 @@ const Index = () => {
   const showRightPanel = favoritePalettes.length > 0;
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden">
+    <div className={cn(
+      "relative min-h-screen overflow-x-hidden transition-colors duration-500",
+      themeMode === 'light' ? 'bg-[#fcfaf7]' : themeMode === 'midnight' ? 'bg-[#050b17]' : 'bg-[#080808]'
+    )}>
       {/* Live Palette Counter */}
       <ColorCounter totalPalettes={totalPalettes} />
 
@@ -226,6 +251,8 @@ const Index = () => {
         }}
         onPickFromImage={() => setIsImagePickerOpen(true)}
         onSearchSubmit={handleSearchSubmit}
+        themeMode={themeMode}
+        onToggleTheme={toggleTheme}
       />
 
       {/* Hero Section */}
@@ -249,11 +276,20 @@ const Index = () => {
       </div>
 
       {/* Gradient Background */}
-      <div className="fixed inset-0 -z-10">
+      <div className="fixed inset-0 -z-10 transition-opacity duration-1000">
         <div className="absolute inset-0 bg-background" />
-        <div className="absolute -left-1/4 top-0 h-[500px] w-[500px] rounded-full bg-primary/5 blur-3xl" />
-        <div className="absolute -right-1/4 bottom-0 h-[600px] w-[600px] rounded-full bg-accent/5 blur-3xl" />
-        <div className="absolute left-1/2 top-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-muted/30 blur-3xl" />
+        <div className={cn(
+          "absolute -left-1/4 top-0 h-[500px] w-[500px] rounded-full blur-3xl transition-all duration-1000",
+          themeMode === 'light' ? "bg-orange-500/10" : themeMode === 'midnight' ? "bg-blue-500/20" : "bg-primary/5"
+        )} />
+        <div className={cn(
+          "absolute -right-1/4 bottom-0 h-[600px] w-[600px] rounded-full blur-3xl transition-all duration-1000",
+          themeMode === 'light' ? "bg-blue-500/10" : themeMode === 'midnight' ? "bg-purple-500/20" : "bg-accent/5"
+        )} />
+        <div className={cn(
+          "absolute left-1/2 top-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl transition-all duration-1000",
+          themeMode === 'light' ? "bg-yellow-500/5" : themeMode === 'midnight' ? "bg-indigo-500/10" : "bg-muted/30"
+        )} />
       </div>
 
       {/* Grain Overlay */}

@@ -150,6 +150,36 @@
     --surface-elevated: 0 0% 100%;
     --text-dim: 240 6% 50%;
   }
+
+  .midnight-mode {
+    --background: 222 47% 6%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 10%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 12%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 199 89% 48%;
+    --primary-foreground: 222 47% 6%;
+
+    --secondary: 222 40% 15%;
+    --secondary-foreground: 210 40% 80%;
+
+    --muted: 222 40% 12%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 262 83% 58%;
+    --accent-foreground: 210 40% 98%;
+
+    --border: 222 40% 18%;
+    --input: 222 40% 18%;
+    --ring: 199 89% 48%;
+
+    --surface-elevated: 222 47% 14%;
+    --text-dim: 215 20% 50%;
+  }
 }
 
 @layer base {
@@ -160,9 +190,9 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-body);
-    /* 1. Background Enhancement */
+    /* 1. Background Enhancement - Theme Aware */
     background: radial-gradient(circle at top center, hsl(var(--background) / 0.8), hsl(var(--background))),
-      linear-gradient(to bottom, hsl(var(--background)), #0a0a0a);
+      linear-gradient(to bottom, hsl(var(--background)), #050505);
     min-height: 100vh;
   }
 
