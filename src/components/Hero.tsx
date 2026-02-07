@@ -1,8 +1,8 @@
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
-import { Plus, Search } from "lucide-react";
+import { Paintbrush, Search, Image as ImageIcon } from "lucide-react";
 
-export const Hero = ({ onBrowse, onCreate }: { onBrowse: () => void; onCreate: () => void }) => {
+export const Hero = ({ onBrowse, onCustomize, onPickFromImage }: { onBrowse: () => void; onCustomize: () => void; onPickFromImage: () => void }) => {
     return (
         <section className="relative w-full overflow-hidden py-24 lg:py-32">
             {/* Cinematic Gradient Background */}
@@ -25,7 +25,7 @@ export const Hero = ({ onBrowse, onCreate }: { onBrowse: () => void; onCreate: (
                             <h1 className="font-display text-5xl font-bold leading-tight tracking-tight text-foreground md:text-7xl lg:text-8xl animate-fade-up">
                                 Curated <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_auto] animate-shimmer">Color Palettes</span> for Modern Design
                             </h1>
-                            <p className="max-w-[540px] font-mono text-base text-muted-foreground md:text-lg animate-fade-up [animation-delay:0.1s]">
+                            <p className="max-w-[540px] font-mono text-base text-secondary-foreground/70 md:text-lg animate-fade-up [animation-delay:0.1s]">
                                 Explore hand-picked color palettes crafted for UI, branding, and creative projects. Designed for developers and creators.
                             </p>
                         </div>
@@ -40,13 +40,22 @@ export const Hero = ({ onBrowse, onCreate }: { onBrowse: () => void; onCreate: (
                                 Browse Palettes
                             </Button>
                             <Button
-                                onClick={onCreate}
+                                onClick={onCustomize}
                                 variant="outline"
                                 size="lg"
                                 className="h-14 rounded-full border-white/10 bg-white/5 px-8 text-base font-medium backdrop-blur-sm transition-all hover:bg-white/10 hover:border-white/20"
                             >
-                                <Plus className="mr-2 h-4 w-4" />
-                                Create Your Own
+                                <Paintbrush className="mr-2 h-4 w-4" />
+                                Customize
+                            </Button>
+                            <Button
+                                onClick={onPickFromImage}
+                                variant="outline"
+                                size="lg"
+                                className="h-14 rounded-full border-white/10 bg-white/5 px-8 text-base font-medium backdrop-blur-sm transition-all hover:bg-white/10 hover:border-white/20"
+                            >
+                                <ImageIcon className="mr-2 h-4 w-4" />
+                                From Image
                             </Button>
                         </div>
                     </div>

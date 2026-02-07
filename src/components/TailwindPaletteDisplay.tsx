@@ -33,7 +33,7 @@ export const TailwindPaletteDisplay = memo(function TailwindPaletteDisplay({
             <div className="flex items-center justify-between">
                 <div>
                     <h3 className="text-lg font-semibold text-foreground">Tailwind Palette</h3>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-secondary-foreground/70">
                         Generated shades (50-950)
                     </p>
                 </div>
@@ -49,7 +49,7 @@ export const TailwindPaletteDisplay = memo(function TailwindPaletteDisplay({
                 {shades.map(([shade, color]) => (
                     <div
                         key={shade}
-                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors group"
+                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-secondary/50 transition-colors group"
                     >
                         <div
                             className="w-12 h-12 rounded-lg border-2 border-border flex-shrink-0 transition-transform group-hover:scale-105"
@@ -61,19 +61,19 @@ export const TailwindPaletteDisplay = memo(function TailwindPaletteDisplay({
                                     {colorName}-{shade}
                                 </span>
                             </div>
-                            <span className="text-xs font-mono text-muted-foreground">
+                            <span className="text-xs font-mono text-secondary-foreground/70">
                                 {color}
                             </span>
                         </div>
                         <button
                             onClick={() => copyToClipboard(shade, color)}
-                            className="p-2 hover:bg-muted rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                            className="p-2 hover:bg-secondary rounded-lg transition-colors opacity-0 group-hover:opacity-100"
                             title="Copy color"
                         >
                             {copiedShade === shade ? (
                                 <Check className="h-4 w-4 text-green-500" />
                             ) : (
-                                <Copy className="h-4 w-4 text-muted-foreground" />
+                                <Copy className="h-4 w-4 text-secondary-foreground/70" />
                             )}
                         </button>
                     </div>

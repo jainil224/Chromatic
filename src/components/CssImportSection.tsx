@@ -2,13 +2,12 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Copy, Plus, ClipboardPaste } from 'lucide-react';
+import { ClipboardPaste } from 'lucide-react';
 
 interface CssImportSectionProps {
     onUpdatePrimary: (color: string) => void;
     onUpdateSecondary: (color: string) => void;
     onUpdateAccent: (color: string) => void;
-    onUpdateMuted: (color: string) => void;
     onUpdateBackground: (color: string) => void;
 }
 
@@ -16,7 +15,6 @@ export const CssImportSection = ({
     onUpdatePrimary,
     onUpdateSecondary,
     onUpdateAccent,
-    onUpdateMuted,
     onUpdateBackground
 }: CssImportSectionProps) => {
     const [cssInput, setCssInput] = useState('');
@@ -28,7 +26,6 @@ export const CssImportSection = ({
         }
 
         // Regex to find variable definitions: --variable-name: #hexcode;
-        // Supports hex codes (3, 4, 6, 8 digits) and now supports alphanumeric names (e.g. primary, 1, 2)
         const variableRegex = /--color-([a-z0-9]+)\s*:\s*(#[0-9a-fA-F]{3,8})/g;
 
         let match;
@@ -51,11 +48,6 @@ export const CssImportSection = ({
                 case 'accent':
                 case '3':
                     onUpdateAccent(color);
-                    found++;
-                    break;
-                case 'muted':
-                case '4':
-                    onUpdateMuted(color);
                     found++;
                     break;
                 case 'background':
@@ -81,7 +73,7 @@ export const CssImportSection = ({
                     <ClipboardPaste className="h-5 w-5 text-primary" />
                     Paste CSS Color Variables
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-secondary-foreground/70">
                     Paste your <code>:root</code> variables here to instantly update the theme.
                 </p>
             </div>
@@ -90,7 +82,7 @@ export const CssImportSection = ({
                 <Textarea
                     value={cssInput}
                     onChange={(e) => setCssInput(e.target.value)}
-                    placeholder=":root {&#10;  --color-primary: #fbfbfb;&#10;  --color-secondary: #eaf8ff;&#10;  --color-accent: #cfdcff;&#10;  --color-muted: #cfcaff;&#10;  --color-background: #f7f8ff;&#10;}"
+                    placeholder=":root {&#10;  --color-primary: #fbfbfb;&#10;  --color-secondary: #eaf8ff;&#10;  --color-accent: #cfdcff;&#10;  --color-background: #f7f8ff;&#10;}"
                     className="font-mono text-xs h-40 bg-background resize-none border-border focus-visible:ring-primary"
                 />
                 <Button

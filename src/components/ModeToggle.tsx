@@ -31,10 +31,10 @@ export function ModeToggle({ mode, onToggle }: ModeToggleProps) {
       title={`Switch theme (Current: ${getLabel()})`}
     >
       <div className="flex items-center gap-2">
-        <span className="text-muted-foreground transition-colors group-hover:text-foreground">
+        <span className="text-secondary-foreground/70 transition-colors group-hover:text-foreground">
           {getIcon()}
         </span>
-        <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground group-hover:text-foreground">
+        <span className="font-mono text-[10px] uppercase tracking-wider text-secondary-foreground/70 group-hover:text-foreground">
           {getLabel()}
         </span>
       </div>

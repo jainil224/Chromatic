@@ -8,9 +8,9 @@ import { toast } from 'sonner';
 const ColorCustomizer = () => {
     const navigate = useNavigate();
     const {
-        color, textColor, backgroundColor, secondaryColor, accentColor, mutedColor,
-        updateColor, updateTextColor, updateBackgroundColor, updateSecondaryColor, updateAccentColor, updateMutedColor,
-        resetColor, saveColor, saveTextColor, saveBackgroundColor, saveSecondaryColor, saveAccentColor, saveMutedColor
+        color, textColor, backgroundColor, secondaryColor, accentColor,
+        updateColor, updateTextColor, updateBackgroundColor, updateSecondaryColor, updateAccentColor,
+        resetColor, saveColor, saveTextColor, saveBackgroundColor, saveSecondaryColor, saveAccentColor
     } = useSingleColor();
 
     const handleSave = () => {
@@ -19,7 +19,6 @@ const ColorCustomizer = () => {
         saveBackgroundColor(backgroundColor);
         saveSecondaryColor(secondaryColor);
         saveAccentColor(accentColor);
-        saveMutedColor(mutedColor);
         toast.success('Configuration saved successfully!');
     };
 
@@ -33,7 +32,6 @@ const ColorCustomizer = () => {
   --demo-primary: ${color};
   --demo-secondary: ${secondaryColor};
   --demo-accent: ${accentColor};
-  --demo-muted: ${mutedColor};
   --demo-text: ${textColor};
   --demo-background: ${backgroundColor};
 }`;
@@ -61,7 +59,7 @@ const ColorCustomizer = () => {
                         <div className="p-4 border-b border-border flex items-center justify-between">
                             <button
                                 onClick={() => navigate('/')}
-                                className="p-2 hover:bg-muted rounded-lg transition-colors"
+                                className="p-2 hover:bg-secondary rounded-lg transition-colors"
                                 title="Back to home"
                             >
                                 <ArrowLeft className="h-5 w-5" />
@@ -83,13 +81,11 @@ const ColorCustomizer = () => {
                                 backgroundColor={backgroundColor}
                                 secondaryColor={secondaryColor}
                                 accentColor={accentColor}
-                                mutedColor={mutedColor}
                                 onColorChange={updateColor}
                                 onTextColorChange={updateTextColor}
                                 onBackgroundColorChange={updateBackgroundColor}
                                 onSecondaryColorChange={updateSecondaryColor}
                                 onAccentColorChange={updateAccentColor}
-                                onMutedColorChange={updateMutedColor}
                                 onSave={handleSave}
                                 onReset={handleReset}
                             />

@@ -219,7 +219,7 @@ export const useLikes = () => {
                 }
 
                 // Update localStorage backup
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(likes));
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(newLikes));
             } else {
                 // Palette doesn't exist in database (hardcoded palette)
                 // Just keep the optimistic update

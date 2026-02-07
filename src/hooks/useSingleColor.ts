@@ -5,14 +5,12 @@ const TEXT_COLOR_KEY = 'chromatic-text-color';
 const BACKGROUND_COLOR_KEY = 'chromatic-background-color';
 const SECONDARY_COLOR_KEY = 'chromatic-secondary-color';
 const ACCENT_COLOR_KEY = 'chromatic-accent-color';
-const MUTED_COLOR_KEY = 'chromatic-muted-color';
 
 const DEFAULT_COLOR = '#3b82f6'; // Blue
 const DEFAULT_TEXT_COLOR = '#1f2937'; // Dark Gray
 const DEFAULT_BACKGROUND_COLOR = '#f3f4f6'; // Light Gray
 const DEFAULT_SECONDARY_COLOR = '#e5e7eb'; // Gray-200
 const DEFAULT_ACCENT_COLOR = '#3b82f6'; // Blue (same as primary default)
-const DEFAULT_MUTED_COLOR = '#f3f4f6'; // Gray-100
 
 export const useSingleColor = () => {
     const [color, setColor] = useState<string>(() => {
@@ -40,11 +38,6 @@ export const useSingleColor = () => {
         return stored || DEFAULT_ACCENT_COLOR;
     });
 
-    const [mutedColor, setMutedColor] = useState<string>(() => {
-        const stored = localStorage.getItem(MUTED_COLOR_KEY);
-        return stored || DEFAULT_MUTED_COLOR;
-    });
-
     useEffect(() => {
         const root = document.documentElement;
 
@@ -60,23 +53,20 @@ export const useSingleColor = () => {
         // Apply new customizable colors
         root.style.setProperty('--demo-secondary', secondaryColor);
         root.style.setProperty('--demo-accent', accentColor);
-        root.style.setProperty('--demo-muted', mutedColor);
 
-    }, [color, textColor, backgroundColor, secondaryColor, accentColor, mutedColor]);
+    }, [color, textColor, backgroundColor, secondaryColor, accentColor]);
 
     const saveColor = (newColor: string) => localStorage.setItem(STORAGE_KEY, newColor);
     const saveTextColor = (newTextColor: string) => localStorage.setItem(TEXT_COLOR_KEY, newTextColor);
     const saveBackgroundColor = (newBackgroundColor: string) => localStorage.setItem(BACKGROUND_COLOR_KEY, newBackgroundColor);
     const saveSecondaryColor = (newColor: string) => localStorage.setItem(SECONDARY_COLOR_KEY, newColor);
     const saveAccentColor = (newColor: string) => localStorage.setItem(ACCENT_COLOR_KEY, newColor);
-    const saveMutedColor = (newColor: string) => localStorage.setItem(MUTED_COLOR_KEY, newColor);
 
     const updateColor = (newColor: string) => setColor(newColor);
     const updateTextColor = (newTextColor: string) => setTextColor(newTextColor);
     const updateBackgroundColor = (newBackgroundColor: string) => setBackgroundColor(newBackgroundColor);
     const updateSecondaryColor = (newColor: string) => setSecondaryColor(newColor);
     const updateAccentColor = (newColor: string) => setAccentColor(newColor);
-    const updateMutedColor = (newColor: string) => setMutedColor(newColor);
 
     const resetColor = () => {
         setColor(DEFAULT_COLOR);
@@ -84,14 +74,13 @@ export const useSingleColor = () => {
         setBackgroundColor(DEFAULT_BACKGROUND_COLOR);
         setSecondaryColor(DEFAULT_SECONDARY_COLOR);
         setAccentColor(DEFAULT_ACCENT_COLOR);
-        setMutedColor(DEFAULT_MUTED_COLOR);
 
         localStorage.removeItem(STORAGE_KEY);
         localStorage.removeItem(TEXT_COLOR_KEY);
         localStorage.removeItem(BACKGROUND_COLOR_KEY);
         localStorage.removeItem(SECONDARY_COLOR_KEY);
         localStorage.removeItem(ACCENT_COLOR_KEY);
-        localStorage.removeItem(MUTED_COLOR_KEY);
+        localStorage.removeItem('chromatic-muted-color'); // Also remove old key if it exists
     };
 
     return {
@@ -100,19 +89,16 @@ export const useSingleColor = () => {
         backgroundColor,
         secondaryColor,
         accentColor,
-        mutedColor,
         updateColor,
         updateTextColor,
         updateBackgroundColor,
         updateSecondaryColor,
         updateAccentColor,
-        updateMutedColor,
         resetColor,
         saveColor,
         saveTextColor,
         saveBackgroundColor,
         saveSecondaryColor,
         saveAccentColor,
-        saveMutedColor,
     };
 };

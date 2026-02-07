@@ -430,7 +430,7 @@ export function ImagePickerModal({
                         <div className="p-6">
                             <TabsContent value="upload" className="mt-0">
                                 {!savedImage ? (
-                                    <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-border rounded-2xl cursor-pointer hover:bg-muted/50 transition-colors group">
+                                    <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-border rounded-2xl cursor-pointer hover:bg-secondary/50 transition-colors group">
                                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                             <div className="p-4 rounded-full bg-primary/10 mb-4 group-hover:scale-110 transition-transform">
                                                 <Upload className="h-8 w-8 text-primary" />
@@ -438,7 +438,7 @@ export function ImagePickerModal({
                                             <p className="mb-2 text-sm text-foreground font-mono">
                                                 <span className="font-semibold">Click to upload</span> or drag and drop
                                             </p>
-                                            <p className="text-xs text-muted-foreground font-mono">
+                                            <p className="text-xs text-secondary-foreground/70 font-mono">
                                                 PNG, JPG or WEBP
                                             </p>
                                         </div>
@@ -453,14 +453,14 @@ export function ImagePickerModal({
                             {savedImage && (
                                 <div className="space-y-6">
                                     <div className="flex items-center justify-between">
-                                        <h3 className="font-mono text-xs uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                        <h3 className="font-mono text-xs uppercase tracking-wider text-secondary-foreground/70 flex items-center gap-2">
                                             Pick colors by clicking on image
                                         </h3>
                                         <Button
                                             variant="ghost"
                                             size="sm"
                                             onClick={() => onImageChange(null)}
-                                            className="text-xs font-mono text-muted-foreground hover:text-foreground"
+                                            className="text-xs font-mono text-secondary-foreground/70 hover:text-foreground"
                                         >
                                             Change image
                                         </Button>
@@ -468,7 +468,7 @@ export function ImagePickerModal({
 
                                     <div
                                         ref={containerRef}
-                                        className="relative rounded-2xl overflow-hidden bg-muted/30 border border-border group select-none flex items-center justify-center p-4"
+                                        className="relative rounded-2xl overflow-hidden bg-secondary/30 border border-border group select-none flex items-center justify-center p-4"
                                         style={{ height: '400px' }}
                                     >
                                         {/* Coordinate-Locked Wrapper: Syncs Canvas and Markers 1:1 */}
@@ -575,7 +575,7 @@ export function ImagePickerModal({
                                     <div className="space-y-6 bg-card/30 p-6 rounded-2xl border border-border/50">
                                         <div className="space-y-4">
                                             <div className="flex items-center justify-between">
-                                                <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
+                                                <label className="text-xs font-mono uppercase tracking-wider text-secondary-foreground/70">
                                                     Number of colors: <span className="text-foreground">{savedNumColors}</span>
                                                 </label>
                                             </div>
@@ -587,7 +587,7 @@ export function ImagePickerModal({
                                                         e.stopPropagation();
                                                         setPickerSize(prev => Math.max(64, prev - 16));
                                                     }}
-                                                    className="h-10 w-10 rounded-full border-2 border-border bg-card hover:bg-muted shadow-sm flex items-center justify-center transition-all active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    className="h-10 w-10 rounded-full border-2 border-border bg-card hover:bg-secondary shadow-sm flex items-center justify-center transition-all active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                                     disabled={pickerSize <= 64}
                                                     title="Decrease Picker Size"
                                                 >
@@ -610,7 +610,7 @@ export function ImagePickerModal({
                                                         e.stopPropagation();
                                                         setPickerSize(prev => Math.min(160, prev + 16));
                                                     }}
-                                                    className="h-10 w-10 rounded-full border-2 border-border bg-card hover:bg-muted shadow-sm flex items-center justify-center transition-all active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    className="h-10 w-10 rounded-full border-2 border-border bg-card hover:bg-secondary shadow-sm flex items-center justify-center transition-all active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                                     disabled={pickerSize >= 160}
                                                     title="Increase Picker Size"
                                                 >
@@ -620,7 +620,7 @@ export function ImagePickerModal({
                                         </div>
 
                                         {/* Palette Bar */}
-                                        <div className="flex h-24 rounded-2xl overflow-hidden border border-border shadow-inner bg-muted/20">
+                                        <div className="flex h-24 rounded-2xl overflow-hidden border border-border shadow-inner bg-secondary/20">
                                             {localMarkers.map((marker, i) => (
                                                 <div
                                                     key={i}
@@ -662,12 +662,12 @@ export function ImagePickerModal({
                                             {localMarkers.length < 8 && (
                                                 <button
                                                     onClick={() => onNumColorsChange(savedNumColors + 1)}
-                                                    className="flex-1 flex flex-col items-center justify-center bg-card hover:bg-muted transition-colors border-l border-border/50 group"
+                                                    className="flex-1 flex flex-col items-center justify-center bg-card hover:bg-secondary transition-colors border-l border-border/50 group"
                                                 >
                                                     <div className="p-2 rounded-full bg-primary/10 group-hover:scale-110 transition-transform">
                                                         <Plus className="h-4 w-4 text-primary" />
                                                     </div>
-                                                    <span className="font-mono text-[8px] uppercase tracking-tighter text-muted-foreground mt-1 font-bold">Add</span>
+                                                    <span className="font-mono text-[8px] uppercase tracking-tighter text-secondary-foreground/70 mt-1 font-bold">Add</span>
                                                 </button>
                                             )}
                                         </div>
@@ -718,7 +718,7 @@ export function ImagePickerModal({
                     </div>
 
                     <div className="flex gap-3">
-                        <Button variant="outline" onClick={onClose} className="h-11 px-6 font-mono text-xs uppercase tracking-wider border-border hover:bg-muted">
+                        <Button variant="outline" onClick={onClose} className="h-11 px-6 font-mono text-xs uppercase tracking-wider border-border hover:bg-secondary">
                             Cancel
                         </Button>
                         <Button

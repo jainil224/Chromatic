@@ -65,7 +65,7 @@ export function PaletteDetail({ palette }: PaletteDetailProps) {
             size="icon"
             onClick={handleExport}
             disabled={isExporting}
-            className="shrink-0 rounded-full hover:bg-muted"
+            className="shrink-0 rounded-full hover:bg-secondary"
             title="Export as Image"
           >
             {isExporting ? (
@@ -75,7 +75,7 @@ export function PaletteDetail({ palette }: PaletteDetailProps) {
             )}
           </Button>
         </div>
-        <p className="font-mono text-sm text-muted-foreground">
+        <p className="font-mono text-sm text-secondary-foreground/70">
           {palette.colors.length} colors · Click any swatch to copy
         </p>
       </div>
@@ -100,7 +100,7 @@ export function PaletteDetail({ palette }: PaletteDetailProps) {
               className="h-8 w-8 rounded-md shadow-sm"
               style={{ backgroundColor: color }}
             />
-            <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-secondary-foreground/60">
               {color}
             </span>
           </div>

@@ -17,7 +17,7 @@ export const PaletteExportCard = forwardRef<HTMLDivElement, PaletteExportCardPro
                 style={style}
             >
                 {/* Background Gradient */}
-                <div className="absolute inset-0 -z-10 bg-gradient-to-br from-background via-muted/10 to-muted/30" />
+                <div className="absolute inset-0 -z-10 bg-gradient-to-br from-background via-secondary/10 to-secondary/30" />
 
                 {/* Decorative elements */}
                 <div className="absolute top-0 right-0 h-64 w-64 translate-x-1/3 -translate-y-1/3 rounded-full bg-primary/5 blur-3xl" />
@@ -29,7 +29,7 @@ export const PaletteExportCard = forwardRef<HTMLDivElement, PaletteExportCardPro
                         <h1 className="font-display text-5xl font-italic tracking-tight text-foreground">
                             {palette.name}
                         </h1>
-                        <p className="mt-2 font-mono text-sm uppercase tracking-widest text-muted-foreground">
+                        <p className="mt-2 font-mono text-sm uppercase tracking-widest text-secondary-foreground/60">
                             Color Palette
                         </p>
                     </div>
@@ -64,13 +64,13 @@ export const PaletteExportCard = forwardRef<HTMLDivElement, PaletteExportCardPro
                 <div className="flex items-center justify-between p-12 pt-8">
                     <div className="flex items-center gap-4">
                         {palette.category && (
-                            <span className="rounded-full border border-border bg-card px-4 py-1.5 font-mono text-xs text-muted-foreground">
+                            <span className="rounded-full border border-border bg-card px-4 py-1.5 font-mono text-xs text-secondary-foreground/60">
                                 {palette.category}
                             </span>
                         )}
                         <div className="flex gap-1">
                             {palette.tags?.slice(0, 3).map(tag => (
-                                <span key={tag} className="text-xs text-muted-foreground/60">#{tag}</span>
+                                <span key={tag} className="text-xs text-secondary-foreground/40">#{tag}</span>
                             ))}
                         </div>
                     </div>

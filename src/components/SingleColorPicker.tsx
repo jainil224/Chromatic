@@ -8,13 +8,11 @@ interface SingleColorPickerProps {
     backgroundColor: string;
     secondaryColor: string;
     accentColor: string;
-    mutedColor: string;
     onColorChange: (color: string) => void;
     onTextColorChange: (color: string) => void;
     onBackgroundColorChange: (color: string) => void;
     onSecondaryColorChange: (color: string) => void;
     onAccentColorChange: (color: string) => void;
-    onMutedColorChange: (color: string) => void;
     onSave: () => void;
     onReset: () => void;
 }
@@ -25,13 +23,11 @@ export const SingleColorPicker = memo(function SingleColorPicker({
     backgroundColor,
     secondaryColor,
     accentColor,
-    mutedColor,
     onColorChange,
     onTextColorChange,
     onBackgroundColorChange,
     onSecondaryColorChange,
     onAccentColorChange,
-    onMutedColorChange,
     onSave,
     onReset,
 }: SingleColorPickerProps) {
@@ -51,7 +47,7 @@ export const SingleColorPicker = memo(function SingleColorPicker({
                     {/* Header */}
                     <div>
                         <h2 className="text-2xl font-bold text-foreground mb-2">Global Color System</h2>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-secondary-foreground/70">
                             Change the color below to instantly update <strong>all components</strong> across the preview
                         </p>
                     </div>
@@ -70,7 +66,6 @@ export const SingleColorPicker = memo(function SingleColorPicker({
                             onUpdatePrimary={onColorChange}
                             onUpdateSecondary={onSecondaryColorChange}
                             onUpdateAccent={onAccentColorChange}
-                            onUpdateMuted={onMutedColorChange}
                             onUpdateBackground={onBackgroundColorChange}
                         />
                     </div>
@@ -79,7 +74,7 @@ export const SingleColorPicker = memo(function SingleColorPicker({
                     <div className="p-6 rounded-xl bg-card border-2 border-border space-y-4">
                         <div>
                             <h3 className="text-lg font-semibold text-foreground mb-1">Primary Color</h3>
-                            <p className="text-sm text-muted-foreground">Main brand color for all components</p>
+                            <p className="text-sm text-secondary-foreground/70">Main brand color for all components</p>
                         </div>
 
                         {/* Large Color Picker */}
@@ -107,20 +102,20 @@ export const SingleColorPicker = memo(function SingleColorPicker({
                             />
                             <button
                                 onClick={copyColor}
-                                className="p-2 hover:bg-muted rounded-lg transition-colors border border-border flex-shrink-0"
+                                className="p-2 hover:bg-secondary rounded-lg transition-colors border border-border flex-shrink-0"
                                 title="Copy color"
                             >
                                 {copied ? (
                                     <Check className="h-4 w-4 text-green-500" />
                                 ) : (
-                                    <Copy className="h-4 w-4 text-muted-foreground" />
+                                    <Copy className="h-4 w-4 text-secondary-foreground/60" />
                                 )}
                             </button>
                         </div>
 
                         {/* Affects Tags */}
                         <div className="pt-4 border-t border-border">
-                            <p className="text-xs font-medium text-muted-foreground mb-3">This color controls:</p>
+                            <p className="text-xs font-medium text-secondary-foreground/70 mb-3">This color controls:</p>
                             <div className="flex flex-wrap gap-2">
                                 {[
                                     'All buttons',
@@ -135,7 +130,7 @@ export const SingleColorPicker = memo(function SingleColorPicker({
                                 ].map((item, idx) => (
                                     <span
                                         key={idx}
-                                        className="px-3 py-1.5 bg-muted border border-border rounded-full text-xs text-foreground"
+                                        className="px-3 py-1.5 bg-secondary border border-border rounded-full text-xs text-foreground"
                                     >
                                         {item}
                                     </span>
@@ -148,7 +143,7 @@ export const SingleColorPicker = memo(function SingleColorPicker({
                     <div className="p-6 rounded-xl bg-card border-2 border-border space-y-4">
                         <div>
                             <h3 className="text-lg font-semibold text-foreground mb-1">Text Color</h3>
-                            <p className="text-sm text-muted-foreground">Color for all text content</p>
+                            <p className="text-sm text-secondary-foreground/70">Color for all text content</p>
                         </div>
 
                         {/* Text Color Picker */}
@@ -180,13 +175,13 @@ export const SingleColorPicker = memo(function SingleColorPicker({
                                     setCopied(true);
                                     setTimeout(() => setCopied(false), 2000);
                                 }}
-                                className="p-2 hover:bg-muted rounded-lg transition-colors border border-border flex-shrink-0"
+                                className="p-2 hover:bg-secondary rounded-lg transition-colors border border-border flex-shrink-0"
                                 title="Copy color"
                             >
                                 {copied ? (
                                     <Check className="h-4 w-4 text-green-500" />
                                 ) : (
-                                    <Copy className="h-4 w-4 text-muted-foreground" />
+                                    <Copy className="h-4 w-4 text-secondary-foreground/60" />
                                 )}
                             </button>
                         </div>
@@ -196,7 +191,7 @@ export const SingleColorPicker = memo(function SingleColorPicker({
                     <div className="p-6 rounded-xl bg-card border-2 border-border space-y-4">
                         <div>
                             <h3 className="text-lg font-semibold text-foreground mb-1">Background Color</h3>
-                            <p className="text-sm text-muted-foreground">Main background color for the preview</p>
+                            <p className="text-sm text-secondary-foreground/70">Main background color for the preview</p>
                         </div>
 
                         {/* Background Color Picker */}
@@ -228,13 +223,13 @@ export const SingleColorPicker = memo(function SingleColorPicker({
                                     setCopied(true);
                                     setTimeout(() => setCopied(false), 2000);
                                 }}
-                                className="p-2 hover:bg-muted rounded-lg transition-colors border border-border flex-shrink-0"
+                                className="p-2 hover:bg-secondary rounded-lg transition-colors border border-border flex-shrink-0"
                                 title="Copy color"
                             >
                                 {copied ? (
                                     <Check className="h-4 w-4 text-green-500" />
                                 ) : (
-                                    <Copy className="h-4 w-4 text-muted-foreground" />
+                                    <Copy className="h-4 w-4 text-secondary-foreground/60" />
                                 )}
                             </button>
                         </div>
@@ -244,7 +239,7 @@ export const SingleColorPicker = memo(function SingleColorPicker({
                     <div className="p-6 rounded-xl bg-card border-2 border-border space-y-4">
                         <div>
                             <h3 className="text-lg font-semibold text-foreground mb-1">Secondary Color</h3>
-                            <p className="text-sm text-muted-foreground">Secondary brand color</p>
+                            <p className="text-sm text-secondary-foreground/70">Secondary brand color</p>
                         </div>
                         <div className="relative">
                             <input
@@ -264,9 +259,9 @@ export const SingleColorPicker = memo(function SingleColorPicker({
                             />
                             <button
                                 onClick={() => { navigator.clipboard.writeText(secondaryColor); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-                                className="p-2 hover:bg-muted rounded-lg transition-colors border border-border flex-shrink-0"
+                                className="p-2 hover:bg-secondary rounded-lg transition-colors border border-border flex-shrink-0"
                             >
-                                {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4 text-muted-foreground" />}
+                                {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4 text-secondary-foreground/60" />}
                             </button>
                         </div>
                     </div>
@@ -275,7 +270,7 @@ export const SingleColorPicker = memo(function SingleColorPicker({
                     <div className="p-6 rounded-xl bg-card border-2 border-border space-y-4">
                         <div>
                             <h3 className="text-lg font-semibold text-foreground mb-1">Accent Color</h3>
-                            <p className="text-sm text-muted-foreground">Highlights and active states</p>
+                            <p className="text-sm text-secondary-foreground/70">Highlights and active states</p>
                         </div>
                         <div className="relative">
                             <input
@@ -295,47 +290,12 @@ export const SingleColorPicker = memo(function SingleColorPicker({
                             />
                             <button
                                 onClick={() => { navigator.clipboard.writeText(accentColor); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-                                className="p-2 hover:bg-muted rounded-lg transition-colors border border-border flex-shrink-0"
+                                className="p-2 hover:bg-secondary rounded-lg transition-colors border border-border flex-shrink-0"
                             >
-                                {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4 text-muted-foreground" />}
+                                {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4 text-secondary-foreground/60" />}
                             </button>
                         </div>
                     </div>
-
-                    {/* Muted Color Picker Card */}
-                    <div className="p-6 rounded-xl bg-card border-2 border-border space-y-4">
-                        <div>
-                            <h3 className="text-lg font-semibold text-foreground mb-1">Muted Color</h3>
-                            <p className="text-sm text-muted-foreground">Subtle backgrounds and borders</p>
-                        </div>
-                        <div className="relative">
-                            <input
-                                type="color"
-                                value={mutedColor}
-                                onChange={(e) => onMutedColorChange(e.target.value)}
-                                className="w-full h-24 rounded-lg cursor-pointer border-2 border-border hover:border-primary transition-colors"
-                                style={{ WebkitAppearance: 'none', appearance: 'none' }}
-                            />
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <input
-                                type="text"
-                                value={mutedColor}
-                                onChange={(e) => onMutedColorChange(e.target.value)}
-                                className="flex-1 px-3 py-2 text-sm font-mono bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                            />
-                            <button
-                                onClick={() => { navigator.clipboard.writeText(mutedColor); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-                                className="p-2 hover:bg-muted rounded-lg transition-colors border border-border flex-shrink-0"
-                            >
-                                {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4 text-muted-foreground" />}
-                            </button>
-                        </div>
-                    </div>
-
-
-
-
                 </div>
             </div>
 
@@ -350,7 +310,7 @@ export const SingleColorPicker = memo(function SingleColorPicker({
                     </button>
                     <button
                         onClick={onReset}
-                        className="px-4 py-3 bg-muted text-foreground rounded-lg font-medium hover:bg-muted/80 transition-colors"
+                        className="px-4 py-3 bg-secondary text-foreground rounded-lg font-medium hover:bg-secondary/80 transition-colors"
                     >
                         Reset
                     </button>

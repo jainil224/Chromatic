@@ -48,7 +48,7 @@ export const Navbar = ({
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="hidden lg:flex mr-2 text-muted-foreground hover:text-foreground transition-colors"
+                            className="hidden lg:flex mr-2 text-secondary-foreground/70 hover:text-foreground transition-colors"
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                             aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
                         >
@@ -78,7 +78,7 @@ export const Navbar = ({
                             <h1 className="font-display text-2xl text-foreground leading-none">
                                 Chromatic
                             </h1>
-                            <p className="font-mono text-[10px] text-muted-foreground mt-0.5">
+                            <p className="font-mono text-[10px] text-secondary-foreground/60 mt-0.5">
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent font-bold">
                                     713
                                 </span> Curated Palettes
@@ -89,7 +89,7 @@ export const Navbar = ({
                     {/* Search Bar & Add Button */}
                     <div className="flex flex-col sm:flex-row items-center gap-3 w-full max-w-2xl">
                         <div className="relative flex-1 w-full">
-                            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
+                            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-secondary-foreground/70/60" />
                             <input
                                 id="navbar-search"
                                 type="text"
@@ -101,12 +101,12 @@ export const Navbar = ({
                                     }
                                 }}
                                 placeholder="Search palettes..."
-                                className="w-full rounded-full border border-white/10 bg-white/5 py-2.5 pl-11 pr-10 font-mono text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all"
+                                className="w-full rounded-full border border-white/10 bg-white/5 py-2.5 pl-11 pr-10 font-mono text-sm text-foreground placeholder:text-secondary-foreground/40 focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all"
                             />
                             {searchQuery && (
                                 <button
                                     onClick={() => setSearchQuery("")}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-secondary-foreground/60 hover:bg-secondary hover:text-foreground transition-colors"
                                 >
                                     <X className="h-4 w-4" />
                                 </button>

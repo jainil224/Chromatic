@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, memo, lazy, Suspense, useDeferredValue, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Palette as PaletteIcon, Search, X, Menu, PanelLeftClose, PanelLeftOpen, Plus, Image as ImageIcon } from "lucide-react";
 import type { ThemeMode } from "@/components/ModeToggle";
 import type { Palette } from "@/data/palettes";
@@ -24,6 +25,7 @@ import { useLikes } from "@/hooks/useLikes";
 import { usePalettes } from "@/hooks/usePalettes";
 
 const Index = () => {
+  const navigate = useNavigate();
   const [themeMode, setThemeMode] = useState<ThemeMode>(() =>
     (localStorage.getItem('chromatic_theme') as ThemeMode) || 'dark'
   );
@@ -155,11 +157,27 @@ const Index = () => {
     setMobileDetailOpen(true);
   };
 
-  // Combine Supabase palettes with user-created palettes
-  const allPalettes = useMemo(() => [
-    ...userPalettes.map(p => ({ ...p, category: p.category || "Custom" })),
-    ...supabasePalettes,
-  ], [userPalettes, supabasePalettes]);
+  // Combine Supabase palettes with user-created palettes and deduplicate by ID
+  const allPalettes = useMemo(() => {
+    const map = new Map<string, Palette>();
+
+    // Add Supabase palettes first as the base
+    supabasePalettes.forEach(p => map.set(p.id, p));
+
+    // Add user palettes (they might override or add new ones)
+    userPalettes.forEach(up => {
+      const existing = map.get(up.id);
+      map.set(up.id, {
+        ...existing,
+        ...up,
+        category: up.category || existing?.category || "Custom",
+        // Keep tags from existing if user palette doesn't have them
+        tags: up.tags && up.tags.length > 0 ? up.tags : (existing?.tags || [])
+      });
+    });
+
+    return Array.from(map.values());
+  }, [userPalettes, supabasePalettes]);
 
   // Derive favorite palette objects
   const favoritePalettes = useMemo(() =>
@@ -267,10 +285,8 @@ const Index = () => {
               document.getElementById('palette-grid')?.scrollIntoView({ behavior: 'smooth' });
             }
           }}
-          onCreate={() => {
-            setEditingPalette(null);
-            setIsModalOpen(true);
-          }}
+          onCustomize={() => navigate('/customize')}
+          onPickFromImage={() => setIsImagePickerOpen(true)}
         />
         <WhyChromatic />
       </div>
@@ -288,7 +304,7 @@ const Index = () => {
         )} />
         <div className={cn(
           "absolute left-1/2 top-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl transition-all duration-1000",
-          themeMode === 'light' ? "bg-yellow-500/5" : themeMode === 'midnight' ? "bg-indigo-500/10" : "bg-muted/30"
+          themeMode === 'light' ? "bg-yellow-500/5" : themeMode === 'midnight' ? "bg-indigo-500/10" : "bg-secondary/30"
         )} />
       </div>
 
@@ -316,7 +332,7 @@ const Index = () => {
               ? "opacity-100 translate-x-0 w-full pr-4"
               : "opacity-0 -translate-x-4 w-0 pr-0 overflow-hidden"
           )}>
-            <Suspense fallback={<div className="p-4 space-y-4"><div className="h-8 w-full bg-muted animate-pulse rounded" /><div className="h-8 w-full bg-muted animate-pulse rounded" /></div>}>
+            <Suspense fallback={<div className="p-4 space-y-4"><div className="h-8 w-full bg-secondary animate-pulse rounded" /><div className="h-8 w-full bg-secondary animate-pulse rounded" /></div>}>
               <CategoryMenu
                 selectedCategory={selectedCategory}
                 onSelectCategory={setSelectedCategory}
@@ -331,13 +347,13 @@ const Index = () => {
 
 
             {/* Unified Palettes Section */}
-            <Suspense fallback={<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{Array.from({ length: 9 }).map((_, i) => <div key={i} className="h-48 rounded-lg bg-muted animate-pulse" />)}</div>}>
-              {/* Loading State */}
-              {palettesLoading && (
+            <Suspense fallback={<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{Array.from({ length: 9 }).map((_, i) => <div key={i} className="h-48 rounded-lg bg-secondary animate-pulse" />)}</div>}>
+              {/* Loading State - Only show on initial load or if no palettes present */}
+              {palettesLoading && filteredPalettes.length === 0 && (
                 <div className="flex items-center justify-center py-20">
                   <div className="text-center space-y-4">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto"></div>
-                    <p className="text-muted-foreground">Loading palettes...</p>
+                    <p className="text-secondary-foreground/60">Loading palettes...</p>
                   </div>
                 </div>
               )}
@@ -347,7 +363,7 @@ const Index = () => {
                 <div className="flex items-center justify-center py-20">
                   <div className="text-center space-y-4">
                     <p className="text-destructive">Error loading palettes: {palettesError}</p>
-                    <p className="text-muted-foreground text-sm">Please check your connection and try again.</p>
+                    <p className="text-secondary-foreground/60 text-sm">Please check your connection and try again.</p>
                   </div>
                 </div>
               )}
@@ -380,17 +396,17 @@ const Index = () => {
             {/* No Results or Empty State */}
             {totalResults === 0 && (
               <div className="flex flex-col items-center justify-center py-20 opacity-0 animate-fade-up">
-                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-secondary">
                   {searchQuery ? (
-                    <Search className="h-8 w-8 text-muted-foreground" />
+                    <Search className="h-8 w-8 text-secondary-foreground/60" />
                   ) : (
-                    <PaletteIcon className="h-8 w-8 text-muted-foreground" />
+                    <PaletteIcon className="h-8 w-8 text-secondary-foreground/60" />
                   )}
                 </div>
                 <h3 className="font-display text-xl text-foreground mb-2">
                   {searchQuery ? "No palettes found" : "Select a category"}
                 </h3>
-                <p className="font-mono text-sm text-muted-foreground text-center max-w-md">
+                <p className="font-mono text-sm text-secondary-foreground/70 text-center max-w-md">
                   {searchQuery
                     ? "Try adjusting your search filters."
                     : "Choose a category from the menu to view curated palettes."}
@@ -460,7 +476,7 @@ const Index = () => {
           {/* Mobile Palette Detail Sheet */}
           <Sheet open={mobileDetailOpen} onOpenChange={setMobileDetailOpen}>
             <SheetContent side="right" className="w-full sm:w-[400px] border-l-border bg-background/95 backdrop-blur-xl overflow-y-auto">
-              <Suspense fallback={<div className="mt-20 flex flex-col items-center justify-center space-y-4"><div className="h-48 w-full bg-muted animate-pulse rounded-xl" /><div className="h-32 w-full bg-muted animate-pulse rounded-xl" /></div>}>
+              <Suspense fallback={<div className="mt-20 flex flex-col items-center justify-center space-y-4"><div className="h-48 w-full bg-secondary animate-pulse rounded-xl" /><div className="h-32 w-full bg-secondary animate-pulse rounded-xl" /></div>}>
                 {selectedPalette && (
                   <div className="mt-6">
                     <PaletteDetail palette={selectedPalette} />

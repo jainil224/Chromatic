@@ -31,8 +31,8 @@ export function usePalettes() {
                     table: 'palettes',
                 },
                 () => {
-                    // Refetch palettes when any change occurs
-                    fetchPalettes();
+                    // Refetch palettes silently when any change occurs
+                    fetchPalettes(true);
                 }
             )
             .subscribe();
@@ -42,9 +42,11 @@ export function usePalettes() {
         };
     }, []);
 
-    const fetchPalettes = async () => {
+    const fetchPalettes = async (silent = false) => {
         try {
-            setLoading(true);
+            if (!silent) {
+                setLoading(true);
+            }
             setError(null);
 
             const { data, error: fetchError } = await supabase
@@ -75,7 +77,9 @@ export function usePalettes() {
             console.error('Exception fetching palettes:', err);
             setError(err instanceof Error ? err.message : 'Unknown error');
         } finally {
-            setLoading(false);
+            if (!silent) {
+                setLoading(false);
+            }
         }
     };
 

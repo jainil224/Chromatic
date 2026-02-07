@@ -55,11 +55,11 @@ export const PaletteSection = memo(function PaletteSection({
           <div>
             <h2 className="font-display text-xl text-foreground">{title}</h2>
             {subtitle ? (
-              <p className="font-mono text-xs text-muted-foreground mt-0.5">
+              <p className="font-mono text-xs text-secondary-foreground/70 mt-0.5">
                 {subtitle}
               </p>
             ) : (
-              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              <p className="font-mono text-[10px] uppercase tracking-widest text-secondary-foreground/70">
                 {palettes.length} palettes
               </p>
             )}

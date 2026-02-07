@@ -14,7 +14,7 @@ export function CodeDisplay({ palette }: CodeDisplayProps) {
   const [copied, setCopied] = useState(false);
 
   const generateCode = (): string => {
-    const colorNames = ["primary", "secondary", "accent", "muted", "background"];
+    const colorNames = ["primary", "secondary", "accent", "background"];
 
     switch (format) {
       case "css":
@@ -53,13 +53,13 @@ ${palette.colors.map((c, i) => `$color-${colorNames[i] || `shade-${i + 1}`}: ${c
     <div className="space-y-3 opacity-0 animate-slide-in-right" style={{ animationDelay: "0.4s" }}>
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-muted-foreground">
+        <div className="flex items-center gap-2 text-secondary-foreground/70">
           <Code2 className="h-4 w-4" />
           <span className="font-mono text-xs uppercase tracking-widest">Generated Code</span>
         </div>
 
         {/* Format Toggle */}
-        <div className="flex gap-1 rounded-lg bg-muted p-1">
+        <div className="flex gap-1 rounded-lg bg-secondary p-1">
           {(["css", "tailwind", "scss"] as CodeFormat[]).map((f) => (
             <button
               type="button"
@@ -67,7 +67,7 @@ ${palette.colors.map((c, i) => `$color-${colorNames[i] || `shade-${i + 1}`}: ${c
               onClick={() => setFormat(f)}
               className={`rounded-md px-3 py-1 font-mono text-xs uppercase transition-all ${format === f
                 ? "bg-card text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
+                : "text-secondary-foreground/70 hover:text-foreground"
                 }`}
             >
               {f}
@@ -77,7 +77,7 @@ ${palette.colors.map((c, i) => `$color-${colorNames[i] || `shade-${i + 1}`}: ${c
       </div>
 
       {/* Code Block */}
-      <div className="relative overflow-hidden rounded-lg border border-border bg-muted/50">
+      <div className="relative overflow-hidden rounded-lg border border-border bg-secondary/50">
         <pre className="overflow-x-auto p-4 font-mono text-sm leading-relaxed text-foreground">
           <code>{code}</code>
         </pre>

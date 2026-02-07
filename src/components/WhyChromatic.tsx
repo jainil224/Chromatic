@@ -39,7 +39,7 @@ export const WhyChromatic = () => {
                     <h2 className="mb-4 font-display text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl animate-fade-up">
                         Why <span className="text-primary italic">Chromatic?</span>
                     </h2>
-                    <p className="mx-auto max-w-2xl font-mono text-sm text-muted-foreground sm:text-base animate-fade-up [animation-delay:0.1s]">
+                    <p className="mx-auto max-w-2xl font-mono text-sm text-secondary-foreground/70 sm:text-base animate-fade-up [animation-delay:0.1s]">
                         Everything you need to discover, create, and export perfect color palettes.
                     </p>
                 </div>
@@ -65,7 +65,7 @@ export const WhyChromatic = () => {
                                 {feature.title}
                             </h3>
 
-                            <p className="font-mono text-xs leading-relaxed text-muted-foreground group-hover:text-foreground/80 transition-colors">
+                            <p className="font-mono text-xs leading-relaxed text-secondary-foreground/70 group-hover:text-foreground/80 transition-colors">
                                 {feature.description}
                             </p>
 

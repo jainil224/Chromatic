@@ -103,7 +103,7 @@ export function PaletteCreatorModal({
                 <form onSubmit={handleSubmit} className="space-y-6 pt-4">
                     {/* Name Input */}
                     <div className="space-y-2">
-                        <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
+                        <label className="text-xs font-mono uppercase tracking-wider text-secondary-foreground/60">
                             Palette Name ({name.length}/50)
                         </label>
                         <Input
@@ -118,7 +118,7 @@ export function PaletteCreatorModal({
                     {/* Color Picker Grid */}
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                            <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
+                            <label className="text-xs font-mono uppercase tracking-wider text-secondary-foreground/60">
                                 Colors (3-5)
                             </label>
                             {colors.length < 5 && (
@@ -159,7 +159,7 @@ export function PaletteCreatorModal({
                                             variant="ghost"
                                             size="icon"
                                             onClick={() => handleRemoveColor(index)}
-                                            className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                                            className="h-8 w-8 text-secondary-foreground/60 hover:text-destructive shrink-0"
                                         >
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
@@ -171,7 +171,7 @@ export function PaletteCreatorModal({
 
                     {/* Tags */}
                     <div className="space-y-3">
-                        <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
+                        <label className="text-xs font-mono uppercase tracking-wider text-secondary-foreground/60">
                             Tags (up to 5)
                         </label>
                         <div className="flex flex-wrap gap-2">
@@ -181,7 +181,7 @@ export function PaletteCreatorModal({
                                     variant={selectedTags.includes(tag) ? "default" : "outline"}
                                     className={cn(
                                         "cursor-pointer transition-all hover:scale-105",
-                                        selectedTags.includes(tag) ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:border-foreground"
+                                        selectedTags.includes(tag) ? "bg-primary text-primary-foreground" : "text-secondary-foreground/60 hover:text-foreground hover:border-foreground"
                                     )}
                                     onClick={() => toggleTag(tag)}
                                 >
@@ -196,7 +196,7 @@ export function PaletteCreatorModal({
                             type="button"
                             variant="outline"
                             onClick={onClose}
-                            className="flex-1 h-12 border-border hover:bg-muted font-mono text-xs uppercase"
+                            className="flex-1 h-12 border-border hover:bg-secondary font-mono text-xs uppercase"
                         >
                             Cancel
                         </Button>

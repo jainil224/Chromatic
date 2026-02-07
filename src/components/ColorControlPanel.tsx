@@ -61,7 +61,7 @@ export const ColorControlPanel = memo(function ColorControlPanel({
         <div className="space-y-6">
             <div>
                 <h2 className="text-2xl font-bold text-foreground mb-2">Global Color System</h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-secondary-foreground/70">
                     Change any color below to instantly update <strong>all related components</strong> across the preview
                 </p>
             </div>
@@ -69,13 +69,13 @@ export const ColorControlPanel = memo(function ColorControlPanel({
             {/* Color Pickers */}
             <div className="space-y-6">
                 {colorRoles.map((role) => (
-                    <div key={role.key} className="space-y-3 p-4 rounded-lg bg-muted/50 border border-border">
+                    <div key={role.key} className="space-y-3 p-4 rounded-lg bg-secondary/50 border border-border">
                         <div className="flex items-start justify-between">
                             <div className="flex-1">
                                 <label className="text-sm font-semibold text-foreground">
                                     {role.label}
                                 </label>
-                                <p className="text-xs text-muted-foreground mt-0.5">
+                                <p className="text-xs text-secondary-foreground/70 mt-0.5">
                                     {role.description}
                                 </p>
                             </div>
@@ -100,13 +100,13 @@ export const ColorControlPanel = memo(function ColorControlPanel({
                                     />
                                     <button
                                         onClick={() => copyColor(colors[role.key], role.key)}
-                                        className="p-2 hover:bg-muted rounded-lg transition-colors"
+                                        className="p-2 hover:bg-secondary rounded-lg transition-colors"
                                         title="Copy color"
                                     >
                                         {copiedColor === role.key ? (
                                             <Check className="h-4 w-4 text-green-500" />
                                         ) : (
-                                            <Copy className="h-4 w-4 text-muted-foreground" />
+                                            <Copy className="h-4 w-4 text-secondary-foreground/70" />
                                         )}
                                     </button>
                                 </div>
@@ -116,7 +116,7 @@ export const ColorControlPanel = memo(function ColorControlPanel({
                                     {role.affects.map((item, idx) => (
                                         <span
                                             key={idx}
-                                            className="text-[10px] px-2 py-0.5 bg-background border border-border rounded-full text-muted-foreground"
+                                            className="text-[10px] px-2 py-0.5 bg-background border border-border rounded-full text-secondary-foreground/70"
                                         >
                                             {item}
                                         </span>
@@ -146,7 +146,7 @@ export const ColorControlPanel = memo(function ColorControlPanel({
                 </button>
                 <button
                     onClick={onReset}
-                    className="px-4 py-2 bg-muted text-foreground rounded-lg font-medium hover:bg-muted/80 transition-colors"
+                    className="px-4 py-2 bg-secondary text-foreground rounded-lg font-medium hover:bg-secondary/80 transition-colors"
                 >
                     Reset
                 </button>

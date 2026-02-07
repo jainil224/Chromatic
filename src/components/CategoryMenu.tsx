@@ -50,7 +50,7 @@ export function CategoryMenu({ selectedCategory, onSelectCategory, className }: 
       <div className="space-y-6">
         {MENU_SECTIONS.map((section) => (
           <div key={section.title} className="space-y-3">
-            <div className="flex items-center gap-2 px-4 text-muted-foreground/70">
+            <div className="flex items-center gap-2 px-4 text-secondary-foreground/60">
               <section.icon className="h-3.5 w-3.5" />
               <h3 className="font-display text-sm tracking-wide">{section.title}</h3>
             </div>
@@ -65,7 +65,7 @@ export function CategoryMenu({ selectedCategory, onSelectCategory, className }: 
                     "font-mono text-xs hover:pl-5", // subtle interaction
                     selectedCategory === item
                       ? "bg-accent/10 text-accent font-medium shadow-[inset_2px_0_0_0_hsl(var(--accent))]" // Active state
-                      : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                      : "text-secondary-foreground/70 hover:bg-secondary/50 hover:text-foreground"
                   )}
                 >
                   {item}
