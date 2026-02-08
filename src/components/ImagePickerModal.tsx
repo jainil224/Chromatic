@@ -24,6 +24,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { toPng } from "html-to-image";
+import { SubmitPaletteModal } from "@/components/SubmitPaletteModal";
 
 interface Marker {
     x: number;
@@ -58,6 +59,7 @@ export function ImagePickerModal({
     const [activeIndex, setActiveIndex] = useState<number>(0);
     const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
     const [pickerSize, setPickerSize] = useState(96); // Loupe Size control (default 96px)
+    const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
     const exportRef = useRef<HTMLDivElement>(null);
 
     // Loupe State
@@ -381,6 +383,12 @@ export function ImagePickerModal({
         if (savedNumColors <= 2) return;
 
         const next = localMarkers.slice(0, -1);
+        handleDataChange(next);
+    };
+
+    const handleRemoveMarker = (index: number) => {
+        if (localMarkers.length <= 2) return;
+        const next = localMarkers.filter((_, i) => i !== index);
         handleDataChange(next);
     };
 
@@ -714,7 +722,7 @@ export function ImagePickerModal({
                                                             <button
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
-                                                                    onNumColorsChange(savedNumColors - 1);
+                                                                    handleRemoveMarker(i);
                                                                 }}
                                                                 className="absolute top-2 right-2 p-1 rounded-full bg-black/40 hover:bg-black/60 text-white/70 hover:text-white transition-colors"
                                                             >
@@ -735,7 +743,7 @@ export function ImagePickerModal({
                                             {/* Direct Add Slot (The "Plus" in Palette Panel) */}
                                             {localMarkers.length < 8 && (
                                                 <button
-                                                    onClick={() => onNumColorsChange(savedNumColors + 1)}
+                                                    onClick={handleIncreaseColors}
                                                     className="flex-1 flex flex-col items-center justify-center bg-card hover:bg-secondary transition-colors border-l border-border/50 group"
                                                 >
                                                     <div className="p-2 rounded-full bg-primary/10 group-hover:scale-110 transition-transform">
@@ -805,9 +813,22 @@ export function ImagePickerModal({
                         >
                             <ImageIcon className="mr-2 h-4 w-4" /> Download Image
                         </Button>
+                        <Button
+                            onClick={() => setIsSubmitModalOpen(true)}
+                            disabled={!savedImage || localMarkers.length < 3}
+                            className="h-11 px-6 bg-[#00FF88] hover:bg-[#00FF88]/90 text-[#050505] font-bold border-none transition-all hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+                        >
+                            Submit to Community
+                        </Button>
                     </div>
                 </DialogFooter>
             </DialogContent>
+
+            <SubmitPaletteModal
+                isOpen={isSubmitModalOpen}
+                onClose={() => setIsSubmitModalOpen(false)}
+                initialColors={localMarkers.map(m => m.color)}
+            />
 
             {/* Hidden Palette Export Template */}
             <div className="fixed -left-[9999px] top-0 pointer-events-none">

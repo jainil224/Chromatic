@@ -284,6 +284,7 @@ const Index = () => {
               document.getElementById('palette-grid')?.scrollIntoView({ behavior: 'smooth' });
             }
           }}
+          onMaker={() => navigate('/palette-maker')}
           onCustomize={() => navigate('/customize')}
           onPickFromImage={() => setIsImagePickerOpen(true)}
         />

@@ -1,8 +1,8 @@
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
-import { Paintbrush, Search, Image as ImageIcon } from "lucide-react";
+import { Palette, Search, Image as ImageIcon, Paintbrush } from "lucide-react";
 
-export const Hero = ({ onBrowse, onCustomize, onPickFromImage }: { onBrowse: () => void; onCustomize: () => void; onPickFromImage: () => void }) => {
+export const Hero = ({ onBrowse, onMaker, onPickFromImage, onCustomize }: { onBrowse: () => void; onMaker: () => void; onPickFromImage: () => void; onCustomize: () => void }) => {
     return (
         <section className="relative w-full overflow-hidden py-24 lg:py-32">
             {/* Cinematic Gradient Background */}
@@ -38,6 +38,15 @@ export const Hero = ({ onBrowse, onCustomize, onPickFromImage }: { onBrowse: () 
                             >
                                 <Search className="mr-2 h-4 w-4" />
                                 Browse Palettes
+                            </Button>
+                            <Button
+                                onClick={onMaker}
+                                variant="outline"
+                                size="lg"
+                                className="h-14 rounded-full border-white/10 bg-white/5 px-8 text-base font-medium backdrop-blur-sm transition-all hover:bg-white/10 hover:border-white/20"
+                            >
+                                <Palette className="mr-2 h-4 w-4" />
+                                Maker
                             </Button>
                             <Button
                                 onClick={onCustomize}
