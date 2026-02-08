@@ -251,7 +251,7 @@ const Index = () => {
       themeMode === 'light' ? 'bg-[#fcfaf7]' : themeMode === 'midnight' ? 'bg-[#050b17]' : 'bg-[#080808]'
     )}>
       {/* Live Palette Counter */}
-      <ColorCounter totalPalettes={totalPalettes} />
+      <ColorCounter totalPalettes={totalPalettes} themeMode={themeMode} />
 
       {/* Navbar Section */}
       <Navbar
