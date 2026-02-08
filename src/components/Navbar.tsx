@@ -3,8 +3,10 @@ import { ModeToggle, type ThemeMode } from "./ModeToggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { CategoryMenu } from "@/components/CategoryMenu";
+import { SubmitPaletteModal } from "@/components/SubmitPaletteModal";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 interface NavbarProps {
     isSidebarOpen: boolean;
@@ -36,6 +38,7 @@ export const Navbar = ({
     onToggleTheme
 }: NavbarProps) => {
     const navigate = useNavigate();
+    const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
 
     return (
         <header className="fixed top-0 left-0 right-0 z-50 w-full border-b border-white/5 bg-background/80 backdrop-blur-xl">
@@ -57,6 +60,11 @@ export const Navbar = ({
                                     onSelectCategory={setSelectedCategory}
                                     className="mt-8 px-4"
                                 />
+                                <div className="absolute bottom-4 left-4">
+                                    <Button variant="ghost" size="sm" onClick={() => navigate('/admin')} className="text-muted-foreground opacity-50 hover:opacity-100">
+                                        Admin
+                                    </Button>
+                                </div>
                             </SheetContent>
                         </Sheet>
 
@@ -108,10 +116,21 @@ export const Navbar = ({
                             <Button
                                 variant="outline"
                                 onClick={onPickFromImage}
-                                className="flex-1 sm:flex-none rounded-full border-white/10 bg-white/5 hover:bg-white/10 transition-all font-mono text-[10px] uppercase h-10 px-5"
+                                className="hidden sm:flex rounded-full border-white/10 bg-white/5 hover:bg-white/10 transition-all font-mono text-[10px] uppercase h-10 px-5"
                             >
                                 <ImageIcon className="h-3.5 w-3.5 mr-1.5" />
                                 From Image
+                            </Button>
+
+
+
+                            <Button
+                                variant="outline"
+                                onClick={() => navigate('/palette-maker')}
+                                className="flex-1 sm:flex-none rounded-full border-white/10 bg-white/5 hover:bg-white/10 transition-all font-mono text-[10px] uppercase h-10 px-5"
+                            >
+                                <PaletteIcon className="h-3.5 w-3.5 mr-1.5" />
+                                Maker
                             </Button>
 
                             <Button
@@ -126,6 +145,10 @@ export const Navbar = ({
                     </div>
                 </div>
             </div>
+            <SubmitPaletteModal
+                isOpen={isSubmitModalOpen}
+                onClose={() => setIsSubmitModalOpen(false)}
+            />
         </header>
     );
 };
