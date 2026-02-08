@@ -1,4 +1,26 @@
 /**
+ * Converts hex color to RGB string "r, g, b"
+ */
+export const hexToRgbString = (hex: string): string => {
+    // Remove # if present
+    hex = hex.replace(/^#/, '');
+
+    // Parse hex values
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+
+    return `${r}, ${g}, ${b}`;
+};
+
+/**
+ * Generates a random hex color
+ */
+export const generateRandomColor = (): string => {
+    return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+};
+
+/**
  * Converts hex color to HSL
  */
 export const hexToHSL = (hex: string): { h: number; s: number; l: number } => {
@@ -119,4 +141,43 @@ export const generateTailwindPalette = (baseColor: string): TailwindShades => {
     });
 
     return palette as TailwindShades;
+};
+
+export type HarmonyType = 'complementary' | 'analogous' | 'triadic' | 'split-complementary' | 'tetradic';
+
+export interface ColorHarmony {
+    type: HarmonyType;
+    colors: string[];
+}
+
+export const generateColorHarmonies = (baseHex: string): ColorHarmony[] => {
+    const hsl = hexToHSL(baseHex);
+
+    // Helper to shift hue and return hex
+    const shiftHue = (h: number, degree: number): string => {
+        return hslToHex((h + degree) % 360, hsl.s, hsl.l);
+    };
+
+    return [
+        {
+            type: 'complementary',
+            colors: [shiftHue(hsl.h, 180)]
+        },
+        {
+            type: 'analogous',
+            colors: [shiftHue(hsl.h, -30), shiftHue(hsl.h, 30)]
+        },
+        {
+            type: 'triadic',
+            colors: [shiftHue(hsl.h, 120), shiftHue(hsl.h, 240)]
+        },
+        {
+            type: 'split-complementary',
+            colors: [shiftHue(hsl.h, 150), shiftHue(hsl.h, 210)]
+        },
+        {
+            type: 'tetradic',
+            colors: [shiftHue(hsl.h, 90), shiftHue(hsl.h, 180), shiftHue(hsl.h, 270)]
+        }
+    ];
 };

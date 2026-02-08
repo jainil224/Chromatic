@@ -43,23 +43,17 @@ export default function AdminLogin() {
 
     return (
         <div className="midnight-mode min-h-screen flex items-center justify-center bg-background px-4 relative overflow-hidden">
-            {/* Background Effects */}
-            <div className="absolute inset-0 z-0">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-4xl bg-primary/5 blur-[100px] rounded-full mix-blend-screen" />
-            </div>
-
             <div className="w-full max-w-sm space-y-8 bg-card/30 backdrop-blur-xl p-8 rounded-2xl border border-white/10 shadow-2xl relative z-10 animate-fade-up">
                 <div className="text-center space-y-4">
-                    <div className="inline-flex items-center justify-center p-4 rounded-full bg-primary/10 mb-2 ring-1 ring-primary/20 shadow-[0_0_15px_-3px_hsl(var(--primary)/0.3)]">
-                        <Lock className="h-6 w-6 text-primary drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" />
+                    <div className="inline-flex items-center justify-center p-4 rounded-full bg-primary/10 mb-2 ring-1 ring-primary/20">
+                        <Lock className="h-6 w-6 text-primary" />
                     </div>
                     <div className="space-y-1">
                         <h1 className="text-3xl font-display font-bold tracking-tight bg-gradient-to-br from-white via-white/90 to-white/70 bg-clip-text text-transparent">
-                            Admin Access
+                            Restricted Access
                         </h1>
                         <p className="text-sm text-muted-foreground/80 font-medium">
-                            Enter your credentials to manage palettes.
+                            This section is accessible only by <span className="text-primary font-bold">JAINIL PATEL</span>.
                         </p>
                     </div>
                 </div>

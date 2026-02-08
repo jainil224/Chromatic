@@ -3,7 +3,12 @@ import { ColorGrid, type BaseColor } from "@/components/palette-maker/ColorGrid"
 import { PaletteBuilder } from "@/components/palette-maker/PaletteBuilder";
 import { SubmitPaletteModal } from "@/components/SubmitPaletteModal";
 import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
+import { generateRandomColor, hexToRgbString, generateColorHarmonies } from "@/utils/colorUtils";
+import { toast } from "sonner";
+import { Plus, RefreshCw, Sparkles } from "lucide-react";
 
 // Predefined colors with shades
 const PALETTE_MAKER_COLORS: BaseColor[] = [
@@ -193,6 +198,7 @@ const PaletteMaker = () => {
     const navigate = useNavigate();
     const [selectedColors, setSelectedColors] = useState<{ name: string; hex: string; rgb: string }[]>([]);
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
+    const [creationColor, setCreationColor] = useState<string>("#3b82f6"); // Default blue-ish
 
     const handleColorSelect = (color: { name: string; hex: string; rgb: string }) => {
         // Prevent duplicates
@@ -201,6 +207,13 @@ const PaletteMaker = () => {
             setSelectedColors(prev => prev.filter(c => c.hex !== color.hex));
             return;
         }
+
+        // Max limit check
+        if (selectedColors.length >= 5) {
+            toast.error("You can only add up to 5 colors.");
+            return;
+        }
+
         setSelectedColors(prev => [...prev, color]);
     };
 
@@ -210,6 +223,20 @@ const PaletteMaker = () => {
 
     const handleClearPalette = () => {
         setSelectedColors([]);
+    };
+
+    const handleColorChange = (index: number, newHex: string) => {
+        const rgb = hexToRgbString(newHex);
+        setSelectedColors(prev => {
+            const newColors = [...prev];
+            newColors[index] = {
+                ...newColors[index],
+                hex: newHex,
+                rgb: rgb,
+                name: "Custom Color" // Or keep existing name if possible, but "Custom" is safer
+            };
+            return newColors;
+        });
     };
 
     return (
@@ -227,26 +254,171 @@ const PaletteMaker = () => {
                 </div>
             </div>
 
-            <main className="container py-8 px-4 mx-auto space-y-12">
-                {/* Palette Builder Section */}
-                <section className="rounded-xl border bg-card/50 p-6 shadow-sm backdrop-blur-sm">
+            <main className="container py-8 px-4 mx-auto space-y-12 relative">
+                {/* Palette Builder Section - STICKY */}
+                <section className="sticky top-4 z-50 rounded-2xl border border-white/10 bg-background/80 p-6 shadow-2xl backdrop-blur-xl transition-all duration-300">
                     <PaletteBuilder
                         colors={selectedColors}
                         onRemoveColor={handleRemoveColor}
                         onClearPalette={handleClearPalette}
                         onReorder={setSelectedColors}
+                        onColorChange={handleColorChange}
                         onSubmit={() => setIsSubmitModalOpen(true)}
                     />
                 </section>
 
                 {/* Color Grid Section */}
-                <section>
-                    <h2 className="mb-6 text-2xl font-display font-bold px-4">Explore Colors</h2>
-                    <ColorGrid
-                        colors={PALETTE_MAKER_COLORS}
-                        selectedColors={selectedColors.map(c => c.hex)}
-                        onColorSelect={handleColorSelect}
-                    />
+                {/* Color Creation Studio */}
+                <section className="relative rounded-3xl border border-white/10 bg-card/30 p-8 md:p-12 shadow-2xl overflow-hidden">
+                    {/* Background Glow */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
+
+                    <div className="relative z-10 grid gap-12 lg:grid-cols-2 items-center max-w-5xl mx-auto">
+
+                        {/* Left: Controls */}
+                        <div className="space-y-8">
+                            <div className="space-y-2">
+                                <h2 className="text-4xl font-display font-bold text-foreground">Color Studio</h2>
+                                <p className="text-muted-foreground text-lg">
+                                    Craft your perfect color. Pick, tweak, or randomize to find the missing piece of your palette.
+                                </p>
+                            </div>
+
+                            <div className="space-y-6">
+                                {/* Color Input & Display */}
+                                <div className="flex items-center gap-4 p-2 rounded-2xl border border-white/10 bg-black/20 backdrop-blur-md">
+                                    <div className="relative w-16 h-16 rounded-xl overflow-hidden shadow-inner ring-1 ring-white/10 shrink-0 group cursor-pointer">
+                                        <div
+                                            className="absolute inset-0 w-full h-full"
+                                            style={{ backgroundColor: creationColor }}
+                                        />
+                                        <input
+                                            type="color"
+                                            value={creationColor}
+                                            onChange={(e) => setCreationColor(e.target.value)}
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                            title="Pick a color"
+                                        />
+                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/30 transition-opacity pointer-events-none">
+                                            <span className="text-[10px] text-white font-bold uppercase">Pick</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex-1 space-y-1">
+                                        < label className="text-xs font-medium text-muted-foreground ml-1">HEX CODE</label>
+                                        <input
+                                            type="text"
+                                            value={creationColor.toUpperCase()}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                setCreationColor(val);
+                                                // Basic valid hex check could be added here
+                                            }}
+                                            className="w-full bg-transparent border-none text-2xl font-mono font-bold text-foreground focus:ring-0 p-0 uppercase placeholder:text-muted-foreground/50"
+                                            placeholder="#000000"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Button
+                                        size="lg"
+                                        variant="outline"
+                                        onClick={() => setCreationColor(generateRandomColor())}
+                                        className="h-14 text-base border-white/10 hover:bg-white/5 hover:border-white/20"
+                                    >
+                                        <RefreshCw className="mr-2 h-5 w-5" />
+                                        Randomize
+                                    </Button>
+
+                                    <Button
+                                        size="lg"
+                                        onClick={() => handleColorSelect({
+                                            name: "Custom Color",
+                                            hex: creationColor,
+                                            rgb: hexToRgbString(creationColor)
+                                        })}
+                                        disabled={selectedColors.length >= 5}
+                                        className="h-14 text-base bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25"
+                                    >
+                                        <Plus className="mr-2 h-5 w-5" />
+                                        Add to Palette
+                                    </Button>
+                                </div>
+
+                                {selectedColors.length >= 5 && (
+                                    <p className="text-center text-sm text-destructive/80 font-medium animate-pulse">
+                                        Palette is full (5/5). Remove a color to add new ones.
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Right: Large Preview */}
+                        <div className="relative group perspective-1000 flex justify-center">
+                            {/* Ambient Glow behind preview */}
+                            <div
+                                className="absolute inset-0 rounded-full blur-[100px] opacity-40 transition-colors duration-700"
+                                style={{ backgroundColor: creationColor }}
+                            />
+
+                            <div
+                                className="relative w-64 h-64 md:w-80 md:h-80 rounded-[2.5rem] shadow-2xl transition-all duration-500 transform group-hover:scale-105 group-hover:rotate-3 border-4 border-white/5 ring-1 ring-white/10"
+                                style={{ backgroundColor: creationColor }}
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-black/10 rounded-[2.5rem] opacity-50" />
+
+                                {/* Info on the card */}
+                                <div className="absolute bottom-8 left-8 right-8">
+                                    <div className="bg-black/20 backdrop-blur-md rounded-2xl p-4 border border-white/10">
+                                        <div className="text-white/90 font-mono text-xl font-bold tracking-wider">
+                                            {creationColor.toUpperCase()}
+                                        </div>
+                                        <div className="text-white/60 font-mono text-xs mt-1">
+                                            {hexToRgbString(creationColor)}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Perfect Matches / Harmonies */}
+                <section className="space-y-6">
+                    <div className="space-y-1 px-2">
+                        <h2 className="text-3xl font-display font-bold text-foreground/90">Perfect Matches</h2>
+                        <p className="text-sm text-muted-foreground">Automatically generated harmonies to pair with your color.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {generateColorHarmonies(creationColor).map((harmony) => (
+                            <div key={harmony.type} className="space-y-3 bg-card/40 p-4 rounded-2xl border border-white/5">
+                                <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{harmony.type.replace('-', ' ')}</h3>
+                                <div className="flex gap-3">
+                                    {harmony.colors.map((hex) => (
+                                        <button
+                                            key={hex}
+                                            onClick={() => handleColorSelect({
+                                                name: `${harmony.type} match`,
+                                                hex: hex,
+                                                rgb: hexToRgbString(hex)
+                                            })}
+                                            disabled={selectedColors.length >= 5}
+                                            className="group relative h-16 w-full rounded-xl shadow-sm border border-white/10 overflow-hidden transition-all hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:hover:scale-100"
+                                            style={{ backgroundColor: hex }}
+                                            title={`Add ${hex}`}
+                                        >
+                                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/20 transition-opacity">
+                                                <Plus className="text-white w-5 h-5 drop-shadow-md" />
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </section>
             </main>
 
