@@ -1,34 +1,7 @@
-import { Palette, Image as ImageIcon, MousePointer2, Moon } from "lucide-react";
+import { Palette, Image as ImageIcon, MousePointer2, Moon, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const features = [
-    {
-        icon: Palette,
-        title: "Curated Palettes",
-        description: "Hand-picked color palettes crafted for modern UI and branding.",
-        delay: "0.1s"
-    },
-    {
-        icon: ImageIcon,
-        title: "Image Color Extraction",
-        description: "Instantly generate palettes by picking colors from any image.",
-        delay: "0.2s"
-    },
-    {
-        icon: MousePointer2,
-        title: "One-Click Export",
-        description: "Export palettes to CSS, Tailwind, or design tools.",
-        delay: "0.3s"
-    },
-    {
-        icon: Moon,
-        title: "Built for Dark Mode",
-        description: "Designed for focus, contrast, and long creative sessions.",
-        delay: "0.4s"
-    }
-];
-
-export const WhyChromatic = () => {
+export const WhyChromatic = ({ themeMode }: { themeMode?: 'light' | 'dark' | 'midnight' }) => {
     return (
         <section className="relative w-full py-24 lg:py-32 overflow-hidden">
             {/* Background Ambience */}
@@ -44,35 +17,44 @@ export const WhyChromatic = () => {
                     </p>
                 </div>
 
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                    {features.map((feature, index) => (
-                        <div
-                            key={index}
-                            className={cn(
-                                "group relative overflow-hidden rounded-3xl border border-white/5 bg-[#121212]/40 p-8",
-                                "backdrop-blur-xl transition-all duration-300",
-                                "hover:-translate-y-2 hover:border-primary/20 hover:bg-[#121212]/60",
-                                "hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.5)]",
-                                "animate-fade-up"
-                            )}
-                            style={{ animationDelay: feature.delay }}
-                        >
-                            <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
-                                <feature.icon className="h-6 w-6" />
-                            </div>
+                {/* SEO Description Content */}
+                <div className={cn(
+                    "mb-16 rounded-3xl border p-8 md:p-12 backdrop-blur-xl transition-all duration-500 animate-fade-up",
+                    themeMode === 'light'
+                        ? "border-orange-500/10 bg-white/40 shadow-[0_20px_50px_-20px_rgba(249,115,22,0.1)]"
+                        : themeMode === 'midnight'
+                            ? "border-blue-500/20 bg-[#0a1229]/60 shadow-[0_20px_50px_-20px_rgba(59,130,246,0.15)]"
+                            : "border-white/5 bg-[#121212]/40 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.5)]"
+                )}>
+                    <h3 className="mb-6 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                        Chromatic Color Palette – Find Perfect Colors for Your Designs
+                    </h3>
 
-                            <h3 className="mb-3 font-display text-xl font-bold text-foreground">
-                                {feature.title}
-                            </h3>
+                    <div className="space-y-4 font-mono text-sm leading-relaxed text-secondary-foreground/80 sm:text-base">
+                        <p className="opacity-0 animate-fade-up [animation-delay:0.2s] [animation-fill-mode:forwards]">
+                            Chromatic Color Palette is a powerful and easy-to-use online color tool that helps designers, developers, and creatives discover beautiful color palettes and gradients.
+                        </p>
 
-                            <p className="font-mono text-xs leading-relaxed text-secondary-foreground/70 group-hover:text-foreground/80 transition-colors">
-                                {feature.description}
-                            </p>
+                        <p className="opacity-0 animate-fade-up [animation-delay:0.4s] [animation-fill-mode:forwards]">
+                            Browse trending color combinations, generate custom palettes, and copy HEX, RGB, and HSL values instantly. Whether you're building a website, mobile app, logo, or UI design, Chromatic Color Palette makes color selection fast and effortless.
+                        </p>
 
-                            {/* Decorative Corner Glow */}
-                            <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-primary/10 blur-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                        </div>
-                    ))}
+                        <p className="opacity-0 animate-fade-up [animation-delay:0.6s] [animation-fill-mode:forwards]">
+                            Our platform is free, fast, and optimized for creative workflows. No sign-up required.
+                        </p>
+                    </div>
+
+                    {/* Hidden keywords for SEO targeting */}
+                    <div className="sr-only">
+                        color palette generator, free color palette tool, gradient generator online, hex color codes, ui ux color palettes, web design colors, color combinations, chromatic color palette
+                    </div>
+
+                    {/* Footer Attribution */}
+                    <div className="absolute bottom-4 right-6 sm:bottom-6 sm:right-8 opacity-40 hover:opacity-100 transition-opacity">
+                        <span className="flex items-center gap-1.5 font-mono text-[10px] sm:text-[11px] uppercase tracking-wider text-secondary-foreground">
+                            Made with <Heart className="h-3 w-3 fill-red-500 text-red-500 animate-pulse" /> by Chromatic
+                        </span>
+                    </div>
                 </div>
             </div>
         </section>

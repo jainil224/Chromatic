@@ -288,7 +288,7 @@ const Index = () => {
           onCustomize={() => navigate('/customize')}
           onPickFromImage={() => setIsImagePickerOpen(true)}
         />
-        <WhyChromatic />
+        <WhyChromatic themeMode={themeMode} />
       </div>
 
       {/* Gradient Background */}
