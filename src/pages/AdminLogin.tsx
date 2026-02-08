@@ -42,21 +42,33 @@ export default function AdminLogin() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background px-4">
-            <div className="w-full max-w-sm space-y-8 bg-card p-8 rounded-xl border shadow-sm">
-                <div className="text-center space-y-2">
-                    <div className="inline-flex items-center justify-center p-3 rounded-full bg-primary/10 mb-4">
-                        <Lock className="h-6 w-6 text-primary" />
+        <div className="midnight-mode min-h-screen flex items-center justify-center bg-background px-4 relative overflow-hidden">
+            {/* Background Effects */}
+            <div className="absolute inset-0 z-0">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-4xl bg-primary/5 blur-[100px] rounded-full mix-blend-screen" />
+            </div>
+
+            <div className="w-full max-w-sm space-y-8 bg-card/30 backdrop-blur-xl p-8 rounded-2xl border border-white/10 shadow-2xl relative z-10 animate-fade-up">
+                <div className="text-center space-y-4">
+                    <div className="inline-flex items-center justify-center p-4 rounded-full bg-primary/10 mb-2 ring-1 ring-primary/20 shadow-[0_0_15px_-3px_hsl(var(--primary)/0.3)]">
+                        <Lock className="h-6 w-6 text-primary drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" />
                     </div>
-                    <h1 className="text-2xl font-bold tracking-tight">Admin Access</h1>
-                    <p className="text-sm text-muted-foreground">
-                        Enter your credentials to manage palettes.
-                    </p>
+                    <div className="space-y-1">
+                        <h1 className="text-3xl font-display font-bold tracking-tight bg-gradient-to-br from-white via-white/90 to-white/70 bg-clip-text text-transparent">
+                            Admin Access
+                        </h1>
+                        <p className="text-sm text-muted-foreground/80 font-medium">
+                            Enter your credentials to manage palettes.
+                        </p>
+                    </div>
                 </div>
 
-                <form onSubmit={handleLogin} className="space-y-6">
+                <form onSubmit={handleLogin} className="space-y-5">
                     <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="email" className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70 ml-1">
+                            Email
+                        </Label>
                         <Input
                             id="email"
                             type="email"
@@ -64,22 +76,30 @@ export default function AdminLogin() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
+                            className="bg-background/20 border-white/10 focus:border-primary/50 focus:ring-primary/20 transition-all duration-300 placeholder:text-muted-foreground/40 h-11"
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="password">Password</Label>
+                        <Label htmlFor="password" className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70 ml-1">
+                            Password
+                        </Label>
                         <Input
                             id="password"
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
+                            className="bg-background/20 border-white/10 focus:border-primary/50 focus:ring-primary/20 transition-all duration-300 h-11"
                         />
                     </div>
 
-                    <Button type="submit" className="w-full" disabled={loading}>
+                    <Button
+                        type="submit"
+                        className="w-full h-11 text-base font-medium shadow-[0_0_20px_-5px_hsl(var(--primary)/0.3)] hover:shadow-[0_0_30px_-5px_hsl(var(--primary)/0.5)] transition-all duration-300"
+                        disabled={loading}
+                    >
                         {loading ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                         ) : (
                             "Sign In"
                         )}
