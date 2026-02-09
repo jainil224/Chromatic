@@ -5,6 +5,7 @@
   tags?: string[];
   category?: string;
   isCustom?: boolean;
+  description?: string;
   created_at?: string;
 }
 
@@ -780,7 +781,7 @@ export const weddingPalettes: Palette[] = [
   { id: "dark-navy", name: "Dark Navy", colors: ["#0f2b4c", "#d8cfc2", "#0a2540", "#000000", "#f5f3ef"], tags: ["wedding", "dark", "navy"] },
   { id: "lavender-soft", name: "Lavender Soft", colors: ["#a968cc", "#d8a7e5", "#eac5ef", "#ffe3f1", "#fff7fb"], tags: ["wedding", "lavender", "soft"] },
   { id: "gold-navy", name: "Gold Navy", colors: ["#f2b63f", "#3f678d", "#1f3f5f", "#4f7f8f", "#f8f4ec"], tags: ["wedding", "gold", "navy"] },
-  { id: "ice-pastel", name: "Ice Pastel", colors: ["#fbfbfb", "#eaf8ff", "#cfdcff", "#cfcaff", "#f7f8ff"], tags: ["wedding", "ice", "pastel"] },
+  { id: "ice-pastel", name: "Ice Pastel", colors: ["#fbfbfb", "#eaf8ff", "#cfdcff", "#cfcaff", "#f7f8ff"], tags: ["wedding", "ice", "pastel"], description: "A serene collection of ethereal blues and pristine whites, capturing the quiet elegance of a frozen winter morning." },
   { id: "teal-mustard", name: "Teal Mustard", colors: ["#2a6f7e", "#f4e7c3", "#ff9155", "#cf6a44", "#fff3e6"], tags: ["wedding", "teal", "mustard"] },
 ];
 

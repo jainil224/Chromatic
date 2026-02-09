@@ -25,6 +25,8 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { toPng } from "html-to-image";
 import { SubmitPaletteModal } from "@/components/SubmitPaletteModal";
+import { PaletteExportCard } from "@/components/PaletteExportCard";
+import type { Palette } from "@/data/palettes";
 
 interface Marker {
     x: number;
@@ -832,48 +834,17 @@ export function ImagePickerModal({
 
             {/* Hidden Palette Export Template */}
             <div className="fixed -left-[9999px] top-0 pointer-events-none">
-                <div
+                <PaletteExportCard
                     ref={exportRef}
-                    className="w-[800px] bg-black p-16 flex flex-col gap-12"
-                >
-                    {/* Header */}
-                    <div className="flex items-start justify-between">
-                        <div className="space-y-2">
-                            <h2 className="text-6xl font-display text-white italic leading-tight">
-                                Chromatic Palette
-                            </h2>
-                            <p className="text-sm font-mono text-zinc-500 tracking-[0.3em] uppercase">
-                                Curated by Yours Truly
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-2 text-[#0ea5e9] font-mono text-sm font-bold tracking-widest bg-[#0ea5e9]/5 px-4 py-2 rounded-full border border-[#0ea5e9]/20">
-                            <div className="w-2 h-2 rounded-full bg-[#0ea5e9] shadow-[0_0_10px_#0ea5e9]" />
-                            CHROMATIC
-                        </div>
-                    </div>
-
-                    {/* Main Palette Card */}
-                    <div className="w-full aspect-[4/3] bg-zinc-900 rounded-[3.5rem] overflow-hidden flex flex-col border border-white/5 shadow-2xl">
-                        {localMarkers.map((marker, i) => (
-                            <div
-                                key={i}
-                                className="flex-1 flex items-center px-12 group"
-                                style={{ backgroundColor: marker.color }}
-                            >
-                                <span className="font-mono text-xl font-bold mix-blend-difference opacity-80" style={{ color: 'white' }}>
-                                    {marker.color.toUpperCase()}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Footer */}
-                    <div className="flex items-center justify-end mt-4">
-                        <div className="text-3xl">
-                            💜
-                        </div>
-                    </div>
-                </div>
+                    palette={{
+                        id: "temp-export",
+                        name: "Pastel Palettes",
+                        colors: localMarkers.map((m) => m.color),
+                        category: "custom",
+                        isCustom: true,
+                        tags: ["chromatic", "palette"]
+                    }}
+                />
             </div>
         </Dialog>
     );
