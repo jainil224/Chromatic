@@ -62,15 +62,18 @@ export const SubmitPaletteModal = ({ isOpen, onClose, initialColors = [] }: Subm
         setIsSubmitting(true);
 
         try {
-            // Call the Supabase Edge Function instead of direct table insert
-            // This allows the backend to capture the user's real IP address
-            const { data, error } = await supabase.functions.invoke('submit-palette', {
-                body: {
-                    name: name.trim(),
-                    colors: colors,
-                    tags: tags.split(',').map(t => t.trim()).filter(t => t.length > 0)
-                }
-            });
+            // Directly insert into the palette_submissions table
+            const { data, error } = await supabase
+                .from('palette_submissions')
+                .insert([
+                    {
+                        name: name.trim(),
+                        colors: colors,
+                        tags: tags.split(',').map(t => t.trim()).filter(t => t.length > 0),
+                        status: 'pending'
+                    }
+                ])
+                .select();
 
             if (error) throw error;
 
@@ -101,14 +104,6 @@ export const SubmitPaletteModal = ({ isOpen, onClose, initialColors = [] }: Subm
                 <form onSubmit={handleSubmit} className="space-y-6 mt-4">
                     <div className="space-y-2">
                         <Label htmlFor="name">Palette Name</Label>
-                        <Input
-                            id="name"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder="e.g., Sunset Vibes"
-                            className="bg-secondary/50 border-white/10 focus:border-primary/50"
-                            maxLength={30}
-                        />
                         <Input
                             id="name"
                             value={name}
