@@ -35,6 +35,7 @@
 
     /* Custom tokens */
     --glow-primary: 38 92% 70%;
+    --dock-glow: 38 92% 70%;
     --surface-elevated: 240 5% 14%;
     --text-dim: 40 6% 45%;
 
@@ -143,6 +144,7 @@
 
     --surface-elevated: 0 0% 100%;
     --text-dim: 240 6% 50%;
+    --dock-glow: 25 90% 55%;
   }
 
   .midnight-mode {
@@ -170,6 +172,7 @@
 
     --surface-elevated: 222 47% 14%;
     --text-dim: 215 20% 50%;
+    --dock-glow: 199 89% 48%;
   }
 
   @keyframes hue-rotate {
@@ -184,6 +187,20 @@
 
   .animate-hue-rotate {
     animation: hue-rotate 4s linear infinite;
+  }
+
+  @keyframes dock-pulse {
+
+    0%,
+    100% {
+      box-shadow: 0 0 20px -5px hsl(var(--dock-glow) / 0.3),
+        0 0 10px -2px hsl(var(--dock-glow) / 0.1);
+    }
+
+    50% {
+      box-shadow: 0 0 40px -8px hsl(var(--dock-glow) / 0.5),
+        0 0 20px -4px hsl(var(--dock-glow) / 0.2);
+    }
   }
 }
 
@@ -230,25 +247,25 @@
   /* Select buttons that are palette cards. They have bg-card and border classes. */
   .palette-card-btn {
     position: relative;
-    /* Glassmorphism */
-    background-color: hsl(var(--card) / 0.45);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-
-    /* Modern rounded corners are already applied (rounded-lg), keeping them. */
+    /* Extreme Glassmorphism */
+    background-color: hsl(var(--card) / 0.3);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid hsla(0, 0%, 100%, 0.1);
 
     /* Smooth transition */
-    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-    border-color: hsl(var(--border) / 0.6);
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
   }
 
   .palette-card-btn:hover {
     /* Hover Animation */
-    transform: scale(1.02);
-    /* Soft glow using accent */
-    box-shadow: 0 0 30px -5px hsl(var(--accent) / 0.15);
-    border-color: hsl(var(--accent) / 0.3);
-    background-color: hsl(var(--card) / 0.6);
+    transform: translateY(-8px) scale(1.04);
+    /* Multi-layered soft glow */
+    box-shadow:
+      0 20px 40px -15px rgba(0, 0, 0, 0.5),
+      0 0 30px -5px hsl(var(--accent) / 0.1);
+    border-color: hsla(0, 0%, 100%, 0.2);
+    background-color: hsl(var(--card) / 0.5);
     z-index: 10;
   }
 
@@ -290,6 +307,19 @@
     /* Subtle shadow */
     box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3);
     z-index: 20;
+  }
+
+  /* 5. Navigation Dock (Pulse-Dock) */
+  .glass-dock {
+    background-color: hsl(var(--background) / 0.6);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid hsla(0, 0%, 100%, 0.08);
+    border-radius: 9999px;
+  }
+
+  .pulse-glow {
+    animation: dock-pulse 4s ease-in-out infinite;
   }
 }
 

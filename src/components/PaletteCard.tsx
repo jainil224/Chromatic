@@ -59,14 +59,14 @@ export const PaletteCard = memo(function PaletteCard({
       >
 
         {/* Color Preview */}
-        <div className="mb-4 flex h-14 overflow-hidden rounded-md">
+        <div className="mb-4 flex h-14 overflow-hidden rounded-xl bg-black/20 ring-1 ring-white/10 group-hover:ring-white/20 transition-all">
           {palette.colors.map((color, i) => (
             <div
               key={i}
-              className="flex-1 transition-transform duration-300 first:rounded-l-md last:rounded-r-md group-hover:scale-y-105 cursor-help"
+              className="flex-1 transition-transform duration-500 first:rounded-l-xl last:rounded-r-xl group-hover:scale-y-110 cursor-help"
               style={{
                 backgroundColor: color,
-                transitionDelay: `${i * 20}ms`
+                transitionDelay: `${i * 30}ms`
               }}
               title={color}
             />
@@ -74,15 +74,15 @@ export const PaletteCard = memo(function PaletteCard({
         </div>
 
         {/* Info */}
-        <div className="space-y-1.5 pr-8">
-          <h3 className="font-display text-base text-foreground transition-colors group-hover:text-primary truncate">
+        <div className="space-y-2 pr-8">
+          <h3 className="font-display text-lg text-foreground tracking-tight transition-colors group-hover:text-primary truncate">
             {palette.name}
           </h3>
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1.5">
             {palette.tags?.map((tag) => (
               <span
                 key={tag}
-                className="rounded-full bg-secondary px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-secondary-foreground/70"
+                className="rounded-full bg-white/[0.03] border border-white/5 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-secondary-foreground/60 transition-colors group-hover:border-white/10 group-hover:bg-white/[0.05]"
               >
                 {tag}
               </span>
@@ -91,7 +91,7 @@ export const PaletteCard = memo(function PaletteCard({
 
           {/* Like Counter */}
           {onToggleLike && (
-            <div className="flex items-center gap-1.5 mt-2">
+            <div className="flex items-center gap-1.5 mt-3 opacity-60 group-hover:opacity-100 transition-opacity">
               <button
                 type="button"
                 onClick={(e) => {
@@ -103,13 +103,13 @@ export const PaletteCard = memo(function PaletteCard({
                 aria-label={isLiked ? "Unlike palette" : "Like palette"}
               >
                 <Heart
-                  className={`h-4 w-4 transition-all duration-200 ${isLiked
+                  className={`h-3.5 w-3.5 transition-all duration-300 ${isLiked
                     ? "fill-red-500 text-red-500 animate-[heart-pulse_0.3s_ease-in-out]"
                     : "text-secondary-foreground/60 hover:text-red-400"
                     }`}
                 />
               </button>
-              <span className="font-mono text-xs text-secondary-foreground/60 tabular-nums">
+              <span className="font-mono text-[10px] text-secondary-foreground/60 tabular-nums uppercase tracking-tighter">
                 {(() => {
                   if (likeCount >= 1000000) return `${(likeCount / 1000000).toFixed(1)}M`;
                   if (likeCount >= 1000) return `${(likeCount / 1000).toFixed(1)}K`;
@@ -120,10 +120,15 @@ export const PaletteCard = memo(function PaletteCard({
           )}
         </div>
 
+        {/* Shimmer effect overlay */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-700">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-[premium-shimmer_4s_infinite]" />
+        </div>
+
         {/* Selection Indicator */}
         {isSelected && !isCustom && (
-          <div className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 pointer-events-none">
-            <svg className="h-3 w-3 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 pointer-events-none ring-1 ring-primary/30">
+            <svg className="h-2.5 w-2.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
             </svg>
           </div>

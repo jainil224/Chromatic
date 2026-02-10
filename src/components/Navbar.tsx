@@ -42,9 +42,9 @@ export const Navbar = ({
 
     return (
         <header className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-[1200px] pointer-events-none">
-            <div className="glass-dock pulse-glow flex items-center justify-between px-4 py-2 pointer-events-auto">
+            <div className="glass-dock pulse-glow flex items-center justify-between px-4 py-2 pointer-events-auto ring-1 ring-white/10 shadow-2xl">
                 {/* Branding Pill */}
-                <div className="flex items-center gap-2 pr-4 border-r border-white/5">
+                <div className="flex items-center gap-2 pr-4 border-r border-white/10">
                     <div className={cn(
                         "group relative flex items-center gap-2 rounded-full pl-3 pr-4 py-1.5 transition-all hover:scale-[1.02] ring-1 ring-white/20 shadow-[0_0_20px_-5px_rgba(0,0,0,0.4)]",
                         themeMode === 'midnight'
@@ -80,7 +80,7 @@ export const Navbar = ({
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && onSearchSubmit?.()}
                             placeholder="Find inspiration..."
-                            className="w-full rounded-full border border-white/5 bg-white/5 py-1.5 pl-9 pr-8 font-mono text-xs text-foreground placeholder:text-secondary-foreground/30 focus:bg-white/10 focus:outline-none transition-all"
+                            className="w-full rounded-full border border-white/5 bg-white/5 py-1.5 pl-9 pr-8 font-mono text-xs text-foreground placeholder:text-secondary-foreground/30 focus:bg-white/10 focus:border-white/10 focus:ring-1 focus:ring-white/10 focus:outline-none transition-all"
                         />
                         {searchQuery && (
                             <button
@@ -94,14 +94,14 @@ export const Navbar = ({
                 </div>
 
                 {/* Actions & Theme */}
-                <div className="flex items-center gap-2 pl-4 border-l border-white/5">
+                <div className="flex items-center gap-2 pl-4 border-l border-white/10">
                     {/* Compact Action Buttons */}
                     <div className="hidden lg:flex items-center gap-1">
                         <Button
                             variant="ghost"
                             size="sm"
                             onClick={onPickFromImage}
-                            className="rounded-full h-8 px-3 text-[10px] font-mono text-secondary-foreground/60 hover:text-foreground hover:bg-white/5 uppercase"
+                            className="rounded-full h-8 px-3 text-[10px] font-mono text-secondary-foreground/60 hover:text-foreground hover:bg-white/10 hover:shadow-lg transition-all uppercase"
                         >
                             <ImageIcon className="h-3 w-3 mr-1.5" />
                             Pixels
@@ -110,7 +110,7 @@ export const Navbar = ({
                             variant="ghost"
                             size="sm"
                             onClick={() => navigate('/palette-maker')}
-                            className="rounded-full h-8 px-3 text-[10px] font-mono text-secondary-foreground/60 hover:text-foreground hover:bg-white/5 uppercase"
+                            className="rounded-full h-8 px-3 text-[10px] font-mono text-secondary-foreground/60 hover:text-foreground hover:bg-white/10 hover:shadow-lg transition-all uppercase"
                         >
                             <PaletteIcon className="h-3 w-3 mr-1.5" />
                             Build
@@ -119,7 +119,7 @@ export const Navbar = ({
                             variant="ghost"
                             size="sm"
                             onClick={() => navigate('/customize')}
-                            className="rounded-full h-8 px-3 text-[10px] font-mono text-secondary-foreground/60 hover:text-foreground hover:bg-white/5 uppercase"
+                            className="rounded-full h-8 px-3 text-[10px] font-mono text-secondary-foreground/60 hover:text-foreground hover:bg-white/10 hover:shadow-lg transition-all uppercase"
                         >
                             <Paintbrush className="h-3 w-3 mr-1.5" />
                             Tweak
