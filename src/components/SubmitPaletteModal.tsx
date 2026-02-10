@@ -62,16 +62,15 @@ export const SubmitPaletteModal = ({ isOpen, onClose, initialColors = [] }: Subm
         setIsSubmitting(true);
 
         try {
-            const { error } = await supabase
-                .from('palette_submissions')
-                .insert([
-                    {
-                        name: name.trim(),
-                        colors: colors,
-                        status: 'pending',
-                        tags: tags.split(',').map(t => t.trim()).filter(t => t.length > 0)
-                    }
-                ]);
+            // Call the Supabase Edge Function instead of direct table insert
+            // This allows the backend to capture the user's real IP address
+            const { data, error } = await supabase.functions.invoke('submit-palette', {
+                body: {
+                    name: name.trim(),
+                    colors: colors,
+                    tags: tags.split(',').map(t => t.trim()).filter(t => t.length > 0)
+                }
+            });
 
             if (error) throw error;
 

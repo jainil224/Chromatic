@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS palette_submissions (
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
   submitted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   category TEXT, -- Optional category field
-  tags JSONB DEFAULT '[]'::jsonb -- Tags array (JSONB)
+  tags JSONB DEFAULT '[]'::jsonb, -- Tags array (JSONB)
+  user_ip TEXT -- Captured on backend
 );
 
 -- ... (Indexes and RLS remain the same) ...
@@ -68,4 +69,5 @@ GRANT EXECUTE ON FUNCTION approve_submission(UUID) TO public;
 GRANT EXECUTE ON FUNCTION reject_submission(UUID) TO public;
 
 -- Enable Realtime
+-- NOTE: If this command fails with "already member of publication", it means realtime is already enabled. You can ignore the error.
 ALTER PUBLICATION supabase_realtime ADD TABLE palette_submissions;

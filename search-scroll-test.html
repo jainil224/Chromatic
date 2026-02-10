@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smooth Scroll Search Demo</title>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fafafa;
+            color: #333;
+        }
+
+        /* Fixed Search Bar at the Top */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: #007bff;
+        }
+
+        button {
+            padding: 10px 24px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Content Sections */
+        .content {
+            margin-top: 100px;
+            /* Space for fixed header */
+            padding: 2rem;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        section {
+            min-height: 80vh;
+            margin-bottom: 4rem;
+            padding: 3rem;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
+
+        h2 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* Section Specific Styles */
+        #dark-palettes {
+            background: linear-gradient(135deg, #1a1a1a, #434343);
+        }
+
+        #pastel-palettes {
+            background: linear-gradient(135deg, #ffecd2, #fcb69f);
+            color: #555;
+        }
+
+        #blue-palettes {
+            background: linear-gradient(135deg, #2193b0, #6dd5ed);
+        }
+
+        #red-palettes {
+            background: linear-gradient(135deg, #ed213a, #93291e);
+        }
+
+        .intro {
+            color: #333;
+            min-height: 30vh;
+        }
+
+        .chip-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+
+        .chip {
+            background: #eee;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <form id="searchForm" class="search-form">
+            <input type="text" id="searchInput" placeholder="Search palettes (dark, pastel, blue...)" required>
+            <button type="submit">Search</button>
+        </form>
+    </header>
+
+    <main class="content">
+        <section class="intro">
+            <h2>Search & Scroll</h2>
+            <p>Type a keyword above to see the magic. Try:</p>
+            <div class="chip-container">
+                <span class="chip">midnight</span>
+                <span class="chip">soft pink</span>
+                <span class="chip">ocean blue</span>
+                <span class="chip">deep black</span>
+            </div>
+        </section>
+
+        <section id="dark-palettes">
+            <h2>Dark Palettes</h2>
+            <p>Elegant, deep, and nocturnal color schemes.</p>
+        </section>
+
+        <section id="pastel-palettes">
+            <h2>Pastel Palettes</h2>
+            <p>Soft, light, and airy color combinations.</p>
+        </section>
+
+        <section id="blue-palettes">
+            <h2>Blue Palettes</h2>
+            <p>Calm, cool, and oceanic gradients.</p>
+        </section>
+
+        <section id="red-palettes">
+            <h2>Red Palettes</h2>
+            <p>Vibrant, energetic, and warm tones.</p>
+        </section>
+    </main>
+
+    <!-- Include the smooth scroll logic -->
+    <script src="search-scroll.js"></script>
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const query = document.getElementById('searchInput').value;
+            handleSearchScroll(query);
+        });
+    </script>
+</body>
+
+</html>
