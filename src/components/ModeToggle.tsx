@@ -1,4 +1,5 @@
 import { Sun, Moon, Sparkles } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export type ThemeMode = "dark" | "light" | "midnight";
 
@@ -25,26 +26,35 @@ export function ModeToggle({ mode, onToggle }: ModeToggleProps) {
   };
 
   return (
-    <button
-      onClick={onToggle}
-      className="group relative flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-5 py-2 transition-all duration-300 hover:border-primary/50 hover:bg-white/10"
-      title={`Switch theme (Current: ${getLabel()})`}
-    >
-      <div className="flex items-center gap-2">
-        <span className="text-secondary-foreground/70 transition-colors group-hover:text-foreground">
-          {getIcon()}
-        </span>
-        <span className="font-mono text-[10px] uppercase tracking-wider text-secondary-foreground/70 group-hover:text-foreground">
-          {getLabel()}
-        </span>
-      </div>
+    <div className="flex items-center gap-1 p-1 rounded-full border border-white/10 bg-black/20 backdrop-blur-md ring-1 ring-white/5 shadow-inner group/toggle">
+      {(['dark', 'light', 'midnight'] as ThemeMode[]).map((t) => {
+        const isActive = mode === t;
+        const Icon = t === 'dark' ? Moon : t === 'light' ? Sun : Sparkles;
 
-      {/* Visual State Indicator */}
-      <div className="flex gap-1">
-        <div className={`h-1 w-2 rounded-full transition-all duration-300 ${mode === 'dark' ? 'bg-primary w-4' : 'bg-white/10'}`} />
-        <div className={`h-1 w-2 rounded-full transition-all duration-300 ${mode === 'light' ? 'bg-orange-400 w-4' : 'bg-white/10'}`} />
-        <div className={`h-1 w-2 rounded-full transition-all duration-300 ${mode === 'midnight' ? 'bg-blue-400 w-4' : 'bg-white/10'}`} />
-      </div>
-    </button>
+        return (
+          <button
+            key={t}
+            onClick={onToggle}
+            className={cn(
+              "relative flex items-center justify-center h-8 w-8 rounded-full transition-all duration-300 cursor-pointer",
+              isActive
+                ? "bg-white/10 text-foreground shadow-[0_2px_10px_rgba(0,0,0,0.3)] ring-1 ring-white/10"
+                : "text-secondary-foreground/40 hover:text-secondary-foreground/80 hover:bg-white/5"
+            )}
+            title={`Switch to ${t} (Current: ${mode})`}
+          >
+            <Icon className={cn(
+              "h-3.5 w-3.5 transition-transform duration-500",
+              isActive && "scale-110",
+              t === 'midnight' && isActive && "text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]"
+            )} />
+
+            {isActive && (
+              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary animate-pulse" />
+            )}
+          </button>
+        );
+      })}
+    </div>
   );
 }

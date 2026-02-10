@@ -16,7 +16,6 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { ColorCounter } from "@/components/ColorCounter";
 
 
 import { useFavorites } from "@/hooks/useFavorites";
@@ -250,9 +249,6 @@ const Index = () => {
       "relative min-h-screen overflow-x-hidden transition-colors duration-500",
       themeMode === 'light' ? 'bg-[#fcfaf7]' : themeMode === 'midnight' ? 'bg-[#050b17]' : 'bg-[#080808]'
     )}>
-      {/* Live Palette Counter */}
-      <ColorCounter totalPalettes={totalPalettes} themeMode={themeMode} />
-
       {/* Navbar Section */}
       <Navbar
         isSidebarOpen={isSidebarOpen}

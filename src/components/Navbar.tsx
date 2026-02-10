@@ -41,108 +41,108 @@ export const Navbar = ({
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
 
     return (
-        <header className="fixed top-0 left-0 right-0 z-50 w-full border-b border-white/5 bg-background/80 backdrop-blur-xl">
-            <div className="mx-auto max-w-[1800px] px-4 py-4 sm:px-6 lg:px-8">
-                <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-3">
-
-
-                        {/* Mobile Menu Trigger */}
-                        <Sheet>
-                            <SheetTrigger asChild>
-                                <Button variant="ghost" size="icon" className="lg:hidden mr-2">
-                                    <Menu className="h-5 w-5" />
-                                </Button>
-                            </SheetTrigger>
-                            <SheetContent side="left" className="w-[280px] border-r-border bg-background/95 backdrop-blur-xl p-0">
-                                <CategoryMenu
-                                    selectedCategory={selectedCategory}
-                                    onSelectCategory={setSelectedCategory}
-                                    className="mt-8 px-4"
-                                />
-                                <div className="absolute bottom-4 left-4">
-                                    <Button variant="ghost" size="sm" onClick={() => navigate('/admin')} className="text-muted-foreground opacity-50 hover:opacity-100">
-                                        Admin
-                                    </Button>
-                                </div>
-                            </SheetContent>
-                        </Sheet>
-
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 overflow-hidden ring-1 ring-white/10">
-                            <img src="/logo_1_upscaled.png?v=2" alt="Chromatic Logo" className="h-full w-full object-cover" />
+        <header className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-[1200px] pointer-events-none">
+            <div className="glass-dock pulse-glow flex items-center justify-between px-4 py-2 pointer-events-auto">
+                {/* Branding Pill */}
+                <div className="flex items-center gap-2 pr-4 border-r border-white/5">
+                    <div className={cn(
+                        "group relative flex items-center gap-2 rounded-full pl-3 pr-4 py-1.5 transition-all hover:scale-[1.02] ring-1 ring-white/20 shadow-[0_0_20px_-5px_rgba(0,0,0,0.4)]",
+                        themeMode === 'midnight'
+                            ? "bg-gradient-to-r from-blue-600 to-indigo-700 hover:shadow-[0_0_30px_-5px_rgba(59,130,246,0.5)]"
+                            : themeMode === 'light'
+                                ? "bg-gradient-to-r from-orange-500 to-amber-600 hover:shadow-[0_0_30px_-5px_rgba(249,115,22,0.4)]"
+                                : "bg-gradient-to-r from-amber-500 to-orange-600 shadow-[0_0_20px_-5px_hsl(var(--primary)/0.4)] hover:shadow-[0_0_30px_-5px_hsl(var(--primary)/0.6)]"
+                    )}>
+                        <PaletteIcon className="h-3.5 w-3.5 text-white/90" />
+                        <div className="flex items-center gap-1.5 whitespace-nowrap">
+                            <span className="font-mono text-[10px] font-bold uppercase tracking-tight text-white/90">
+                                Colors Palettes:
+                            </span>
+                            <span className="font-display text-base font-black text-white leading-none">
+                                {allPalettesCount}
+                            </span>
                         </div>
-                        <div className="hidden xs:block">
-                            <h1 className="font-display text-2xl text-foreground leading-none">
-                                Chromatic
-                            </h1>
-                            <p className="font-mono text-[10px] text-secondary-foreground/60 mt-0.5">
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent font-bold">
-                                    713
-                                </span> Curated Palettes
-                            </p>
+                        {/* Shimmer effect */}
+                        <div className="absolute inset-0 overflow-hidden rounded-full pointer-events-none">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_3s_infinite]" />
                         </div>
                     </div>
+                </div>
 
-                    {/* Search Bar & Add Button */}
-                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full max-w-2xl">
-                        <div className="relative flex-1 w-full">
-                            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-secondary-foreground/70/60" />
-                            <input
-                                id="navbar-search"
-                                type="text"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && onSearchSubmit) {
-                                        onSearchSubmit();
-                                    }
-                                }}
-                                placeholder="Search palettes..."
-                                className="w-full rounded-full border border-white/10 bg-white/5 py-2.5 pl-11 pr-10 font-mono text-sm text-foreground placeholder:text-secondary-foreground/40 focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all"
+                {/* Main Navigation Logic */}
+                <div className="flex items-center gap-2 px-4 flex-1 max-w-xl">
+                    <div className="relative flex-1 group/search">
+                        <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-secondary-foreground/40 transition-colors group-focus-within/search:text-primary" />
+                        <input
+                            id="navbar-search"
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && onSearchSubmit?.()}
+                            placeholder="Find inspiration..."
+                            className="w-full rounded-full border border-white/5 bg-white/5 py-1.5 pl-9 pr-8 font-mono text-xs text-foreground placeholder:text-secondary-foreground/30 focus:bg-white/10 focus:outline-none transition-all"
+                        />
+                        {searchQuery && (
+                            <button
+                                onClick={() => setSearchQuery("")}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-secondary-foreground/40 hover:bg-white/10 hover:text-foreground transition-colors"
+                            >
+                                <X className="h-3 w-3" />
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {/* Actions & Theme */}
+                <div className="flex items-center gap-2 pl-4 border-l border-white/5">
+                    {/* Compact Action Buttons */}
+                    <div className="hidden lg:flex items-center gap-1">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={onPickFromImage}
+                            className="rounded-full h-8 px-3 text-[10px] font-mono text-secondary-foreground/60 hover:text-foreground hover:bg-white/5 uppercase"
+                        >
+                            <ImageIcon className="h-3 w-3 mr-1.5" />
+                            Pixels
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => navigate('/palette-maker')}
+                            className="rounded-full h-8 px-3 text-[10px] font-mono text-secondary-foreground/60 hover:text-foreground hover:bg-white/5 uppercase"
+                        >
+                            <PaletteIcon className="h-3 w-3 mr-1.5" />
+                            Build
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => navigate('/customize')}
+                            className="rounded-full h-8 px-3 text-[10px] font-mono text-secondary-foreground/60 hover:text-foreground hover:bg-white/5 uppercase"
+                        >
+                            <Paintbrush className="h-3 w-3 mr-1.5" />
+                            Tweak
+                        </Button>
+                    </div>
+
+                    <ModeToggle mode={themeMode} onToggle={onToggleTheme} />
+
+                    {/* Mobile Menu Trigger moved into Dock */}
+                    <Sheet>
+                        <SheetTrigger asChild>
+                            <Button variant="ghost" size="icon" className="lg:hidden h-8 w-8 rounded-full hover:bg-white/5">
+                                <Menu className="h-4 w-4" />
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent side="left" className="w-[280px] border-r-border bg-background/95 backdrop-blur-xl p-0">
+                            <CategoryMenu
+                                selectedCategory={selectedCategory}
+                                onSelectCategory={setSelectedCategory}
+                                className="mt-8 px-4"
                             />
-                            {searchQuery && (
-                                <button
-                                    onClick={() => setSearchQuery("")}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-secondary-foreground/60 hover:bg-secondary hover:text-foreground transition-colors"
-                                >
-                                    <X className="h-4 w-4" />
-                                </button>
-                            )}
-                        </div>
-
-                        <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto no-scrollbar pb-1 sm:pb-0">
-                            <ModeToggle mode={themeMode} onToggle={onToggleTheme} />
-
-                            <Button
-                                variant="outline"
-                                onClick={onPickFromImage}
-                                className="hidden sm:flex rounded-full border-white/10 bg-white/5 hover:bg-white/10 transition-all font-mono text-[10px] uppercase h-10 px-5"
-                            >
-                                <ImageIcon className="h-3.5 w-3.5 mr-1.5" />
-                                From Image
-                            </Button>
-
-
-
-                            <Button
-                                variant="outline"
-                                onClick={() => navigate('/palette-maker')}
-                                className="flex-1 sm:flex-none rounded-full border-white/10 bg-white/5 hover:bg-white/10 transition-all font-mono text-[10px] uppercase h-10 px-5"
-                            >
-                                <PaletteIcon className="h-3.5 w-3.5 mr-1.5" />
-                                Maker
-                            </Button>
-
-                            <Button
-                                variant="outline"
-                                onClick={() => navigate('/customize')}
-                                className="flex-1 sm:flex-none rounded-full border-white/10 bg-white/5 hover:bg-white/10 transition-all font-mono text-[10px] uppercase h-10 px-5"
-                            >
-                                <Paintbrush className="h-3.5 w-3.5 mr-1.5" />
-                                Customize
-                            </Button>
-                        </div>
-                    </div>
+                        </SheetContent>
+                    </Sheet>
                 </div>
             </div>
             <SubmitPaletteModal

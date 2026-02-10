@@ -255,8 +255,8 @@ const PaletteMaker = () => {
             </div>
 
             <main className="container py-8 px-4 mx-auto space-y-12 relative">
-                {/* Palette Builder Section - STICKY */}
-                <section className="sticky top-4 z-50 rounded-2xl border border-white/10 bg-background/80 p-6 shadow-2xl backdrop-blur-xl transition-all duration-300">
+                {/* Palette Builder Section */}
+                <section className="rounded-2xl border border-white/10 bg-background/80 p-6 shadow-2xl backdrop-blur-xl transition-all duration-300">
                     <PaletteBuilder
                         colors={selectedColors}
                         onRemoveColor={handleRemoveColor}
