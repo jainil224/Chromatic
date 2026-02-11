@@ -78,46 +78,29 @@ export const useUserPalettes = () => {
         fetchPalettes();
     }, []);
 
-    // Add new palette to Supabase
+    // Submit new palette for review via Edge Function
     const addPalette = async (palette: Omit<UserPalette, 'id' | 'createdAt' | 'isCustom' | 'isNew'>) => {
         try {
-            const { data, error: insertError } = await supabase
-                .from('palettes')
-                .insert([
-                    {
-                        name: palette.name,
-                        colors: palette.colors,
-                        likes: 0,
-                    }
-                ])
-                .select()
-                .single();
+            // Use Edge Function for server-side IP capture
+            const { data, error: functionError } = await supabase.functions.invoke('submit-palette', {
+                body: {
+                    name: palette.name,
+                    colors: palette.colors,
+                    tags: palette.tags || [],
+                }
+            });
 
-            if (insertError) {
-                throw insertError;
+            if (functionError) {
+                throw functionError;
             }
 
-            // Transform to UserPalette format
-            const newPalette: UserPalette = {
-                id: data.id,
-                name: data.name,
-                colors: data.colors,
-                tags: palette.tags || [],
-                createdAt: data.created_at,
-                isCustom: true,
-                isNew: true,
-            };
-
-            // Update local state
-            setUserPalettes(prev => [newPalette, ...prev]);
-
-            toast.success('Palette created and shared with everyone! 🎨');
-            return newPalette;
+            toast.success('Palette submitted for review! 🎨');
+            return data;
         } catch (err) {
-            console.error('Error adding palette:', err);
-            toast.error('Failed to create palette. Please try again.');
+            console.error('Error submitting palette:', err);
+            toast.error('Failed to submit palette. Please try again.');
 
-            // Fallback to localStorage
+            // Fallback to localStorage (for persistence, stays 'pending' locally)
             const fallbackPalette: UserPalette = {
                 ...palette,
                 id: `local-${Date.now()}`,
@@ -130,7 +113,7 @@ export const useUserPalettes = () => {
             setUserPalettes(updated);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
 
-            toast.warning('Palette saved locally only (offline mode)');
+            toast.warning('Palette saved locally (offline mode)');
             return fallbackPalette;
         }
     };

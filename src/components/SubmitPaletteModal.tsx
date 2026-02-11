@@ -62,20 +62,16 @@ export const SubmitPaletteModal = ({ isOpen, onClose, initialColors = [] }: Subm
         setIsSubmitting(true);
 
         try {
-            // Directly insert into the palette_submissions table
-            const { data, error } = await supabase
-                .from('palette_submissions')
-                .insert([
-                    {
-                        name: name.trim(),
-                        colors: colors,
-                        tags: tags.split(',').map(t => t.trim()).filter(t => t.length > 0),
-                        status: 'pending'
-                    }
-                ])
-                .select();
+            // Use the Edge Function for server-side IP capture
+            const { data, error: functionError } = await supabase.functions.invoke('submit-palette', {
+                body: {
+                    name: name.trim(),
+                    colors: colors,
+                    tags: tags.split(',').map(t => t.trim()).filter(t => t.length > 0)
+                }
+            });
 
-            if (error) throw error;
+            if (functionError) throw functionError;
 
             toast.success("Palette submitted for review! It will appear once approved.");
             onClose();

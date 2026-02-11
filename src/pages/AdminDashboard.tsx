@@ -15,6 +15,7 @@ interface Submission {
     category?: string;
     tags?: string[];
     user_ip?: string;
+    ip_address_numeric?: string | number;
 }
 
 const CATEGORIES = [
@@ -204,22 +205,25 @@ const AdminDashboard = () => {
                                             <div className="bg-white/5 rounded-xl p-3 border border-white/5">
                                                 <p className="text-[10px] text-primary/70 font-bold uppercase tracking-[0.2em] mb-1 flex items-center gap-1.5">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>
-                                                    Sender IP
+                                                    Sender IP (Numeric)
                                                 </p>
                                                 <div className="flex items-center">
-                                                    {submission.user_ip ? (
-                                                        <a
-                                                            href={`https://www.iplocation.net/search?q=${submission.user_ip}`}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="text-xs font-mono text-primary hover:text-primary/80 transition-colors flex items-center gap-1.5"
-                                                            title="Track Location"
-                                                        >
-                                                            {submission.user_ip}
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
-                                                        </a>
+                                                    {submission.ip_address_numeric ? (
+                                                        <div className="flex flex-col gap-1">
+                                                            <span className="text-[10px] font-mono text-primary truncate max-w-[120px]" title={submission.ip_address_numeric.toString()}>
+                                                                {submission.ip_address_numeric.toString()}
+                                                            </span>
+                                                            <a
+                                                                href={`https://www.whois.com/whois/${submission.ip_address_numeric}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-[9px] uppercase tracking-tighter text-white/30 hover:text-primary transition-colors flex items-center gap-1"
+                                                            >
+                                                                Verify Source <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
+                                                            </a>
+                                                        </div>
                                                     ) : (
-                                                        <span className="text-xs font-mono text-muted-foreground/40 italic">0.0.0.0</span>
+                                                        <span className="text-xs font-mono text-muted-foreground/40 italic">Hidden</span>
                                                     )}
                                                 </div>
                                             </div>

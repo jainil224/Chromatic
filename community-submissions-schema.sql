@@ -13,8 +13,36 @@ CREATE TABLE IF NOT EXISTS palette_submissions (
   submitted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   category TEXT, -- Optional category field
   tags JSONB DEFAULT '[]'::jsonb, -- Tags array (JSONB)
-  user_ip TEXT -- Captured on backend
+  ip_address_numeric NUMERIC(39,0) -- Captured on backend as numeric format
 );
+
+-- 2. Create index for moderation/abuse prevention
+CREATE INDEX IF NOT EXISTS idx_palette_submissions_ip_numeric ON palette_submissions(ip_address_numeric);
+
+-- 3. Restrict public access to the IP column (Security)
+-- Public (anon) can NEVER see the IP column
+REVOKE SELECT (ip_address_numeric) ON palette_submissions FROM anon;
+-- Authenticated users (the Admin) CAN see the IP column
+GRANT SELECT (ip_address_numeric) ON palette_submissions TO authenticated;
+
+-- 4. Row Level Security for palette_submissions
+ALTER TABLE palette_submissions ENABLE ROW LEVEL SECURITY;
+
+-- Only authenticated users (Admins) can view submissions
+DROP POLICY IF EXISTS "Admins can view submissions" ON palette_submissions;
+CREATE POLICY "Admins can view submissions"
+  ON palette_submissions
+  FOR SELECT
+  TO authenticated
+  USING (true);
+
+-- Only authenticated users (Admins) can delete/update submissions
+DROP POLICY IF EXISTS "Admins can manage submissions" ON palette_submissions;
+CREATE POLICY "Admins can manage submissions"
+  ON palette_submissions
+  FOR ALL
+  TO authenticated
+  USING (true);
 
 -- ... (Indexes and RLS remain the same) ...
 
