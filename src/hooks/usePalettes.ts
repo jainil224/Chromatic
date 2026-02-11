@@ -10,9 +10,10 @@ interface SupabasePalette {
     tags: string[] | null;
     likes: number;
     created_at: string;
+    section: string | null;
 }
 
-export function usePalettes() {
+export function usePalettes(section?: string) {
     const [palettes, setPalettes] = useState<Palette[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -40,7 +41,7 @@ export function usePalettes() {
         return () => {
             supabase.removeChannel(channel);
         };
-    }, []);
+    }, [section]);
 
     const fetchPalettes = async (silent = false) => {
         try {
@@ -49,10 +50,16 @@ export function usePalettes() {
             }
             setError(null);
 
-            const { data, error: fetchError } = await supabase
+            let query = supabase
                 .from('palettes')
                 .select('*')
                 .order('created_at', { ascending: false });
+
+            if (section) {
+                query = query.eq('section', section);
+            }
+
+            const { data, error: fetchError } = await query;
 
             if (fetchError) {
                 console.error('Error fetching palettes:', fetchError);
@@ -69,6 +76,7 @@ export function usePalettes() {
                     category: p.category || undefined,
                     tags: p.tags || undefined,
                     created_at: p.created_at,
+                    section: p.section || undefined,
                 }));
 
                 setPalettes(transformedPalettes);

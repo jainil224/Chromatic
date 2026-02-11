@@ -79,7 +79,7 @@ export const useUserPalettes = () => {
     }, []);
 
     // Submit new palette for review via Edge Function
-    const addPalette = async (palette: Omit<UserPalette, 'id' | 'createdAt' | 'isCustom' | 'isNew'>) => {
+    const addPalette = async (palette: Omit<UserPalette, 'id' | 'createdAt' | 'isCustom' | 'isNew'> & { section?: string }) => {
         try {
             // Use Edge Function for server-side IP capture
             const { data, error: functionError } = await supabase.functions.invoke('submit-palette', {
@@ -87,6 +87,7 @@ export const useUserPalettes = () => {
                     name: palette.name,
                     colors: palette.colors,
                     tags: palette.tags || [],
+                    section: palette.section || 'general'
                 }
             });
 
@@ -107,6 +108,7 @@ export const useUserPalettes = () => {
                 createdAt: new Date().toISOString(),
                 isCustom: true,
                 isNew: true,
+                section: palette.section || 'general'
             };
 
             const updated = [fallbackPalette, ...userPalettes];

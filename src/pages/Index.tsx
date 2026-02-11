@@ -126,7 +126,7 @@ const Index = () => {
     'Sunset': ['sunset', 'dusk', 'twilight'],
     'Sky': ['sky', 'azure', 'blue', 'clouds'],
     'Sea': ['sea', 'ocean', 'aqua', 'marine', 'water'],
-    'Kids': ['kids', 'children', 'playful', 'fun'],
+    'Kid': ['kid', 'kids', 'children', 'playful', 'fun'],
     'Skin': ['skin', 'tone', 'flesh', 'nude'],
     'Food': ['food', 'culinary', 'edible'],
     'Cream': ['cream', 'beige', 'ivory', 'neutral'],
@@ -205,6 +205,9 @@ const Index = () => {
 
         // 2. Tag-based match for virtual categories
         if (p.tags?.some(tag => tag.toLowerCase() === cat)) return true;
+
+        // 3. Section-based match
+        if (p.section?.toLowerCase() === cat) return true;
 
         return false;
       });
@@ -475,7 +478,12 @@ const Index = () => {
               <Suspense fallback={<div className="mt-20 flex flex-col items-center justify-center space-y-4"><div className="h-48 w-full bg-secondary animate-pulse rounded-xl" /><div className="h-32 w-full bg-secondary animate-pulse rounded-xl" /></div>}>
                 {selectedPalette && (
                   <div className="mt-6">
-                    <PaletteDetail palette={selectedPalette} />
+                    <PaletteDetail
+                      palette={selectedPalette}
+                      likeCount={getLikeCount(selectedPalette.id)}
+                      isLiked={isPaletteLiked(selectedPalette.id)}
+                      onToggleLike={toggleLike}
+                    />
                   </div>
                 )}
               </Suspense>
@@ -493,7 +501,10 @@ const Index = () => {
             if (editingPalette) {
               updatePalette(editingPalette.id, p);
             } else {
-              addPalette(p);
+              addPalette({
+                ...p,
+                section: selectedCategory === 'Kid' ? 'kid' : 'general'
+              });
             }
           }}
           initialPalette={editingPalette ? {

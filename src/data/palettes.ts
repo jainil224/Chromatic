@@ -7,6 +7,7 @@
   isCustom?: boolean;
   description?: string;
   created_at?: string;
+  section?: string;
 }
 
 export const darkPalettes: Palette[] = [

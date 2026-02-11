@@ -35,7 +35,7 @@ const MENU_SECTIONS = [
     title: "Special",
     icon: Gift,
     items: [
-      "Kids", "Skin", "Food", "Cream", "Coffee",
+      "Kid", "Skin", "Food", "Cream", "Coffee",
       "Wedding", "Christmas"
     ]
   }

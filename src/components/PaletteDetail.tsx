@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { Download, Loader2 } from "lucide-react";
+import { Download, Loader2, Heart } from "lucide-react";
 import { toPng } from "html-to-image";
 import { toast } from "sonner";
 import type { Palette } from "@/data/palettes";
@@ -10,9 +10,17 @@ import { Button } from "@/components/ui/button";
 
 interface PaletteDetailProps {
   palette: Palette;
+  likeCount?: number;
+  isLiked?: boolean;
+  onToggleLike?: (id: string) => void;
 }
 
-export function PaletteDetail({ palette }: PaletteDetailProps) {
+export function PaletteDetail({
+  palette,
+  likeCount = 0,
+  isLiked = false,
+  onToggleLike
+}: PaletteDetailProps) {
   const [isExporting, setIsExporting] = useState(false);
   const exportCardRef = useRef<HTMLDivElement>(null);
 
@@ -60,20 +68,49 @@ export function PaletteDetail({ palette }: PaletteDetailProps) {
           <h2 className="font-display text-4xl italic text-foreground md:text-5xl">
             {palette.name}
           </h2>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleExport}
-            disabled={isExporting}
-            className="shrink-0 rounded-full hover:bg-secondary"
-            title="Export as Image"
-          >
-            {isExporting ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Download className="h-4 w-4" />
+          <div className="flex items-center gap-2">
+            {onToggleLike && (
+              <div className="flex items-center gap-1.5 mr-2">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onToggleLike(palette.id);
+                  }}
+                  className="transition-transform active:scale-90 hover:scale-110 p-2 rounded-full hover:bg-secondary"
+                  aria-label={isLiked ? "Unlike palette" : "Like palette"}
+                >
+                  <Heart
+                    className={`h-5 w-5 transition-all duration-300 ${isLiked
+                      ? "fill-red-500 text-red-500 animate-[heart-pulse_0.3s_ease-in-out]"
+                      : "text-secondary-foreground/60 hover:text-red-400"
+                      }`}
+                  />
+                </button>
+                <span className="font-mono text-sm text-secondary-foreground/60 tabular-nums">
+                  {(() => {
+                    if (likeCount >= 1000000) return `${(likeCount / 1000000).toFixed(1)}M`;
+                    if (likeCount >= 1000) return `${(likeCount / 1000).toFixed(1)}K`;
+                    return likeCount.toString();
+                  })()}
+                </span>
+              </div>
             )}
-          </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleExport}
+              disabled={isExporting}
+              className="shrink-0 rounded-full hover:bg-secondary"
+              title="Export as Image"
+            >
+              {isExporting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
         </div>
         <p className="font-mono text-sm text-secondary-foreground/70">
           {palette.colors.length} colors · Click any swatch to copy

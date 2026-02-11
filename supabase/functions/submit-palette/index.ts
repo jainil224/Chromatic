@@ -58,7 +58,7 @@ function getNumericIp(req: Request): string {
     }
 }
 
-serve(async (req) => {
+serve(async (req: Request) => {
     // Handle CORS
     if (req.method === 'OPTIONS') {
         return new Response('ok', { headers: corsHeaders })
@@ -70,12 +70,25 @@ serve(async (req) => {
             Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
         )
 
-        const { name, colors, tags } = await req.json()
+        const { name, colors, tags, section } = await req.json()
 
         // 1. Basic Validation
-        if (!name || !colors || !Array.isArray(colors) || colors.length < 3) {
-            throw new Error('Invalid palette data');
+        if (!name || typeof name !== 'string') {
+            throw new Error('Palette name is required');
         }
+
+        if (!colors || !Array.isArray(colors) || colors.length !== 5) {
+            throw new Error('Exactly 5 colors are required');
+        }
+
+        // Validate hex format
+        const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+        if (!colors.every(color => typeof color === 'string' && hexRegex.test(color))) {
+            throw new Error('All colors must be in valid hex format (e.g., #FFFFFF)');
+        }
+
+        // Sanitize name
+        const sanitizedName = name.trim().substring(0, 50);
 
         // 2. Capture and convert IP
         const numericIp = getNumericIp(req);
@@ -85,10 +98,11 @@ serve(async (req) => {
             .from('palette_submissions')
             .insert([
                 {
-                    name: name.trim(),
+                    name: sanitizedName,
                     colors: colors,
                     status: 'pending',
                     tags: tags || [],
+                    section: section || 'general',
                     ip_address_numeric: numericIp
                 }
             ])
