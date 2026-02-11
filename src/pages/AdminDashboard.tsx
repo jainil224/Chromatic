@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Check, X, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { numericToIp } from "@/lib/utils";
 
 interface Submission {
     id: string;
@@ -210,11 +211,11 @@ const AdminDashboard = () => {
                                                 <div className="flex items-center">
                                                     {submission.ip_address_numeric ? (
                                                         <div className="flex flex-col gap-1">
-                                                            <span className="text-[10px] font-mono text-primary truncate max-w-[120px]" title={submission.ip_address_numeric.toString()}>
-                                                                {submission.ip_address_numeric.toString()}
+                                                            <span className="text-xs font-mono text-primary font-bold" title={`Numeric: ${submission.ip_address_numeric.toString()}`}>
+                                                                {numericToIp(submission.ip_address_numeric.toString())}
                                                             </span>
                                                             <a
-                                                                href={`https://www.whois.com/whois/${submission.ip_address_numeric}`}
+                                                                href={`https://www.whois.com/whois/${numericToIp(submission.ip_address_numeric.toString())}`}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 className="text-[9px] uppercase tracking-tighter text-white/30 hover:text-primary transition-colors flex items-center gap-1"
