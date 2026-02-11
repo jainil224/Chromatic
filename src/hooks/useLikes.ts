@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { getUserId, getUserLikedPalettes } from '../lib/likesApi';
 import { toast } from 'sonner';
@@ -241,17 +241,17 @@ export const useLikes = () => {
     };
 
     // Get like count for a palette
-    const getLikeCount = (paletteId: string): number => {
+    const getLikeCount = useCallback((paletteId: string): number => {
         if (!likes[paletteId]) {
             return 0; // Return 0 for uninitialized palettes
         }
         return likes[paletteId].count;
-    };
+    }, [likes]);
 
     // Check if palette is liked
-    const isLiked = (paletteId: string): boolean => {
+    const isLiked = useCallback((paletteId: string): boolean => {
         return likes[paletteId]?.isLiked || false;
-    };
+    }, [likes]);
 
     return {
         toggleLike,

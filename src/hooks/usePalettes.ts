@@ -21,6 +21,36 @@ export function usePalettes(section?: string) {
     useEffect(() => {
         fetchPalettes();
 
+        const handleChanges = (payload: any) => {
+            if (payload.eventType === 'INSERT') {
+                const newPalette: Palette = {
+                    id: payload.new.id,
+                    name: payload.new.name,
+                    colors: payload.new.colors,
+                    category: payload.new.category || undefined,
+                    tags: payload.new.tags || undefined,
+                    created_at: payload.new.created_at,
+                    section: payload.new.section || undefined,
+                };
+                setPalettes(prev => [newPalette, ...prev]);
+            } else if (payload.eventType === 'UPDATE') {
+                setPalettes(prev => prev.map(p =>
+                    p.id === payload.new.id
+                        ? {
+                            ...p,
+                            name: payload.new.name,
+                            colors: payload.new.colors,
+                            category: payload.new.category || undefined,
+                            tags: payload.new.tags || undefined,
+                            section: payload.new.section || undefined,
+                        }
+                        : p
+                ));
+            } else if (payload.eventType === 'DELETE') {
+                setPalettes(prev => prev.filter(p => p.id !== payload.old.id));
+            }
+        };
+
         // Subscribe to realtime updates
         const channel = supabase
             .channel('palettes-changes')
@@ -31,9 +61,9 @@ export function usePalettes(section?: string) {
                     schema: 'public',
                     table: 'palettes',
                 },
-                () => {
-                    // Refetch palettes silently when any change occurs
-                    fetchPalettes(true);
+                (payload) => {
+                    // Optimized: Only handle incremental changes
+                    handleChanges(payload);
                 }
             )
             .subscribe();
@@ -53,7 +83,8 @@ export function usePalettes(section?: string) {
             let query = supabase
                 .from('palettes')
                 .select('*')
-                .order('created_at', { ascending: false });
+                .order('created_at', { ascending: false })
+                .order('id', { ascending: true });
 
             if (section) {
                 query = query.eq('section', section);
