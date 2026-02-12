@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { X, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { generateTags } from "@/utils/tagGenerator";
 
 interface PaletteCreatorModalProps {
     isOpen: boolean;
@@ -13,11 +14,6 @@ interface PaletteCreatorModalProps {
     onCreate: (palette: { name: string; colors: string[]; tags: string[] }) => void;
     initialPalette?: { id: string; name: string; colors: string[]; tags: string[] };
 }
-
-const PREDEFINED_TAGS = [
-    "pastel", "warm", "cool", "dark", "light",
-    "neon", "earthy", "vibrant", "minimalist", "retro"
-];
 
 export function PaletteCreatorModal({
     isOpen,
@@ -38,9 +34,18 @@ export function PaletteCreatorModal({
         } else {
             setName("");
             setColors(["#FF6B6B", "#4ECDC4", "#FFE66D"]);
-            setSelectedTags([]);
+            const initialTags = generateTags(["#FF6B6B", "#4ECDC4", "#FFE66D"]);
+            setSelectedTags(initialTags);
         }
     }, [initialPalette, isOpen]);
+
+    // Auto-generate tags when colors change
+    useEffect(() => {
+        if (colors.length > 0) {
+            const newTags = generateTags(colors);
+            setSelectedTags(newTags);
+        }
+    }, [colors]);
 
     const handleAddColor = () => {
         if (colors.length < 5) {
@@ -60,13 +65,7 @@ export function PaletteCreatorModal({
         setColors(nextColors);
     };
 
-    const toggleTag = (tag: string) => {
-        if (selectedTags.includes(tag)) {
-            setSelectedTags(selectedTags.filter(t => t !== tag));
-        } else if (selectedTags.length < 5) {
-            setSelectedTags([...selectedTags, tag]);
-        }
-    };
+
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -169,26 +168,25 @@ export function PaletteCreatorModal({
                         </div>
                     </div>
 
-                    {/* Tags */}
+                    {/* Auto-Generated Tags */}
                     <div className="space-y-3">
                         <label className="text-xs font-mono uppercase tracking-wider text-secondary-foreground/60">
-                            Tags (up to 5)
+                            Generated Tags (Auto)
                         </label>
                         <div className="flex flex-wrap gap-2">
-                            {PREDEFINED_TAGS.map(tag => (
+                            {selectedTags.map(tag => (
                                 <Badge
                                     key={tag}
-                                    variant={selectedTags.includes(tag) ? "default" : "outline"}
-                                    className={cn(
-                                        "cursor-pointer transition-all hover:scale-105",
-                                        selectedTags.includes(tag) ? "bg-primary text-primary-foreground" : "text-secondary-foreground/60 hover:text-foreground hover:border-foreground"
-                                    )}
-                                    onClick={() => toggleTag(tag)}
+                                    variant="secondary"
+                                    className="bg-secondary/50 text-secondary-foreground border-transparent cursor-default"
                                 >
                                     {tag}
                                 </Badge>
                             ))}
                         </div>
+                        <p className="text-[10px] text-muted-foreground">
+                            Tags are automatically generated based on the colors to ensure uniqueness and consistency.
+                        </p>
                     </div>
 
                     <DialogFooter className="pt-4 flex flex-col sm:flex-row gap-3">

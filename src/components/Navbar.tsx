@@ -1,4 +1,4 @@
-import { Palette as PaletteIcon, Search, X, Menu, Image as ImageIcon, Paintbrush } from "lucide-react";
+import { Palette as PaletteIcon, Search, X, Menu, Image as ImageIcon, Paintbrush, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { ModeToggle, type ThemeMode } from "./ModeToggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -9,7 +9,6 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 interface NavbarProps {
-    isSidebarOpen: boolean;
     selectedCategory: string | null;
     setSelectedCategory: (category: string | null) => void;
     searchQuery: string;
@@ -21,10 +20,10 @@ interface NavbarProps {
     onSearchSubmit?: () => void;
     themeMode: ThemeMode;
     onToggleTheme: () => void;
+    onLogoClick?: () => void;
 }
 
 export const Navbar = ({
-    isSidebarOpen,
     selectedCategory,
     setSelectedCategory,
     searchQuery,
@@ -35,7 +34,8 @@ export const Navbar = ({
     onPickFromImage,
     onSearchSubmit,
     themeMode,
-    onToggleTheme
+    onToggleTheme,
+    onLogoClick,
 }: NavbarProps) => {
     const navigate = useNavigate();
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
@@ -45,14 +45,17 @@ export const Navbar = ({
             <div className="glass-dock pulse-glow flex items-center justify-between px-4 py-2 pointer-events-auto ring-1 ring-white/10 shadow-2xl">
                 {/* Branding Pill */}
                 <div className="flex items-center gap-2 pr-4 border-r border-white/10">
-                    <div className={cn(
-                        "group relative flex items-center gap-2 rounded-full pl-3 pr-4 py-1.5 transition-all hover:scale-[1.02] ring-1 ring-white/20 shadow-[0_0_20px_-5px_rgba(0,0,0,0.4)]",
-                        themeMode === 'midnight'
-                            ? "bg-gradient-to-r from-blue-600 to-indigo-700 hover:shadow-[0_0_30px_-5px_rgba(59,130,246,0.5)]"
-                            : themeMode === 'light'
-                                ? "bg-gradient-to-r from-orange-500 to-amber-600 hover:shadow-[0_0_30px_-5px_rgba(249,115,22,0.4)]"
-                                : "bg-gradient-to-r from-amber-500 to-orange-600 shadow-[0_0_20px_-5px_hsl(var(--primary)/0.4)] hover:shadow-[0_0_30px_-5px_hsl(var(--primary)/0.6)]"
-                    )}>
+                    <button
+                        onClick={onLogoClick}
+                        className={cn(
+                            "group relative flex items-center gap-2 rounded-full pl-3 pr-4 py-1.5 transition-all hover:scale-[1.02] ring-1 ring-white/20 shadow-[0_0_20px_-5px_rgba(0,0,0,0.4)]",
+                            themeMode === 'midnight'
+                                ? "bg-gradient-to-r from-blue-600 to-indigo-700 hover:shadow-[0_0_30px_-5px_rgba(59,130,246,0.5)]"
+                                : themeMode === 'light'
+                                    ? "bg-gradient-to-r from-orange-500 to-amber-600 hover:shadow-[0_0_30px_-5px_rgba(249,115,22,0.4)]"
+                                    : "bg-gradient-to-r from-amber-500 to-orange-600 shadow-[0_0_20px_-5px_hsl(var(--primary)/0.4)] hover:shadow-[0_0_30px_-5px_hsl(var(--primary)/0.6)]"
+                        )}
+                    >
                         <PaletteIcon className="h-3.5 w-3.5 text-white/90" />
                         <div className="flex items-center gap-1.5 whitespace-nowrap">
                             <span className="font-mono text-[10px] font-bold uppercase tracking-tight text-white/90">
@@ -66,7 +69,7 @@ export const Navbar = ({
                         <div className="absolute inset-0 overflow-hidden rounded-full pointer-events-none">
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_3s_infinite]" />
                         </div>
-                    </div>
+                    </button>
                 </div>
 
                 {/* Main Navigation Logic */}
@@ -149,6 +152,6 @@ export const Navbar = ({
                 isOpen={isSubmitModalOpen}
                 onClose={() => setIsSubmitModalOpen(false)}
             />
-        </header>
+        </header >
     );
 };

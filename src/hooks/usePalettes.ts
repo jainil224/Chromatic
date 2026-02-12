@@ -34,18 +34,30 @@ export function usePalettes(section?: string) {
                 };
                 setPalettes(prev => [newPalette, ...prev]);
             } else if (payload.eventType === 'UPDATE') {
-                setPalettes(prev => prev.map(p =>
-                    p.id === payload.new.id
-                        ? {
-                            ...p,
-                            name: payload.new.name,
-                            colors: payload.new.colors,
-                            category: payload.new.category || undefined,
-                            tags: payload.new.tags || undefined,
-                            section: payload.new.section || undefined,
-                        }
-                        : p
-                ));
+                const updated = payload.new;
+                setPalettes(prev => prev.map(p => {
+                    if (p.id !== updated.id) return p;
+
+                    // Optimization: Check if core visual fields actually changed
+                    // This prevents re-renders when only 'likes' count updates (handled by useLikes)
+                    const hasVisualChanges =
+                        p.name !== updated.name ||
+                        JSON.stringify(p.colors) !== JSON.stringify(updated.colors) ||
+                        p.category !== (updated.category || undefined) ||
+                        p.section !== (updated.section || undefined) ||
+                        JSON.stringify(p.tags) !== JSON.stringify(updated.tags || undefined);
+
+                    if (!hasVisualChanges) return p;
+
+                    return {
+                        ...p,
+                        name: updated.name,
+                        colors: updated.colors,
+                        category: updated.category || undefined,
+                        tags: updated.tags || undefined,
+                        section: updated.section || undefined,
+                    };
+                }));
             } else if (payload.eventType === 'DELETE') {
                 setPalettes(prev => prev.filter(p => p.id !== payload.old.id));
             }
@@ -80,27 +92,46 @@ export function usePalettes(section?: string) {
             }
             setError(null);
 
-            let query = supabase
-                .from('palettes')
-                .select('*')
-                .order('created_at', { ascending: false })
-                .order('id', { ascending: true });
+            let allData: SupabasePalette[] = [];
+            let from = 0;
+            const step = 1000;
+            let finished = false;
 
-            if (section) {
-                query = query.eq('section', section);
+            while (!finished) {
+                let query = supabase
+                    .from('palettes')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .order('id', { ascending: true })
+                    .range(from, from + step - 1);
+
+                if (section) {
+                    query = query.eq('section', section);
+                }
+
+                const { data, error: fetchError } = await query;
+
+                if (fetchError) {
+                    console.error('Error fetching palettes:', fetchError);
+                    setError(fetchError.message);
+                    return;
+                }
+
+                if (data && data.length > 0) {
+                    allData = [...allData, ...(data as SupabasePalette[])];
+                    if (data.length < step) {
+                        finished = true;
+                    } else {
+                        from += step;
+                    }
+                } else {
+                    finished = true;
+                }
             }
 
-            const { data, error: fetchError } = await query;
-
-            if (fetchError) {
-                console.error('Error fetching palettes:', fetchError);
-                setError(fetchError.message);
-                return;
-            }
-
-            if (data) {
+            if (allData.length > 0) {
                 // Transform Supabase data to Palette format
-                const transformedPalettes: Palette[] = data.map((p: SupabasePalette) => ({
+                const transformedPalettes: Palette[] = allData.map((p: SupabasePalette) => ({
                     id: p.id,
                     name: p.name,
                     colors: p.colors,

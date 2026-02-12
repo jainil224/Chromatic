@@ -5,12 +5,9 @@ import { Palette, Search, Image as ImageIcon, Paintbrush } from "lucide-react";
 export const Hero = ({ onBrowse, onMaker, onPickFromImage, onCustomize }: { onBrowse: () => void; onMaker: () => void; onPickFromImage: () => void; onCustomize: () => void }) => {
     return (
         <section className="relative w-full overflow-hidden py-24 lg:py-32">
-            {/* Cinematic Gradient Background */}
+            {/* Minimal Background */}
             <div className="absolute inset-0 -z-10 overflow-hidden">
                 <div className="absolute inset-0 bg-background" />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-foreground/5 to-transparent" />
-                <div className="absolute -left-[10%] top-[-10%] h-[70%] w-[50%] rounded-[100%] bg-primary/10 blur-[120px] animate-pulse" style={{ animationDuration: '8s' }} />
-                <div className="absolute -right-[5%] bottom-[10%] h-[60%] w-[40%] rounded-[100%] bg-accent/5 blur-[100px] animate-pulse" style={{ animationDuration: '10s' }} />
             </div>
 
             <div className="container relative z-10 mx-auto px-4 md:px-6">
@@ -19,31 +16,39 @@ export const Hero = ({ onBrowse, onMaker, onPickFromImage, onCustomize }: { onBr
                     <div className="flex flex-col items-start gap-8">
                         <div className="space-y-4">
                             <div className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-mono text-primary animate-fade-in">
-                                <span className="mr-2 h-1 w-1 rounded-full bg-primary animate-ping" />
+                                <span className="mr-2 h-1 w-1 rounded-full bg-primary" />
                                 New: Image-to-Palette Extractor
                             </div>
                             <h1 className="font-display text-5xl font-bold leading-tight tracking-tight text-foreground md:text-7xl lg:text-8xl animate-fade-up">
-                                Curated <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_auto] animate-shimmer">Color Palettes</span> for Modern Design
+                                Curated <span className="text-primary">Color Palettes</span> for Modern Design
                             </h1>
                             <p className="max-w-[540px] font-mono text-base text-secondary-foreground/70 md:text-lg animate-fade-up [animation-delay:0.1s]">
                                 Explore hand-picked color palettes crafted for UI, branding, and creative projects. Designed for developers and creators.
                             </p>
                         </div>
 
-                        <div className="flex flex-wrap gap-4 animate-fade-up [animation-delay:0.2s]">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-[540px] animate-fade-up [animation-delay:0.2s]">
                             <Button
                                 onClick={onBrowse}
                                 size="lg"
-                                className="h-14 rounded-full bg-primary px-8 text-base font-medium text-primary-foreground hover:scale-105 transition-all hover:shadow-[0_0_30px_-5px_hsl(var(--primary)/0.5)]"
+                                className="h-14 rounded-full bg-primary px-8 text-base font-medium text-primary-foreground hover:scale-105 transition-all"
                             >
                                 <Search className="mr-2 h-4 w-4" />
                                 Browse Palettes
                             </Button>
                             <Button
+                                onClick={onPickFromImage}
+                                size="lg"
+                                className="h-14 rounded-full border-primary/20 bg-primary/10 px-8 text-base font-medium text-primary backdrop-blur-sm hover:bg-primary/20 transition-all hover:scale-105"
+                            >
+                                <ImageIcon className="mr-2 h-4 w-4" />
+                                From Image
+                            </Button>
+                            <Button
                                 onClick={onMaker}
                                 variant="outline"
                                 size="lg"
-                                className="h-14 rounded-full border-white/10 bg-white/5 px-8 text-base font-medium backdrop-blur-sm transition-all hover:bg-white/10 hover:border-white/20"
+                                className="h-12 rounded-full border-white/10 bg-white/5 px-6 text-sm font-medium backdrop-blur-sm transition-all hover:bg-white/10"
                             >
                                 <Palette className="mr-2 h-4 w-4" />
                                 Maker
@@ -52,19 +57,10 @@ export const Hero = ({ onBrowse, onMaker, onPickFromImage, onCustomize }: { onBr
                                 onClick={onCustomize}
                                 variant="outline"
                                 size="lg"
-                                className="h-14 rounded-full border-white/10 bg-white/5 px-8 text-base font-medium backdrop-blur-sm transition-all hover:bg-white/10 hover:border-white/20"
+                                className="h-12 rounded-full border-white/10 bg-white/5 px-6 text-sm font-medium backdrop-blur-sm transition-all hover:bg-white/10"
                             >
                                 <Paintbrush className="mr-2 h-4 w-4" />
                                 Customize
-                            </Button>
-                            <Button
-                                onClick={onPickFromImage}
-                                variant="outline"
-                                size="lg"
-                                className="h-14 rounded-full border-white/10 bg-white/5 px-8 text-base font-medium backdrop-blur-sm transition-all hover:bg-white/10 hover:border-white/20"
-                            >
-                                <ImageIcon className="mr-2 h-4 w-4" />
-                                From Image
                             </Button>
                         </div>
                     </div>
@@ -127,7 +123,7 @@ export const Hero = ({ onBrowse, onMaker, onPickFromImage, onCustomize }: { onBr
                                     </div>
                                     <div className="mt-3 flex items-center justify-between px-2">
                                         <div className="h-1.5 w-20 rounded-full bg-white/10" />
-                                        <div className="h-4 w-4 rounded-lg bg-primary/20 animate-pulse" />
+                                        <div className="h-4 w-4 rounded-lg bg-primary/20" />
                                     </div>
                                     {/* Shimmer overlay */}
                                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-700">
@@ -177,12 +173,9 @@ export const Hero = ({ onBrowse, onMaker, onPickFromImage, onCustomize }: { onBr
                                             <div className="h-1 w-20 rounded-full bg-white/5" />
                                         </div>
                                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 border border-primary/20 shadow-inner">
-                                            <div className="h-5 w-5 rounded-full bg-primary/40 blur-[2px] animate-pulse group-hover:bg-primary/80 transition-colors" />
+                                            <div className="h-5 w-5 rounded-full bg-primary/40 group-hover:bg-primary/80 transition-colors" />
                                         </div>
                                     </div>
-
-                                    {/* Radiant glow behind the main card */}
-                                    <div className="absolute -inset-10 -z-10 bg-primary/5 blur-[50px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
                                     {/* Shimmer overlay */}
                                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-700">
@@ -191,9 +184,6 @@ export const Hero = ({ onBrowse, onMaker, onPickFromImage, onCustomize }: { onBr
                                 </div>
                             </div>
                         </div>
-
-                        {/* Subtle Gradient Glow behing cards */}
-                        <div className="absolute left-1/2 top-1/2 -z-10 h-[300px] w-full max-w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/5 blur-[120px] lg:h-[400px] lg:w-[400px] lg:bg-primary/10 lg:blur-[130px]" />
                     </div>
                 </div>
             </div>

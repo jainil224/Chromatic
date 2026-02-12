@@ -122,16 +122,16 @@ export const useLikes = () => {
     };
 
     // Toggle like for a palette
-    const toggleLike = async (paletteId: string) => {
-        const currentLikes = ensurePaletteInitialized(paletteId);
-        const currentLike = currentLikes[paletteId];
+    const toggleLike = useCallback(async (paletteId: string) => {
+        const currentLikesData = ensurePaletteInitialized(paletteId);
+        const currentLike = currentLikesData[paletteId];
         const wasLiked = currentLike.isLiked;
         const userId = getUserId();
 
         // Optimistically update UI
         const optimisticCount = wasLiked ? currentLike.count - 1 : currentLike.count + 1;
         const newLikes = {
-            ...currentLikes,
+            ...currentLikesData,
             [paletteId]: {
                 count: Math.max(0, optimisticCount),
                 isLiked: !wasLiked,
@@ -160,7 +160,7 @@ export const useLikes = () => {
                     if (deleteError) throw deleteError;
 
                     // Decrement like count using RPC
-                    const { data: newCount, error: rpcError } = await supabase.rpc('decrement_palette_likes', {
+                    const { data: resultCount, error: rpcError } = await supabase.rpc('decrement_palette_likes', {
                         palette_id: paletteId
                     });
 
@@ -170,7 +170,7 @@ export const useLikes = () => {
                     setLikes(prevLikes => ({
                         ...prevLikes,
                         [paletteId]: {
-                            count: newCount || 0,
+                            count: resultCount || 0,
                             isLiked: false,
                         },
                     }));
@@ -196,7 +196,7 @@ export const useLikes = () => {
                     }
 
                     // Increment like count using RPC
-                    const { data: newCount, error: rpcError } = await supabase.rpc('increment_palette_likes', {
+                    const { data: resultCount, error: rpcError } = await supabase.rpc('increment_palette_likes', {
                         palette_id: paletteId
                     });
 
@@ -214,7 +214,7 @@ export const useLikes = () => {
                     setLikes(prevLikes => ({
                         ...prevLikes,
                         [paletteId]: {
-                            count: newCount || 0,
+                            count: resultCount || 0,
                             isLiked: true,
                         },
                     }));
@@ -235,10 +235,10 @@ export const useLikes = () => {
             console.error('Error toggling like:', err);
 
             // Revert optimistic update on error
-            setLikes(currentLikes);
+            setLikes(currentLikesData);
             toast.error('Failed to update like');
         }
-    };
+    }, [likes, fetchLikes]);
 
     // Get like count for a palette
     const getLikeCount = useCallback((paletteId: string): number => {

@@ -79,10 +79,10 @@ export const PaletteCard = memo(function PaletteCard({
             {palette.name}
           </h3>
           <div className="flex flex-wrap gap-1.5">
-            {palette.tags?.map((tag) => (
+            {palette.tags?.slice(0, 3).map((tag) => (
               <span
                 key={tag}
-                className="rounded-full bg-white/[0.03] border border-white/5 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-secondary-foreground/60 transition-colors group-hover:border-white/10 group-hover:bg-white/[0.05]"
+                className="rounded-full bg-white/[0.03] border border-white/5 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-secondary-foreground/70 transition-colors group-hover:border-white/10 group-hover:bg-white/[0.05]"
               >
                 {tag}
               </span>

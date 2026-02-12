@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Check, X, Loader2 } from "lucide-react";
+import { Check, X, Loader2, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { numericToIp } from "@/lib/utils";
 
@@ -10,106 +10,155 @@ interface Submission {
     id: string;
     name: string;
     colors: string[];
-    likes: number;
-    status: 'pending' | 'approved' | 'rejected';
-    submitted_at: string;
-    category?: string;
+    created_at: string;
+    ip_address_numeric?: number;
     tags?: string[];
-    user_ip?: string;
-    ip_address_numeric?: string | number;
+    section?: string;
 }
 
 const CATEGORIES = [
-    "dark", "light", "pastel", "vintage", "retro", "neon", "gold", "cold", "fall", "winter", "spring", "happy", "nature", "earth", "space", "rainbow", "gradient", "sunset", "sky", "sea", "kid", "skin", "food", "cream", "coffee", "wedding", "christmas"
+    "Pastel", "Vintage", "Retro", "Neon", "Gold", "Light", "Dark", "Warm", "Cold",
+    "Summer", "Fall", "Winter", "Spring", "Happy",
+    "Nature", "Earth", "Night", "Space", "Rainbow", "Gradient", "Sunset", "Sky", "Sea",
+    "Kid", "Skin", "Food", "Cream", "Coffee", "Wedding", "Christmas"
 ];
 
 const AdminDashboard = () => {
-    const navigate = useNavigate();
     const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
     const [selectedCategories, setSelectedCategories] = useState<Record<string, string>>({});
     const [editedTags, setEditedTags] = useState<Record<string, string>>({});
+    const navigate = useNavigate();
 
     useEffect(() => {
-        checkAuth();
+        fetchSubmissions();
     }, []);
 
-    const checkAuth = async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-            navigate("/admin/login");
-            return;
-        }
-        fetchSubmissions();
-    };
-
     const fetchSubmissions = async () => {
-        setLoading(true);
-        const { data, error } = await supabase
-            .from('palette_submissions')
-            .select('*')
-            .eq('status', 'pending')
-            .order('submitted_at', { ascending: false });
+        try {
+            setLoading(true);
+            // Fetch palettes where section is null (pending)
+            const { data, error } = await supabase
+                .from('palettes')
+                .select('*')
+                .is('section', null)
+                .order('created_at', { ascending: false });
 
-        if (error) {
-            console.error('Error fetching submissions:', error);
-            toast.error('Failed to load submissions');
-        } else {
+            if (error) throw error;
             setSubmissions(data || []);
-            // Initialize editedTags with existing tags
-            const initialTags: Record<string, string> = {};
-            data?.forEach((s: Submission) => {
-                if (s.tags && s.tags.length > 0) {
-                    initialTags[s.id] = s.tags.join(', ');
-                }
-            });
-            setEditedTags(initialTags);
+        } catch (error) {
+            console.error("Error fetching submissions:", error);
+            toast.error("Failed to load submissions");
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const handleApprove = async (id: string, currentTags: string[]) => {
-        setActionLoading(id);
-        const category = selectedCategories[id] || null;
-        // Use edited tags if available, otherwise use current tags from submission
-        const tagsToSave = editedTags[id] !== undefined
-            ? editedTags[id].split(',').map(t => t.trim()).filter(t => t.length > 0)
-            : currentTags;
+        const category = selectedCategories[id];
+        if (!category) {
+            toast.error("Please select a category");
+            return;
+        }
 
+        setActionLoading(id);
         try {
-            const { data, error } = await supabase.rpc('approve_submission', {
-                submission_id: id,
-                target_category: category,
-                target_tags: tagsToSave
-            });
+            const extraTags = editedTags[id]
+                ? editedTags[id].split(',').map(t => t.trim()).filter(Boolean)
+                : [];
+
+            const finalTags = Array.from(new Set([...currentTags, category.toLowerCase(), ...extraTags]));
+
+            const { error } = await supabase
+                .from('palettes')
+                .update({
+                    section: category.toLowerCase(),
+                    tags: finalTags
+                })
+                .eq('id', id);
 
             if (error) throw error;
 
-            toast.success(`Palette approved${category ? ` to ${category}` : ''}!`);
-            // Remove locally
+            toast.success("Palette approved!");
             setSubmissions(prev => prev.filter(s => s.id !== id));
-        } catch (error: any) {
-            console.error('Error approving:', error);
-            toast.error(error.message || "Failed to approve");
+        } catch (error) {
+            console.error("Error approving:", error);
+            toast.error("Failed to approve palette");
         } finally {
             setActionLoading(null);
         }
     };
 
     const handleReject = async (id: string) => {
+        if (!confirm("Are you sure you want to reject (delete) this palette?")) return;
+
         setActionLoading(id);
         try {
-            const { error } = await supabase.rpc('reject_submission', { submission_id: id });
+            const { error } = await supabase
+                .from('palettes')
+                .delete()
+                .eq('id', id);
 
             if (error) throw error;
 
-            toast.success("Palette rejected.");
-            // Remove locally
+            toast.success("Palette rejected");
             setSubmissions(prev => prev.filter(s => s.id !== id));
+        } catch (error) {
+            console.error("Error rejecting:", error);
+            toast.error("Failed to reject palette");
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    const fixGenericPalettes = async () => {
+        if (!confirm("This will rename all palettes starting with 'Happy Dream' and add tags. Continue?")) return;
+
+        setActionLoading('fixing_generic');
+        try {
+            // 1. Fetch generic palettes
+            const { data: palettes, error: fetchError } = await supabase
+                .from('palettes')
+                .select('*')
+                .ilike('name', 'Happy Dream%');
+
+            if (fetchError) throw fetchError;
+            if (!palettes || palettes.length === 0) {
+                toast.info("No 'Happy Dream' palettes found to fix.");
+                return;
+            }
+
+            let updatedCount = 0;
+
+            // 2. Iterate and update
+            for (const palette of palettes) {
+                const { name: newName, tags: newTags } = generatePaletteMetadata(palette.colors);
+
+                // Keep existing tags if any, distinct merge
+                const existingTags = Array.isArray(palette.tags) ? palette.tags : [];
+                const mergedTags = Array.from(new Set([...existingTags, ...newTags]));
+
+                const { error: updateError } = await supabase
+                    .from('palettes')
+                    .update({
+                        name: newName,
+                        tags: mergedTags
+                    })
+                    .eq('id', palette.id);
+
+                if (updateError) {
+                    console.error(`Failed to update ${palette.id}`, updateError);
+                } else {
+                    updatedCount++;
+                }
+            }
+
+            toast.success(`Successfully fixed ${updatedCount} palettes!`);
+
         } catch (error: any) {
-            console.error('Error rejecting:', error);
-            toast.error(error.message || "Failed to reject");
+            console.error('Error fixing palettes:', error);
+            toast.error(error.message || "Failed to fix palettes");
         } finally {
             setActionLoading(null);
         }
@@ -200,7 +249,7 @@ const AdminDashboard = () => {
                                                     Date
                                                 </p>
                                                 <p className="text-xs font-medium text-white/90">
-                                                    {new Date(submission.submitted_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                    {new Date(submission.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                                                 </p>
                                             </div>
                                             <div className="bg-white/5 rounded-xl p-3 border border-white/5">
@@ -245,7 +294,7 @@ const AdminDashboard = () => {
                                                 >
                                                     <option value="" className="bg-zinc-900">Uncategorized</option>
                                                     {CATEGORIES.map(cat => (
-                                                        <option key={cat} value={cat} className="bg-zinc-900">{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
+                                                        <option key={cat} value={cat} className="bg-zinc-900">{cat}</option>
                                                     ))}
                                                 </select>
                                                 <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/30 group-hover/select:text-white/50 transition-colors">
@@ -306,8 +355,126 @@ const AdminDashboard = () => {
                     </div>
                 )}
             </main>
+
+            {/* Maintenance Section */}
+            <section className="container py-8 px-4 mx-auto border-t border-white/5 mt-8">
+                <h2 className="text-xl font-bold mb-4 text-white/80">Maintenance Tools</h2>
+                <div className="bg-card/30 rounded-xl p-6 border border-white/5">
+                    <h3 className="text-lg font-medium mb-2">Fix Generic Palettes</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                        Finds palettes named "Happy Dream..." and renames them based on their colors, adding appropriate tags.
+                    </p>
+                    <Button
+                        variant="secondary"
+                        onClick={fixGenericPalettes}
+                        disabled={!!actionLoading}
+                    >
+                        {actionLoading === 'fixing_generic' ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                            <Sparkles className="h-4 w-4 mr-2" />
+                        )}
+                        Fix Names & Tags
+                    </Button>
+                </div>
+            </section>
         </div>
     );
 };
+
+// --- Helper Functions for Name/Tag Generation ---
+
+function generatePaletteMetadata(colors: string[]) {
+    // 1. Convert hex to HSL to understand the colors
+    const hslColors = colors.map(hex => hexToHSL(hex));
+
+    // 2. Determine dominant properties
+    const avgL = hslColors.reduce((acc, c) => acc + c.l, 0) / hslColors.length;
+    const avgS = hslColors.reduce((acc, c) => acc + c.s, 0) / hslColors.length;
+
+    // 3. Generate Tags
+    const tags = new Set<string>();
+
+    // Brightness tags
+    if (avgL < 30) tags.add("dark");
+    else if (avgL > 70) tags.add("light");
+
+    // Saturation tags
+    if (avgS > 80) tags.add("vibrant");
+    else if (avgS > 60) tags.add("neon");
+    else if (avgS < 20) tags.add("pastel");
+    else if (avgS < 10) tags.add("muted");
+
+    // Warm/Cold tags based on hue
+    const warmCount = hslColors.filter(c => (c.h >= 0 && c.h < 60) || (c.h >= 300)).length;
+    const coldCount = hslColors.filter(c => c.h >= 150 && c.h < 300).length;
+
+    if (warmCount > coldCount) tags.add("warm");
+    if (coldCount > warmCount) tags.add("cold");
+
+    // 4. Generate Name
+    // Get the most saturated color to drive the name
+    const dominant = hslColors.reduce((prev, current) => (prev.s > current.s) ? prev : current);
+
+    let colorName = "Color";
+    const h = dominant.h;
+    if (h >= 0 && h < 15) colorName = "Red";
+    else if (h >= 15 && h < 45) colorName = "Orange";
+    else if (h >= 45 && h < 70) colorName = "Yellow";
+    else if (h >= 70 && h < 150) colorName = "Green";
+    else if (h >= 150 && h < 190) colorName = "Teal";
+    else if (h >= 190 && h < 250) colorName = "Blue";
+    else if (h >= 250 && h < 290) colorName = "Purple";
+    else if (h >= 290 && h < 330) colorName = "Pink";
+    else colorName = "Red";
+
+    // Adjectives
+    const adjective = avgL < 30 ? "Midnight"
+        : avgL > 80 ? "Soft"
+            : avgS > 80 ? "Electric"
+                : avgS < 20 ? "Dusty"
+                    : "Classic";
+
+    // Nouns
+    const nouns = ["Harmony", "Vibe", "Mood", "Essence", "Flow", "Scape", "Aura", "Dream"];
+    const noun = nouns[Math.floor(Math.random() * nouns.length)];
+
+    const name = `${adjective} ${colorName} ${noun}`;
+
+    return { name, tags: Array.from(tags) };
+}
+
+function hexToHSL(H: string) {
+    // Convert hex to RGB first
+    let r = 0, g = 0, b = 0;
+    if (H.length == 4) {
+        r = parseInt("0x" + H[1] + H[1]);
+        g = parseInt("0x" + H[2] + H[2]);
+        b = parseInt("0x" + H[3] + H[3]);
+    } else if (H.length == 7) {
+        r = parseInt("0x" + H[1] + H[2]);
+        g = parseInt("0x" + H[3] + H[4]);
+        b = parseInt("0x" + H[5] + H[6]);
+    }
+    // Then to HSL
+    r /= 255; g /= 255; b /= 255;
+    let cmin = Math.min(r, g, b), cmax = Math.max(r, g, b), delta = cmax - cmin;
+    let h = 0, s = 0, l = 0;
+
+    if (delta == 0) h = 0;
+    else if (cmax == r) h = ((g - b) / delta) % 6;
+    else if (cmax == g) h = (b - r) / delta + 2;
+    else h = (r - g) / delta + 4;
+
+    h = Math.round(h * 60);
+    if (h < 0) h += 360;
+
+    l = (cmax + cmin) / 2;
+    s = delta == 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
+    s = +(s * 100).toFixed(1);
+    l = +(l * 100).toFixed(1);
+
+    return { h, s, l };
+}
 
 export default AdminDashboard;
