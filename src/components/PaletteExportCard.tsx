@@ -23,28 +23,18 @@ export const PaletteExportCard = forwardRef<HTMLDivElement, PaletteExportCardPro
                             className="font-display text-7xl font-medium tracking-tight text-white capitalize"
                             style={{ fontFamily: "'Instrument Serif', serif" }}
                         >
-                            {!palette.isCustom && palette.category && palette.category !== 'custom'
-                                ? `${palette.category} ${palette.name}`
-                                : (palette.name || "Untitled Palette")}
+                            {palette.name || "Untitled Palette"}
                         </h1>
-                        {palette.isCustom || palette.category === 'custom' ? (
-                            <p className="font-mono text-sm uppercase tracking-[0.3em] text-white/40">
-                                Color Palette
-                            </p>
-                        ) : palette.description ? (
-                            <p className="font-sans text-xl text-white/60 max-w-2xl leading-relaxed italic">
-                                {palette.description}
-                            </p>
-                        ) : null}
+                        <p className="font-mono text-sm uppercase tracking-[0.3em] text-white/40">
+                            Color Palette
+                        </p>
                     </div>
-                    {(palette.isCustom || palette.category === 'custom') && (
-                        <div className="flex items-center gap-2 pt-4">
-                            <div className="h-3 w-3 rounded-full bg-[#1da1f2]" />
-                            <span className="font-mono text-sm font-bold uppercase tracking-wider text-[#1da1f2]">
-                                Chromatic
-                            </span>
-                        </div>
-                    )}
+                    <div className="flex items-center gap-2 pt-4">
+                        <div className="h-3 w-3 rounded-full bg-[#1da1f2]" />
+                        <span className="font-mono text-sm font-bold uppercase tracking-wider text-[#1da1f2]">
+                            Chromatic
+                        </span>
+                    </div>
                 </div>
 
                 {/* Swatches Container */}
@@ -95,12 +85,9 @@ export const PaletteExportCard = forwardRef<HTMLDivElement, PaletteExportCardPro
                     </div>
 
                     <div className="text-right">
-                        <p
-                            className="font-display text-5xl italic text-white/95"
-                            style={{ fontFamily: "'Instrument Serif', serif", fontStyle: 'italic' }}
-                        >
-                            Made with Chromatic
-                        </p>
+                        <div className="text-6xl">
+                            💜
+                        </div>
                     </div>
                 </div>
             </div>
