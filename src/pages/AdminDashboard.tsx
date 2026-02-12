@@ -4,16 +4,18 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Check, X, Loader2, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { numericToIp } from "@/lib/utils";
+import { cn, numericToIp } from "@/lib/utils";
 
 interface Submission {
     id: string;
     name: string;
     colors: string[];
-    created_at: string;
-    ip_address_numeric?: number;
+    submitted_at: string;
+    ip_address_numeric?: string;
     tags?: string[];
-    section?: string;
+    status: 'pending' | 'approved' | 'rejected';
+    category?: string;
+    source: 'palette_submissions' | 'palettes';
 }
 
 const CATEGORIES = [
@@ -38,15 +40,61 @@ const AdminDashboard = () => {
     const fetchSubmissions = async () => {
         try {
             setLoading(true);
-            // Fetch palettes where section is null (pending)
-            const { data, error } = await supabase
+
+            // 1. Fetch from palette_submissions (New Source)
+            const { data: psData, error: psError } = await supabase
+                .from('palette_submissions')
+                .select('*')
+                .eq('status', 'pending')
+                .order('submitted_at', { ascending: false });
+
+            // 2. Fetch from palettes (Legacy Source - where section is null)
+            const { data: pData, error: pError } = await supabase
                 .from('palettes')
                 .select('*')
                 .is('section', null)
                 .order('created_at', { ascending: false });
 
-            if (error) throw error;
-            setSubmissions(data || []);
+            if (psError) {
+                console.error("Error fetching from palette_submissions:", psError);
+                toast.error(`New DB Error: ${psError.message}`);
+            }
+            if (pError) {
+                console.error("Error fetching from palettes:", pError);
+                toast.error(`Legacy DB Error: ${pError.message}`);
+            }
+
+            if (!psData && !pData && (psError || pError)) {
+                setSubmissions([]);
+                return;
+            }
+
+            // 3. Format and Merge
+            const psSubmissions: Submission[] = (psData || []).map(s => ({
+                id: s.id,
+                name: s.name,
+                colors: s.colors,
+                submitted_at: s.submitted_at,
+                ip_address_numeric: s.ip_address_numeric,
+                tags: s.tags,
+                status: s.status,
+                category: s.category,
+                source: 'palette_submissions'
+            }));
+
+            const pSubmissions: Submission[] = (pData || []).map(s => ({
+                id: s.id,
+                name: s.name,
+                colors: s.colors,
+                submitted_at: s.created_at, // Use created_at as fallback
+                ip_address_numeric: undefined, // Legacy source doesn't have IP
+                tags: s.tags || [],
+                status: 'pending',
+                category: s.category || undefined,
+                source: 'palettes'
+            }));
+
+            setSubmissions([...psSubmissions, ...pSubmissions]);
         } catch (error) {
             console.error("Error fetching submissions:", error);
             toast.error("Failed to load submissions");
@@ -55,33 +103,58 @@ const AdminDashboard = () => {
         }
     };
 
-    const handleApprove = async (id: string, currentTags: string[]) => {
-        const category = selectedCategories[id];
+    const handleApprove = async (submission: Submission) => {
+        const category = selectedCategories[submission.id];
         if (!category) {
             toast.error("Please select a category");
             return;
         }
 
-        setActionLoading(id);
+        setActionLoading(submission.id);
         try {
-            const extraTags = editedTags[id]
-                ? editedTags[id].split(',').map(t => t.trim()).filter(Boolean)
+            const extraTags = editedTags[submission.id]
+                ? editedTags[submission.id].split(',').map(t => t.trim()).filter(Boolean)
                 : [];
 
+            const currentTags = submission.tags || [];
             const finalTags = Array.from(new Set([...currentTags, category.toLowerCase(), ...extraTags]));
 
-            const { error } = await supabase
-                .from('palettes')
-                .update({
-                    section: category.toLowerCase(),
-                    tags: finalTags
-                })
-                .eq('id', id);
+            if (submission.source === 'palette_submissions') {
+                const { error } = await supabase.rpc('approve_submission', {
+                    submission_id: submission.id,
+                    target_category: category.toLowerCase(),
+                    target_tags: finalTags
+                });
 
-            if (error) throw error;
+                if (error) throw error;
+
+                // Follow-up: Ensure section is set
+                const { data: newPaletteData } = await supabase
+                    .from('palettes')
+                    .select('id')
+                    .eq('name', submission.name)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .single();
+
+                if (newPaletteData) {
+                    await supabase.from('palettes').update({ section: category.toLowerCase() }).eq('id', newPaletteData.id);
+                }
+            } else {
+                // Legacy support: direct update on palettes table
+                const { error } = await supabase
+                    .from('palettes')
+                    .update({
+                        section: category.toLowerCase(),
+                        category: category.toLowerCase(),
+                        tags: finalTags
+                    })
+                    .eq('id', submission.id);
+                if (error) throw error;
+            }
 
             toast.success("Palette approved!");
-            setSubmissions(prev => prev.filter(s => s.id !== id));
+            setSubmissions(prev => prev.filter(s => s.id !== submission.id));
         } catch (error) {
             console.error("Error approving:", error);
             toast.error("Failed to approve palette");
@@ -90,20 +163,27 @@ const AdminDashboard = () => {
         }
     };
 
-    const handleReject = async (id: string) => {
+    const handleReject = async (submission: Submission) => {
         if (!confirm("Are you sure you want to reject (delete) this palette?")) return;
 
-        setActionLoading(id);
+        setActionLoading(submission.id);
         try {
-            const { error } = await supabase
-                .from('palettes')
-                .delete()
-                .eq('id', id);
-
-            if (error) throw error;
+            if (submission.source === 'palette_submissions') {
+                const { error } = await supabase.rpc('reject_submission', {
+                    submission_id: submission.id
+                });
+                if (error) throw error;
+            } else {
+                // Legacy support: direct delete on palettes table
+                const { error } = await supabase
+                    .from('palettes')
+                    .delete()
+                    .eq('id', submission.id);
+                if (error) throw error;
+            }
 
             toast.success("Palette rejected");
-            setSubmissions(prev => prev.filter(s => s.id !== id));
+            setSubmissions(prev => prev.filter(s => s.id !== submission.id));
         } catch (error) {
             console.error("Error rejecting:", error);
             toast.error("Failed to reject palette");
@@ -249,7 +329,7 @@ const AdminDashboard = () => {
                                                     Date
                                                 </p>
                                                 <p className="text-xs font-medium text-white/90">
-                                                    {new Date(submission.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                    {new Date(submission.submitted_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                                                 </p>
                                             </div>
                                             <div className="bg-white/5 rounded-xl p-3 border border-white/5">
@@ -284,7 +364,15 @@ const AdminDashboard = () => {
                                         <div className="space-y-2">
                                             <div className="flex justify-between items-center px-1">
                                                 <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Classification</label>
-                                                <span className="text-[10px] text-white/20 font-mono">ID: {submission.id.slice(0, 8)}</span>
+                                                <div className="flex flex-col items-end">
+                                                    <span className="text-[10px] text-white/20 font-mono">ID: {submission.id.slice(0, 8)}</span>
+                                                    <span className={cn(
+                                                        "text-[9px] font-bold uppercase tracking-tighter",
+                                                        submission.source === 'palette_submissions' ? "text-primary/40" : "text-amber-500/40"
+                                                    )}>
+                                                        {submission.source === 'palette_submissions' ? "New DB" : "Legacy DB"}
+                                                    </span>
+                                                </div>
                                             </div>
                                             <div className="relative group/select">
                                                 <select
@@ -323,7 +411,7 @@ const AdminDashboard = () => {
                                         <Button
                                             variant="default"
                                             className="flex-1 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white border border-emerald-500/20 rounded-xl h-11 transition-all duration-300 font-bold active:scale-95 group/btn"
-                                            onClick={() => handleApprove(submission.id, submission.tags || [])}
+                                            onClick={() => handleApprove(submission)}
                                             disabled={!!actionLoading}
                                         >
                                             {actionLoading === submission.id ? (
@@ -337,7 +425,7 @@ const AdminDashboard = () => {
                                         <Button
                                             variant="outline"
                                             className="flex-1 border-rose-500/20 hover:bg-rose-500/10 text-rose-500/80 hover:text-rose-500 hover:border-rose-500/50 rounded-xl h-11 transition-all duration-300 font-bold active:scale-95 group/btn"
-                                            onClick={() => handleReject(submission.id)}
+                                            onClick={() => handleReject(submission)}
                                             disabled={!!actionLoading}
                                         >
                                             {actionLoading === submission.id ? (

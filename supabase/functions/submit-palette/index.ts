@@ -77,8 +77,8 @@ serve(async (req: Request) => {
             throw new Error('Palette name is required');
         }
 
-        if (!colors || !Array.isArray(colors) || colors.length !== 5) {
-            throw new Error('Exactly 5 colors are required');
+        if (!colors || !Array.isArray(colors) || colors.length < 2 || colors.length > 10) {
+            throw new Error('Palette must have between 2 and 10 colors');
         }
 
         // Validate hex format

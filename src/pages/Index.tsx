@@ -546,7 +546,7 @@ const Index = () => {
             } else {
               addPalette({
                 ...p,
-                section: selectedCategory === 'Kid' ? 'kid' : 'general'
+                section: selectedCategory === 'Kid' ? 'kid' : null
               });
             }
           }}
