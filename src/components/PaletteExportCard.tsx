@@ -85,8 +85,11 @@ export const PaletteExportCard = forwardRef<HTMLDivElement, PaletteExportCardPro
                     </div>
 
                     <div className="text-right">
-                        <div className="text-6xl">
-                            💜
+                        <div
+                            className="font-display text-2xl italic text-white/40"
+                            style={{ fontFamily: "'Instrument Serif', serif" }}
+                        >
+                            Made with Chromatic
                         </div>
                     </div>
                 </div>

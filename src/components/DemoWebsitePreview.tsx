@@ -115,7 +115,7 @@ export const DemoWebsitePreview = memo(function DemoWebsitePreview() {
                     </h2>
                     <div className="grid md:grid-cols-3 gap-6">
                         {[
-                            { name: 'Individual', price: '$0', period: 'per month', desc: 'Perfect for freelancers or hobbyists starting out.', icon: '💜' },
+                            { name: 'Individual', price: '$0', period: 'per month', desc: 'Perfect for freelancers or hobbyists starting out.', icon: '⭐' },
                             { name: 'Team', price: '$99', period: 'per month', desc: 'Ideal for growing teams that need collaboration tools.', icon: '👁️' },
                             { name: 'Enterprise', price: '$199', period: 'per month', desc: 'Perfect for large organizations with custom needs.', icon: '⭐' },
                         ].map((plan, idx) => (
