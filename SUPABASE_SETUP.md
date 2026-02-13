@@ -124,4 +124,4 @@ CREATE TABLE palettes (
 
 ---
 
-**Status:** ✅ Ready to deploy!
+**Status:** ✅ Ready to deploy!...
