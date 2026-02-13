@@ -87,7 +87,7 @@ export const Hero = ({ onBrowse, onMaker, onPickFromImage, onCustomize }: { onBr
                                         <div className="h-1.5 w-1.5 rounded-full bg-white/20 transition-colors group-hover:bg-amber-500/50" />
                                         <div className="h-1.5 w-1.5 rounded-full bg-white/20 transition-colors group-hover:bg-emerald-500/50" />
                                     </div>
-                                    <div className="flex h-36 w-full flex-col overflow-hidden rounded-xl bg-black/40 ring-1 ring-white/5">
+                                    <div className="flex h-36 w-full flex-col overflow-hidden rounded-xl bg-black/40 ring-1 ring-white/5" aria-label="Dark UI color palette preview">
                                         <div className="flex-1 bg-[#2D3436] transition-transform duration-700 group-hover:scale-110" />
                                         <div className="flex-1 bg-[#636E72] transition-transform duration-700 group-hover:scale-110" />
                                         <div className="flex-1 bg-[#B2BEC3] transition-transform duration-700 group-hover:scale-110" />
@@ -115,7 +115,7 @@ export const Hero = ({ onBrowse, onMaker, onPickFromImage, onCustomize }: { onBr
                                         <div className="h-1.5 w-1.5 rounded-full bg-white/10" />
                                         <div className="h-1.5 w-1.5 rounded-full bg-white/10" />
                                     </div>
-                                    <div className="flex h-36 w-full flex-col overflow-hidden rounded-xl bg-black/40 ring-1 ring-white/5">
+                                    <div className="flex h-36 w-full flex-col overflow-hidden rounded-xl bg-black/40 ring-1 ring-white/5" aria-label="Earthy tones color palette preview">
                                         <div className="flex-1 bg-[#1A1A1A] transition-transform duration-700 group-hover:scale-110" />
                                         <div className="flex-1 bg-[#4A4A4A] transition-transform duration-700 group-hover:scale-110" />
                                         <div className="flex-1 bg-[#D4A373] transition-transform duration-700 group-hover:scale-110" />
@@ -138,7 +138,7 @@ export const Hero = ({ onBrowse, onMaker, onPickFromImage, onCustomize }: { onBr
                                 style={{ animation: 'floating-3 10s ease-in-out infinite' }}
                             >
                                 <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-2.5 backdrop-blur-3xl shadow-2xl transition-all duration-500 hover:scale-[1.05] hover:-translate-y-4 hover:border-white/25 hover:shadow-[0_40px_100px_-15px_rgba(0,0,0,0.5)] cursor-pointer">
-                                    <div className="flex h-36 w-full flex-col overflow-hidden rounded-xl bg-black/40 ring-1 ring-white/5">
+                                    <div className="flex h-36 w-full flex-col overflow-hidden rounded-xl bg-black/40 ring-1 ring-white/5" aria-label="Warm sunset color palette preview">
                                         <div className="flex-1 bg-[#001219] transition-transform duration-700 group-hover:scale-110" />
                                         <div className="flex-1 bg-[#005F73] transition-transform duration-700 group-hover:scale-110" />
                                         <div className="flex-1 bg-[#EE9B00] transition-transform duration-700 group-hover:scale-110" />
@@ -161,7 +161,7 @@ export const Hero = ({ onBrowse, onMaker, onPickFromImage, onCustomize }: { onBr
                                 style={{ animation: 'floating-1 18s ease-in-out infinite reverse' }}
                             >
                                 <div className="group relative overflow-hidden rounded-3xl border border-primary/30 bg-black/60 p-4 backdrop-blur-[40px] shadow-[0_60px_120px_-20px_rgba(0,0,0,0.9)] transition-all duration-700 hover:scale-[1.08] hover:-translate-y-6 hover:border-primary/50 hover:shadow-[0_80px_150px_-25px_rgba(0,0,0,1)] cursor-pointer ring-1 ring-white/10">
-                                    <div className="flex h-48 w-full flex-col overflow-hidden rounded-2xl bg-black/40 ring-1 ring-white/5 mb-4">
+                                    <div className="flex h-48 w-full flex-col overflow-hidden rounded-2xl bg-black/40 ring-1 ring-white/5 mb-4" aria-label="Premium dark gold color palette preview">
                                         <div className="flex-1 bg-[#0F0F0F] transition-transform duration-700 group-hover:scale-110" />
                                         <div className="flex-1 bg-[#1C1C1C] transition-transform duration-700 group-hover:scale-110" />
                                         <div className="flex-1 bg-[#C69C6D] transition-transform duration-700 group-hover:scale-110" />

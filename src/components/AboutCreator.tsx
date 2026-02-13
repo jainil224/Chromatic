@@ -37,7 +37,7 @@ export function AboutCreator() {
                             <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full bg-black flex items-center justify-center overflow-hidden border-4 border-black shadow-[0_0_60px_rgba(var(--primary),0.2)]">
                                 <img
                                     src="/logo_1_upscaled.png?v=2"
-                                    alt="CP Branding"
+                                    alt="Chromatic Color Palette Branding Logo"
                                     className="relative w-full h-full object-contain p-0 transition-all duration-700 scale-[1.6] translate-y-[12%]"
                                 />
                             </div>

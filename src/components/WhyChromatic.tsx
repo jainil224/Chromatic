@@ -27,26 +27,21 @@ export const WhyChromatic = ({ themeMode }: { themeMode?: 'light' | 'dark' | 'mi
                             : "border-white/5 bg-[#121212]/40 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.5)]"
                 )}>
                     <h3 className="mb-6 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                        Chromatic Color Palette – Find Perfect Colors for Your Designs
+                        Chromatic Color Palette – Find Perfect Color Combinations
                     </h3>
 
                     <div className="space-y-4 font-mono text-sm leading-relaxed text-secondary-foreground/80 sm:text-base">
                         <p className="opacity-0 animate-fade-up [animation-delay:0.2s] [animation-fill-mode:forwards]">
-                            Chromatic Color Palette is a powerful and easy-to-use online color tool that helps designers, developers, and creatives discover beautiful color palettes and gradients.
+                            Chromatic Color Palette is a powerful and easy-to-use <strong>online color palette generator</strong> and <strong>gradient tool</strong> that helps designers, developers, and creatives discover beautiful color schemes.
                         </p>
 
                         <p className="opacity-0 animate-fade-up [animation-delay:0.4s] [animation-fill-mode:forwards]">
-                            Browse trending color combinations, generate custom palettes, and copy HEX, RGB, and HSL values instantly. Whether you're building a website, mobile app, logo, or UI design, Chromatic Color Palette makes color selection fast and effortless.
+                            Browse trending color combinations, generate <strong>custom palettes</strong>, and copy HEX, RGB, and HSL values instantly. Whether you're building a website, mobile app, logo, or UI design, Chromatic makes <strong>color selection</strong> fast and effortless with our <strong>image color extractor</strong>.
                         </p>
 
                         <p className="opacity-0 animate-fade-up [animation-delay:0.6s] [animation-fill-mode:forwards]">
-                            Our platform is free, fast, and optimized for creative workflows. No sign-up required.
+                            Our platform is a free <strong>professional color tool</strong>, optimized for <strong>creative workflows</strong>. No sign-up required—just pure inspiration for your next project.
                         </p>
-                    </div>
-
-                    {/* Hidden keywords for SEO targeting */}
-                    <div className="sr-only">
-                        color palette generator, free color palette tool, gradient generator online, hex color codes, ui ux color palettes, web design colors, color combinations, chromatic color palette
                     </div>
 
                     {/* Footer Attribution */}
