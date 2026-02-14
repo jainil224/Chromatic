@@ -56,7 +56,13 @@ export const Navbar = ({
                                     : "bg-gradient-to-r from-amber-500 to-orange-600 shadow-[0_0_20px_-5px_hsl(var(--primary)/0.4)] hover:shadow-[0_0_30px_-5px_hsl(var(--primary)/0.6)]"
                         )}
                     >
-                        <PaletteIcon className="h-3.5 w-3.5 text-white/90" />
+                        <div className="h-4 w-4 flex items-center justify-center overflow-hidden rounded-sm bg-white/10 group-hover:bg-white/20 transition-colors ring-1 ring-white/20">
+                            <img
+                                src="/logo_1_upscaled.png?v=2"
+                                alt="Chromatic Logo"
+                                className="h-full w-full object-contain scale-125 transition-transform group-hover:scale-150"
+                            />
+                        </div>
                         <div className="flex items-center gap-1.5 whitespace-nowrap">
                             <span className="font-mono text-[10px] font-bold uppercase tracking-tight text-white/90">
                                 Colors Palettes:
