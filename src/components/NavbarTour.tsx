@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { ChevronRight, ChevronLeft, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { X, ChevronRight, ChevronLeft, Terminal } from 'lucide-react';
 
 // --- Types ---
 interface TourStep {
@@ -17,119 +16,59 @@ interface TourStep {
 const TOUR_STEPS: TourStep[] = [
     {
         targetId: 'tour-logo',
-        title: 'COLOR_DATABASE: ONLINE_',
-        message: 'Access thousands of ready-to-use color palettes. Explore, get inspired, and start building instantly.',
+        title: 'Explore the Palette Library',
+        message: 'Browse thousands of curated color palettes crafted for modern UI, branding, and creative projects.',
         position: 'bottom-start',
     },
     {
         targetId: 'navbar-search',
-        title: 'SMART_SEARCH_PROTOCOL_',
-        message: 'Type a mood, theme, or color tone. Find the exact palette your project needs in seconds.',
+        title: 'Find Your Inspiration',
+        message: 'Search by mood, theme, or color tone to instantly discover palettes that match your vision.',
         position: 'bottom',
     },
     {
         targetId: 'tour-pixels',
-        title: 'AI_PIXEL_EXTRACTION_ENGINE_',
-        message: 'Upload any image. Our AI scans the pixels and generates a perfectly matched color palette automatically.',
+        title: 'Extract Colors from Images',
+        message: 'Upload any image and let AI generate a perfectly matched color palette based on dominant colors.',
         position: 'bottom',
     },
     {
         targetId: 'tour-build',
-        title: 'CUSTOM_PALETTE_BUILDER_',
-        message: 'Create your own color palette from scratch. Design something uniquely yours and submit it to the Chromomatic community.',
+        title: 'Create & Share Your Palette',
+        message: "Design your own custom color combinations from scratch. Once you're satisfied, submit your palette to the Chromomatic Community and inspire designers worldwide.",
         position: 'bottom',
     },
     {
         targetId: 'tour-tweak',
-        title: 'COLOR_CONTROL_SYSTEM_',
-        message: 'Fine-tune brightness, saturation, and tones. Perfect every shade until your palette feels just right.',
+        title: 'Refine with Precision',
+        message: 'Adjust brightness, saturation, and tones to perfect every shade in your palette.',
         position: 'bottom',
     },
-
     {
         targetId: 'tour-theme-toggle',
-        title: 'DISPLAY_MODE_SWITCH_',
-        message: 'Switch between dark and light mode for a more comfortable creative experience.',
+        title: 'Switch Display Mode',
+        message: 'Toggle between light and dark mode for a more comfortable and personalized creative experience.',
         position: 'bottom-end',
     },
 ];
 
-// --- Typewriter Effect Component ---
-const Typewriter = ({ text, speed = 30, onComplete }: { text: string; speed?: number; onComplete?: () => void }) => {
-    const [displayedText, setDisplayedText] = useState('');
-    const index = useRef(0);
-
-    useEffect(() => {
-        setDisplayedText('');
-        index.current = 0;
-
-        const interval = setInterval(() => {
-            if (index.current < text.length) {
-                setDisplayedText((prev) => prev + text.charAt(index.current));
-                index.current++;
-            } else {
-                clearInterval(interval);
-                onComplete?.();
-            }
-        }, speed);
-
-        return () => clearInterval(interval);
-    }, [text, speed, onComplete]);
-
-    return <span>{displayedText}</span>;
-};
-
 export const NavbarTour = () => {
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [isVisible, setIsVisible] = useState(false);
-    const [position, setPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
     const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
+    const [tooltipPosition, setTooltipPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
 
-    // --- Initialization ---
+    // --- Initialization & LocalStorage ---
     useEffect(() => {
         const hasSeenTour = localStorage.getItem('chromatic_navbar_tour_seen');
         if (!hasSeenTour) {
-            // Small delay to ensure DOM is ready
+            // Delay start to allow UI to settle
             const timer = setTimeout(() => setIsVisible(true), 1500);
             return () => clearTimeout(timer);
         }
     }, []);
 
-    // --- Navigation Handlers ---
-    const handleNext = () => {
-        if (currentStepIndex < TOUR_STEPS.length - 1) {
-            setCurrentStepIndex((prev) => prev + 1);
-        } else {
-            handleClose();
-        }
-    };
-
-    const handleBack = () => {
-        if (currentStepIndex > 0) {
-            setCurrentStepIndex((prev) => prev - 1);
-        }
-    };
-
-    const handleClose = () => {
-        setIsVisible(false);
-        localStorage.setItem('chromatic_navbar_tour_seen', 'true');
-    };
-
-    // --- Keyboard Support ---
-    useEffect(() => {
-        if (!isVisible) return;
-
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'ArrowRight' || e.key === 'Enter') handleNext();
-            if (e.key === 'ArrowLeft') handleBack();
-            if (e.key === 'Escape') handleClose();
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [isVisible, currentStepIndex]);
-
-    // --- Positioning Logic ---
+    // --- Core Logic: Update Highlight Position ---
     useEffect(() => {
         if (!isVisible) return;
 
@@ -141,127 +80,130 @@ export const NavbarTour = () => {
                 const rect = element.getBoundingClientRect();
                 setTargetRect(rect);
 
-                // Simple positioning logic (can be enhanced with popover libraries)
-                const top = rect.bottom + 12; // Default offset
-                let left = rect.left + rect.width / 2; // Center horizontally by default
+                // Calculate Tooltip Position
+                const tooltipWidth = 340;
+                let top = rect.bottom + 20; // 20px gap
+                let left = rect.left + rect.width / 2;
 
-                // Adjust for screen edges roughly
-                const tooltipWidth = 320; // Approx max width
+                // Edge detection
+                const windowWidth = window.innerWidth;
                 if (left - tooltipWidth / 2 < 20) left = tooltipWidth / 2 + 20;
-                if (left + tooltipWidth / 2 > window.innerWidth - 20) left = window.innerWidth - tooltipWidth / 2 - 20;
+                if (left + tooltipWidth / 2 > windowWidth - 20) left = windowWidth - tooltipWidth / 2 - 20;
 
-                setPosition({ top, left });
+                setTooltipPosition({ top, left });
 
-                // Scroll into view if needed
+                // Scroll element into view smoothly if needed
                 element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
             }
         };
 
         updatePosition();
         window.addEventListener('resize', updatePosition);
-        window.addEventListener('scroll', updatePosition); // In case of scroll
+        window.addEventListener('scroll', updatePosition, true);
 
         return () => {
             window.removeEventListener('resize', updatePosition);
-            window.removeEventListener('scroll', updatePosition);
+            window.removeEventListener('scroll', updatePosition, true);
         };
     }, [currentStepIndex, isVisible]);
+
+    // --- Keyboard Navigation ---
+    useEffect(() => {
+        if (!isVisible) return;
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'ArrowRight' || e.key === 'Enter') handleNext();
+            if (e.key === 'ArrowLeft') handleBack();
+            if (e.key === 'Escape') handleSkip();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isVisible, currentStepIndex]);
+
+    const handleNext = () => {
+        if (currentStepIndex < TOUR_STEPS.length - 1) {
+            setCurrentStepIndex((prev) => prev + 1);
+        } else {
+            handleFinish();
+        }
+    };
+
+    const handleBack = () => {
+        if (currentStepIndex > 0) {
+            setCurrentStepIndex((prev) => prev - 1);
+        }
+    };
+
+    const handleSkip = () => {
+        setIsVisible(false);
+        localStorage.setItem('chromatic_navbar_tour_seen', 'true');
+    };
+
+    const handleFinish = () => {
+        setIsVisible(false);
+        localStorage.setItem('chromatic_navbar_tour_seen', 'true');
+    };
 
     if (!isVisible) return null;
 
     const currentStep = TOUR_STEPS[currentStepIndex];
 
-    const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
-    const windowHeight = typeof window !== 'undefined' ? window.innerHeight : 0;
-
     return createPortal(
-        <div className="fixed inset-0 z-[1000] pointer-events-none">
-            {/* --- 4-Panel Overlay System --- */}
-            {/* Top Panel */}
-            <motion.div
-                initial={false}
-                animate={{
-                    height: targetRect ? targetRect.top : 0,
-                    width: '100%',
-                    top: 0,
-                    left: 0,
-                }}
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
-                className="absolute bg-black/85 backdrop-blur-[4px] pointer-events-auto"
-                onClick={handleClose}
-            />
-            {/* Bottom Panel */}
-            <motion.div
-                initial={false}
-                animate={{
-                    height: targetRect ? windowHeight - targetRect.bottom : 0,
-                    width: '100%',
-                    top: targetRect ? targetRect.bottom : windowHeight,
-                    left: 0,
-                }}
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
-                className="absolute bg-black/85 backdrop-blur-[4px] pointer-events-auto"
-                onClick={handleClose}
-            />
-            {/* Left Panel */}
-            <motion.div
-                initial={false}
-                animate={{
-                    height: targetRect ? targetRect.height : 0,
-                    width: targetRect ? targetRect.left : 0,
-                    top: targetRect ? targetRect.top : 0,
-                    left: 0,
-                }}
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
-                className="absolute bg-black/85 backdrop-blur-[4px] pointer-events-auto"
-                onClick={handleClose}
-            />
-            {/* Right Panel */}
-            <motion.div
-                initial={false}
-                animate={{
-                    height: targetRect ? targetRect.height : 0,
-                    width: targetRect ? windowWidth - targetRect.right : 0,
-                    top: targetRect ? targetRect.top : 0,
-                    left: targetRect ? targetRect.right : windowWidth,
-                }}
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
-                className="absolute bg-black/85 backdrop-blur-[4px] pointer-events-auto"
-                onClick={handleClose}
-            />
+        <div className="fixed inset-0 z-[9999] pointer-events-none font-sans">
+            <AnimatePresence>
+                {/* --- Backdrop / Spotlight Overlay --- */}
+                {isVisible && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="absolute inset-0 bg-background/60 backdrop-blur-[2px]"
+                        style={{
+                            clipPath: targetRect
+                                ? `polygon(
+                                    0% 0%, 
+                                    0% 100%, 
+                                    ${targetRect.left}px 100%, 
+                                    ${targetRect.left}px ${targetRect.top}px, 
+                                    ${targetRect.right}px ${targetRect.top}px, 
+                                    ${targetRect.right}px ${targetRect.bottom}px, 
+                                    ${targetRect.left}px ${targetRect.bottom}px, 
+                                    ${targetRect.left}px 100%, 
+                                    100% 100%, 
+                                    100% 0%
+                                   )`
+                                : 'none'
+                        }}
+                    />
+                )}
+            </AnimatePresence>
 
-            {/* --- Spotlight Border (Z-Index 1001) --- */}
+            {/* --- Spotlight Highlight (The Glowing Box) --- */}
             {targetRect && (
                 <motion.div
-                    layoutId="tour-spotlight-border"
-                    className="absolute z-[1001] pointer-events-none rounded-md"
+                    layoutId="tour-highlight"
+                    className="absolute border-2 border-primary rounded-lg shadow-[0_0_30px_hsl(var(--primary)/0.3)] pointer-events-none"
                     initial={false}
                     animate={{
-                        top: targetRect.top - 4,
-                        left: targetRect.left - 4,
-                        width: targetRect.width + 8,
-                        height: targetRect.height + 8,
+                        top: targetRect.top - 8,
+                        left: targetRect.left - 8,
+                        width: targetRect.width + 16,
+                        height: targetRect.height + 16,
                     }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
-                    {/* Neon Glow Container */}
-                    <div className="relative w-full h-full rounded-md border border-primary/50 shadow-[0_0_20px_rgba(var(--primary-rgb),0.5)] bg-transparent box-border">
-                        {/* Corner Markers */}
-                        <div className="absolute -top-0.5 -left-0.5 w-2 h-2 border-t-2 border-l-2 border-primary shadow-[0_0_10px_rgba(var(--primary-rgb),0.8)]" />
-                        <div className="absolute -top-0.5 -right-0.5 w-2 h-2 border-t-2 border-r-2 border-primary shadow-[0_0_10px_rgba(var(--primary-rgb),0.8)]" />
-                        <div className="absolute -bottom-0.5 -left-0.5 w-2 h-2 border-b-2 border-l-2 border-primary shadow-[0_0_10px_rgba(var(--primary-rgb),0.8)]" />
-                        <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 border-b-2 border-r-2 border-primary shadow-[0_0_10px_rgba(var(--primary-rgb),0.8)]" />
-                    </div>
+                    {/* Inner soft glow */}
+                    <div className="absolute inset-0 rounded-lg bg-primary/10 mix-blend-screen" />
                 </motion.div>
             )}
 
-            {/* --- Tooltip Container (Z-Index 1002) --- */}
+            {/* --- Tooltip Card --- */}
             <div
-                className="absolute pointer-events-auto z-[1002]"
+                className="absolute pointer-events-auto"
                 style={{
-                    top: position.top,
-                    left: position.left,
-                    transform: 'translateX(-50%)'
+                    top: tooltipPosition.top,
+                    left: tooltipPosition.left,
+                    transform: 'translateX(-50%)',
                 }}
             >
                 <motion.div
@@ -269,65 +211,62 @@ export const NavbarTour = () => {
                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                    transition={{ duration: 0.3 }}
-                    className="relative w-[320px] bg-[#0a0a0a] border border-primary/30 text-white p-5 shadow-[0_0_40px_-10px_rgba(var(--primary-rgb),0.3)] overflow-hidden group"
+                    transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
+                    className="w-[340px] bg-popover/95 backdrop-blur-xl border border-primary/40 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden"
                 >
+                    {/* Decorative Top Line */}
+                    <div className="h-1 w-full bg-gradient-to-r from-transparent via-primary to-transparent opacity-80" />
 
-                    {/* --- Cyberpunk Decorative Elements --- */}
-                    <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent opacity-50" />
-                    <div className="absolute bottom-0 right-0 w-6 h-6 border-b border-r border-primary/40" />
-                    {/* Scanline */}
-                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 pointer-events-none" />
+                    <div className="p-6 relative">
+                        {/* Subtle Background Glow */}
+                        <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 blur-[50px] rounded-full pointer-events-none" />
 
-
-                    {/* --- Header --- */}
-                    <div className="flex items-center justify-between mb-3 border-b border-white/10 pb-2">
-                        <div className="flex items-center gap-2 text-primary text-xs font-mono tracking-wider">
-                            <Terminal className="w-3 h-3" />
-                            <Typewriter text={currentStep.title} speed={20} />
+                        {/* Header: Step Indicator & Title */}
+                        <div className="flex flex-col gap-1 mb-3">
+                            <span className="text-[10px] font-bold tracking-widest text-primary uppercase">
+                                Step {currentStepIndex + 1} of {TOUR_STEPS.length}
+                            </span>
+                            <h3 className="text-lg font-bold text-foreground leading-tight">
+                                {currentStep.title}
+                            </h3>
                         </div>
-                        <div className="text-[10px] text-white/40 font-mono">
-                            [{currentStepIndex + 1}/{TOUR_STEPS.length}]
-                        </div>
-                    </div>
 
-                    {/* --- Content --- */}
-                    <div className="mb-6 min-h-[60px]">
-                        <p className="text-sm text-gray-300 font-mono leading-relaxed">
-                            <Typewriter text={currentStep.message} speed={10} key={currentStep.message} />
-                            <span className="inline-block w-1.5 h-4 ml-1 align-middle bg-primary animate-pulse" />
+                        {/* Body Message */}
+                        <p className="text-sm text-muted-foreground font-medium leading-relaxed mb-6">
+                            {currentStep.message}
                         </p>
-                    </div>
 
-                    {/* --- Actions --- */}
-                    <div className="flex items-center justify-between font-mono text-xs">
-                        <button
-                            onClick={handleClose}
-                            className="text-red-400 hover:text-red-300 transition-colors uppercase tracking-widest hover:underline"
-                        >
-                            [Terminate]
-                        </button>
+                        {/* Footer Actions */}
+                        <div className="flex items-center justify-between">
+                            {/* Skip / Back */}
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={handleSkip}
+                                    className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors px-2 py-1"
+                                >
+                                    Skip
+                                </button>
+                            </div>
 
-                        <div className="flex gap-2">
-                            {currentStepIndex > 0 && (
+                            {/* Navigation Buttons */}
+                            <div className="flex gap-2">
                                 <Button
-                                    variant="outline"
+                                    variant="ghost"
                                     size="sm"
                                     onClick={handleBack}
-                                    className="h-7 px-3 border-white/20 hover:bg-white/10 hover:text-white rounded-none bg-transparent"
+                                    disabled={currentStepIndex === 0}
+                                    className="h-8 px-3 text-muted-foreground hover:text-foreground hover:bg-white/5 rounded-lg text-xs disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed"
                                 >
-                                    <ChevronLeft className="w-3 h-3 mr-1" />
                                     Back
                                 </Button>
-                            )}
-                            <Button
-                                size="sm"
-                                onClick={handleNext}
-                                className="h-7 px-4 bg-primary text-primary-foreground hover:bg-primary/90 rounded-none border border-primary/50 shadow-[0_0_10px_rgba(var(--primary-rgb),0.5)]"
-                            >
-                                {currentStepIndex === TOUR_STEPS.length - 1 ? 'Finish' : 'Next'}
-                                <ChevronRight className="w-3 h-3 ml-1" />
-                            </Button>
+                                <Button
+                                    size="sm"
+                                    onClick={handleNext}
+                                    className="h-8 px-4 bg-primary text-primary-foreground hover:bg-primary/90 font-bold text-xs rounded-lg shadow-[0_0_20px_hsl(var(--primary)/0.4)] transition-all hover:scale-105 active:scale-95"
+                                >
+                                    {currentStepIndex === TOUR_STEPS.length - 1 ? 'Finish' : 'Next'}
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </motion.div>
@@ -336,3 +275,4 @@ export const NavbarTour = () => {
         document.body
     );
 };
+
