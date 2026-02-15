@@ -6,9 +6,10 @@ export type ThemeMode = "dark" | "light" | "midnight";
 interface ModeToggleProps {
   mode: ThemeMode;
   onToggle: () => void;
+  id?: string;
 }
 
-export function ModeToggle({ mode, onToggle }: ModeToggleProps) {
+export function ModeToggle({ mode, onToggle, id }: ModeToggleProps) {
   const getIcon = () => {
     switch (mode) {
       case "light": return <Sun className="h-4 w-4" />;
@@ -26,7 +27,7 @@ export function ModeToggle({ mode, onToggle }: ModeToggleProps) {
   };
 
   return (
-    <div className="flex items-center gap-1 p-1 rounded-full border border-white/10 bg-black/20 backdrop-blur-md ring-1 ring-white/5 shadow-inner group/toggle">
+    <div id={id} className="flex items-center gap-1 p-1 rounded-full border border-white/10 bg-black/20 backdrop-blur-md ring-1 ring-white/5 shadow-inner group/toggle">
       {(['dark', 'light', 'midnight'] as ThemeMode[]).map((t) => {
         const isActive = mode === t;
         const Icon = t === 'dark' ? Moon : t === 'light' ? Sun : Sparkles;

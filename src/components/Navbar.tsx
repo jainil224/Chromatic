@@ -1,10 +1,11 @@
-import { Palette as PaletteIcon, Search, X, Menu, Image as ImageIcon, Paintbrush, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Palette as PaletteIcon, Search, X, Menu, Image as ImageIcon, Paintbrush, PanelLeftClose, PanelLeftOpen, Upload } from "lucide-react";
 import { ModeToggle, type ThemeMode } from "./ModeToggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { CategoryMenu } from "@/components/CategoryMenu";
 import { SubmitPaletteModal } from "@/components/SubmitPaletteModal";
 import { cn } from "@/lib/utils";
+import { NavbarTour } from "./NavbarTour";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
@@ -46,6 +47,7 @@ export const Navbar = ({
                 {/* Branding Pill */}
                 <div className="flex items-center gap-2 pr-4 border-r border-white/10">
                     <button
+                        id="tour-logo"
                         onClick={onLogoClick}
                         className={cn(
                             "group relative flex items-center gap-2 rounded-full pl-3 pr-4 py-1.5 transition-all hover:scale-[1.02] ring-1 ring-white/20 shadow-[0_0_20px_-5px_rgba(0,0,0,0.4)]",
@@ -109,6 +111,7 @@ export const Navbar = ({
                         <Button
                             variant="ghost"
                             size="sm"
+                            id="tour-pixels"
                             onClick={onPickFromImage}
                             className="rounded-full h-8 px-3 text-[10px] font-mono text-secondary-foreground/60 hover:text-foreground hover:bg-white/10 hover:shadow-lg transition-all uppercase"
                         >
@@ -118,6 +121,7 @@ export const Navbar = ({
                         <Button
                             variant="ghost"
                             size="sm"
+                            id="tour-build"
                             onClick={() => navigate('/palette-maker')}
                             className="rounded-full h-8 px-3 text-[10px] font-mono text-secondary-foreground/60 hover:text-foreground hover:bg-white/10 hover:shadow-lg transition-all uppercase"
                         >
@@ -127,15 +131,17 @@ export const Navbar = ({
                         <Button
                             variant="ghost"
                             size="sm"
+                            id="tour-tweak"
                             onClick={() => navigate('/customize')}
                             className="rounded-full h-8 px-3 text-[10px] font-mono text-secondary-foreground/60 hover:text-foreground hover:bg-white/10 hover:shadow-lg transition-all uppercase"
                         >
                             <Paintbrush className="h-3 w-3 mr-1.5" />
                             Tweak
                         </Button>
+
                     </div>
 
-                    <ModeToggle mode={themeMode} onToggle={onToggleTheme} />
+                    <ModeToggle id="tour-theme-toggle" mode={themeMode} onToggle={onToggleTheme} />
 
                     {/* Mobile Menu Trigger moved into Dock */}
                     <Sheet>
@@ -158,6 +164,7 @@ export const Navbar = ({
                 isOpen={isSubmitModalOpen}
                 onClose={() => setIsSubmitModalOpen(false)}
             />
+            <NavbarTour />
         </header >
     );
 };
