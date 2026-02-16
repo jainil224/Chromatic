@@ -93,6 +93,6 @@ VITE_SUPABASE_ANON_KEY=eyJhbGci...
 - **Realtime Updates** - Live synchronization across users
 - **Offline Support** - localStorage fallback
 
----
+------
 
 **Congratulations! Your global like system is ready to go live! 🚀**
