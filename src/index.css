@@ -43,6 +43,23 @@
     --font-display: 'Instrument Serif', Georgia, serif;
     --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
     --font-body: 'JetBrains Mono', monospace;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --font-body: 'JetBrains Mono', monospace;
+
+    /* Theme Blobs (Default Dark) */
+    --blob-1: hsl(var(--primary) / 0.05);
+    --blob-2: hsl(var(--accent) / 0.05);
+
+    /* Glass Card (Default Dark) */
+    --glass-border: hsl(0 0% 100% / 0.05);
+    --glass-bg: hsl(0 0% 7% / 0.4);
+    --glass-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Optimized Theme Transition */
+  .theme-transition {
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+    will-change: background-color, color;
   }
 
   @keyframes shimmer {
@@ -145,6 +162,20 @@
     --surface-elevated: 0 0% 100%;
     --text-dim: 240 6% 50%;
     --dock-glow: 25 90% 55%;
+    --surface-elevated: 0 0% 100%;
+    --text-dim: 240 6% 50%;
+    --dock-glow: 25 90% 55%;
+
+    /* Theme Blobs (Light) */
+    --blob-1: hsla(27, 96%, 61%, 0.1);
+    /* orange-500/10 */
+    --blob-2: hsla(217, 91%, 60%, 0.1);
+    /* blue-500/10 */
+
+    /* Glass Card (Light) */
+    --glass-border: hsla(27, 96%, 61%, 0.1);
+    --glass-bg: hsl(0 0% 100% / 0.4);
+    --glass-shadow: 0 20px 50px -20px rgba(249, 115, 22, 0.1);
   }
 
   .midnight-mode {
@@ -173,6 +204,20 @@
     --surface-elevated: 222 47% 14%;
     --text-dim: 215 20% 50%;
     --dock-glow: 199 89% 48%;
+    --surface-elevated: 222 47% 14%;
+    --text-dim: 215 20% 50%;
+    --dock-glow: 199 89% 48%;
+
+    /* Theme Blobs (Midnight) */
+    --blob-1: hsla(217, 91%, 60%, 0.2);
+    /* blue-500/20 */
+    --blob-2: hsla(270, 91%, 65%, 0.2);
+    /* purple-500/20 */
+
+    /* Glass Card (Midnight) */
+    --glass-border: hsla(217, 91%, 60%, 0.2);
+    --glass-bg: hsl(225 61% 10% / 0.6);
+    --glass-shadow: 0 20px 50px -20px rgba(59, 130, 246, 0.15);
   }
 
   @keyframes hue-rotate {

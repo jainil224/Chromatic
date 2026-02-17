@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { Palette } from '../data/palettes';
 
 export const useFavorites = () => {
@@ -15,7 +15,7 @@ export const useFavorites = () => {
         }
     }, []);
 
-    const toggleFavorite = (paletteId: string) => {
+    const toggleFavorite = useCallback((paletteId: string) => {
         setFavorites(prev => {
             const newFavorites = prev.includes(paletteId)
                 ? prev.filter(id => id !== paletteId)
@@ -24,9 +24,9 @@ export const useFavorites = () => {
             localStorage.setItem('chromatic_favorites', JSON.stringify(newFavorites));
             return newFavorites;
         });
-    };
+    }, []);
 
-    const isFavorite = (paletteId: string) => favorites.includes(paletteId);
+    const isFavorite = useCallback((paletteId: string) => favorites.includes(paletteId), [favorites]);
 
     return { favorites, toggleFavorite, isFavorite };
 };

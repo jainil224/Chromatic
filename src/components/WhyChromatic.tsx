@@ -1,7 +1,8 @@
 import { Palette, Image as ImageIcon, MousePointer2, Moon, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { memo } from "react";
 
-export const WhyChromatic = ({ themeMode }: { themeMode?: 'light' | 'dark' | 'midnight' }) => {
+export const WhyChromatic = memo(() => {
     return (
         <section className="relative w-full py-24 lg:py-32 overflow-hidden">
             {/* Background Ambience */}
@@ -18,14 +19,14 @@ export const WhyChromatic = ({ themeMode }: { themeMode?: 'light' | 'dark' | 'mi
                 </div>
 
                 {/* SEO Description Content */}
-                <div className={cn(
-                    "mb-16 rounded-3xl border p-8 md:p-12 backdrop-blur-xl transition-all duration-500 animate-fade-up",
-                    themeMode === 'light'
-                        ? "border-orange-500/10 bg-white/40 shadow-[0_20px_50px_-20px_rgba(249,115,22,0.1)]"
-                        : themeMode === 'midnight'
-                            ? "border-blue-500/20 bg-[#0a1229]/60 shadow-[0_20px_50px_-20px_rgba(59,130,246,0.15)]"
-                            : "border-white/5 bg-[#121212]/40 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.5)]"
-                )}>
+                <div
+                    className="mb-16 rounded-3xl border p-8 md:p-12 backdrop-blur-xl transition-colors duration-500 animate-fade-up w-full"
+                    style={{
+                        borderColor: 'var(--glass-border)',
+                        backgroundColor: 'var(--glass-bg)',
+                        boxShadow: 'var(--glass-shadow)'
+                    }}
+                >
                     <h3 className="mb-6 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
                         Chromatic Color Palette – Find Perfect Color Combinations
                     </h3>
@@ -54,4 +55,4 @@ export const WhyChromatic = ({ themeMode }: { themeMode?: 'light' | 'dark' | 'mi
             </div>
         </section>
     );
-};
+});

@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, memo, lazy, Suspense, useDeferredValue, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Palette as PaletteIcon, Search, X, Menu, PanelLeftClose, PanelLeftOpen, Plus, Image as ImageIcon } from "lucide-react";
+import { Palette as PaletteIcon, Search, X, Menu, PanelLeftClose, PanelLeftOpen, Plus, Image as ImageIcon, Heart } from "lucide-react";
 import type { ThemeMode } from "@/components/ModeToggle";
 import type { Palette } from "@/data/palettes";
 const PaletteSection = lazy(() => import("@/components/PaletteSection").then(m => ({ default: m.PaletteSection })));
@@ -162,10 +162,28 @@ const Index = () => {
     }
   };
 
-  const handleSelectPalette = (palette: Palette) => {
+  const handleSelectPalette = useCallback((palette: Palette) => {
     setSelectedPalette(palette);
     setMobileDetailOpen(true);
-  };
+  }, []);
+
+  const handleLogoClick = useCallback(() => {
+    setSelectedCategory(null);
+    setSearchQuery('');
+  }, []);
+
+  const handleBrowse = useCallback(() => {
+    const grid = document.getElementById('palette-grid');
+    grid?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
+
+  const handleMaker = useCallback(() => navigate('/palette-maker'), [navigate]);
+  const handleCustomize = useCallback(() => navigate('/customize'), [navigate]);
+  const handlePickFromImage = useCallback(() => setIsImagePickerOpen(true), []);
+  const handleAddNew = useCallback(() => {
+    setEditingPalette(null);
+    setIsModalOpen(true);
+  }, []);
 
   // Combine Supabase palettes with user-created palettes and deduplicate by ID
   const allPalettes = useMemo(() => {
@@ -361,21 +379,12 @@ const Index = () => {
   }, [sectionsToRender.length]);
 
   return (
-    <div className={cn(
-      "h-screen overflow-hidden flex flex-col transition-colors duration-500",
-      themeMode === 'light' ? 'bg-[#fcfaf7]' : themeMode === 'midnight' ? 'bg-[#050b17]' : 'bg-[#080808]'
-    )}>
+    <div className="h-screen overflow-hidden flex flex-col bg-background theme-transition">
       {/* Background Gradients (Fixed in Background) */}
-      <div className="fixed inset-0 -z-10 transition-opacity duration-1000">
-        <div className="absolute inset-0 bg-background" />
-        <div className={cn(
-          "absolute -left-1/4 top-0 h-[500px] w-[500px] rounded-full blur-3xl transition-all duration-1000",
-          themeMode === 'light' ? "bg-orange-500/10" : themeMode === 'midnight' ? "bg-blue-500/20" : "bg-primary/5"
-        )} />
-        <div className={cn(
-          "absolute -right-1/4 bottom-0 h-[600px] w-[600px] rounded-full blur-3xl transition-all duration-1000",
-          themeMode === 'light' ? "bg-blue-500/10" : themeMode === 'midnight' ? "bg-purple-500/20" : "bg-accent/5"
-        )} />
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute inset-0 bg-background theme-transition" />
+        <div className="absolute -left-1/4 top-0 h-[500px] w-[500px] rounded-full blur-3xl theme-transition bg-[var(--blob-1)]" />
+        <div className="absolute -right-1/4 bottom-0 h-[600px] w-[600px] rounded-full blur-3xl theme-transition bg-[var(--blob-2)]" />
       </div>
       <div className="grain pointer-events-none fixed inset-0 -z-10" />
 
@@ -386,39 +395,31 @@ const Index = () => {
         setSearchQuery={setSearchQuery}
         allPalettesCount={allPalettes.length}
         totalResults={totalResults}
-        onAddNew={() => {
-          setEditingPalette(null);
-          setIsModalOpen(true);
-        }}
-        onPickFromImage={() => setIsImagePickerOpen(true)}
+        onAddNew={handleAddNew}
+        onPickFromImage={handlePickFromImage}
         onSearchSubmit={handleSearchSubmit}
         themeMode={themeMode}
         onToggleTheme={toggleTheme}
-        onLogoClick={() => {
-          setSelectedCategory(null);
-          setSearchQuery('');
-        }}
+        onLogoClick={handleLogoClick}
       />
 
       <main className="flex-1 min-h-0 pt-[80px] overflow-hidden">
         {/* Middle: Content Area (Independent Scroll) */}
         <div id="main-scroll-view" className="h-full overflow-y-auto thin-scrollbar">
+          {/* HEROS SECTION - Full Width */}
+          <div className="w-full animate-fade-in">
+            <Hero
+              onBrowse={handleBrowse}
+              onMaker={handleMaker}
+              onCustomize={handleCustomize}
+              onPickFromImage={handlePickFromImage}
+            />
+          </div>
+
           <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8 py-12">
-            {/* HEROS SECTION */}
-            <div className="animate-fade-in">
-              <Hero
-                onBrowse={() => {
-                  const grid = document.getElementById('palette-grid');
-                  grid?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                onMaker={() => navigate('/palette-maker')}
-                onCustomize={() => navigate('/customize')}
-                onPickFromImage={() => setIsImagePickerOpen(true)}
-              />
-            </div>
 
             {/* HORIZONTAL CATEGORY MENU (Sticky) */}
-            <div className="sticky top-0 z-40 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 py-4 mb-8 bg-background/80 backdrop-blur-md border-b border-white/5">
+            <div className="sticky top-0 z-40 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 py-4 mb-8">
               <Suspense fallback={<div className="h-12 bg-secondary/10 animate-pulse rounded-full" />}>
                 <CategoryMenu
                   horizontal
@@ -495,7 +496,7 @@ const Index = () => {
 
             {/* SUPPORTING LANDING CONTENT */}
             <div className="mt-20">
-              <WhyChromatic themeMode={themeMode} />
+              <WhyChromatic />
             </div>
             <div className="mt-32">
               <AboutCreator />

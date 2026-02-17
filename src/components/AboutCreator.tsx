@@ -1,6 +1,7 @@
 import { Github, ExternalLink } from "lucide-react";
+import { memo } from "react";
 
-export function AboutCreator() {
+export const AboutCreator = memo(function AboutCreator() {
     return (
         <section className="relative py-24 overflow-hidden border-t border-white/5">
             {/* Top Separator Line (#ffd700 Gold with Shadow Animation) */}
@@ -88,4 +89,4 @@ export function AboutCreator() {
             </div>
         </section>
     );
-}
+});
