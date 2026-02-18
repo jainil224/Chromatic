@@ -128,7 +128,7 @@ netlify env:set VITE_SUPABASE_URL "https://etsqidrpebkrtubfufag.supabase.co"
 netlify env:set VITE_SUPABASE_ANON_KEY "your-key-here"
 ```
 
----
+------
 
 ## 🎯 Expected Behavior After Fix
 
