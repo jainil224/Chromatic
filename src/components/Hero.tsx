@@ -73,15 +73,6 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize }: {
                                     >
                                         Palettes
                                     </span>
-                                    {/* Underline decoration */}
-                                    <svg
-                                        className="absolute w-full h-3 -bottom-1 left-0 transition-colors duration-700 ease-in-out"
-                                        viewBox="0 0 100 10"
-                                        preserveAspectRatio="none"
-                                        style={{ color: `${heroPalettes[0][2]}44` }} // Use the third color for the underline
-                                    >
-                                        <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="2" fill="none" />
-                                    </svg>
                                 </span> <br className="hidden lg:block" />
                                 for Modern Design
                             </h1>
