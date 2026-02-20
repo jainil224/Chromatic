@@ -95,11 +95,7 @@ const Index = () => {
   }, [themeMode]);
 
   const toggleTheme = useCallback(() => {
-    setThemeMode(prev => {
-      if (prev === 'dark') return 'light';
-      if (prev === 'light') return 'midnight';
-      return 'dark';
-    });
+    setThemeMode(prev => prev === 'dark' ? 'midnight' : 'dark');
   }, []);
 
   // Category keyword mapping for smart search
