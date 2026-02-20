@@ -59,8 +59,13 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize }: {
                             </div>
 
                             {/* Main Heading */}
-                            <h1 className="font-display text-5xl font-bold leading-tight tracking-tight text-foreground md:text-7xl lg:text-8xl animate-fade-up">
-                                AI-Powered <span className="relative inline-block">
+                            <h1
+                                className="font-display text-5xl font-bold leading-tight tracking-tight text-white md:text-7xl lg:text-8xl animate-fade-up transition-all duration-700 ease-in-out"
+                                style={{
+                                    textShadow: `0 0 40px ${heroPalettes[0][0]}15`
+                                }}
+                            >
+                                <span className="transition-colors duration-700" style={{ color: heroPalettes[0][3] }}>AI</span>-Powered <span className="relative inline-block">
                                     <span
                                         className="transition-colors duration-700 ease-in-out"
                                         style={{ color: heroPalettes[0][0] }}
@@ -74,7 +79,7 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize }: {
                                         Palettes
                                     </span>
                                 </span> <br className="hidden lg:block" />
-                                for Modern Design
+                                for <span className="transition-colors duration-700" style={{ color: heroPalettes[0][2] }}>Modern</span> Design
                             </h1>
 
                             {/* Description */}
