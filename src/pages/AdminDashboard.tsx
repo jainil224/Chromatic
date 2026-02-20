@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Check, X, Loader2, Sparkles } from "lucide-react";
+import { Loader2, Sparkles, LogOut, ArrowLeft, Check, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn, numericToIp } from "@/lib/utils";
 
@@ -19,85 +18,90 @@ interface Submission {
 }
 
 const CATEGORIES = [
-    "Pastel", "Vintage", "Retro", "Neon", "Gold", "Light", "Dark", "Warm", "Cold",
-    "Summer", "Fall", "Winter", "Spring", "Happy",
-    "Nature", "Earth", "Night", "Space", "Rainbow", "Gradient", "Sunset", "Sky", "Sea",
-    "Kid", "Skin", "Food", "Cream", "Coffee", "Wedding", "Christmas"
+    // Vibes
+    "Bold", "Dark", "Neon", "Gold", "Glow",
+    // Styles
+    "Vintage", "Retro", "Warm", "Cold",
+    // Seasons
+    "Summer", "Spring", "Fall", "Winter",
+    // Moods
+    "Happy", "Night",
+    // Themes
+    "Nature", "Earth", "Space", "Rainbow", "Gradient", "Sunset", "Sky", "Sea",
+    // Light
+    "Light",
+    // Special
+    "Skin", "Kid", "Food", "Coffee", "Wedding", "Christmas",
 ];
 
+type TabType = 'pending' | 'approved' | 'rejected';
+
 const AdminDashboard = () => {
+    const [activeTab, setActiveTab] = useState<TabType>('pending');
     const [submissions, setSubmissions] = useState<Submission[]>([]);
+    const [approvedPalettes, setApprovedPalettes] = useState<Submission[]>([]);
+    const [rejectedPalettes, setRejectedPalettes] = useState<Submission[]>([]);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState<string | null>(null);
     const [selectedCategories, setSelectedCategories] = useState<Record<string, string>>({});
     const [editedTags, setEditedTags] = useState<Record<string, string>>({});
     const navigate = useNavigate();
 
-    useEffect(() => {
-        fetchSubmissions();
-    }, []);
+    useEffect(() => { fetchAll(); }, []);
 
-    const fetchSubmissions = async () => {
+    const fetchAll = async () => {
+        setLoading(true);
         try {
-            setLoading(true);
-
-            // 1. Fetch from palette_submissions (New Source)
-            const { data: psData, error: psError } = await supabase
+            // Pending from palette_submissions
+            const { data: psData } = await supabase
                 .from('palette_submissions')
                 .select('*')
                 .eq('status', 'pending')
                 .order('submitted_at', { ascending: false });
 
-            // 2. Fetch from palettes (Legacy Source - where section is null)
-            const { data: pData, error: pError } = await supabase
+            // Pending from legacy palettes table
+            const { data: pData } = await supabase
                 .from('palettes')
                 .select('*')
                 .is('section', null)
                 .order('created_at', { ascending: false });
 
-            if (psError) {
-                console.error("Error fetching from palette_submissions:", psError);
-                toast.error(`New DB Error: ${psError.message}`);
-            }
-            if (pError) {
-                console.error("Error fetching from palettes:", pError);
-                toast.error(`Legacy DB Error: ${pError.message}`);
-            }
+            // Approved
+            const { data: approvedData } = await supabase
+                .from('palette_submissions')
+                .select('*')
+                .eq('status', 'approved')
+                .order('submitted_at', { ascending: false })
+                .limit(30);
 
-            if (!psData && !pData && (psError || pError)) {
-                setSubmissions([]);
-                return;
-            }
+            // Rejected
+            const { data: rejectedData } = await supabase
+                .from('palette_submissions')
+                .select('*')
+                .eq('status', 'rejected')
+                .order('submitted_at', { ascending: false })
+                .limit(30);
 
-            // 3. Format and Merge
-            const psSubmissions: Submission[] = (psData || []).map(s => ({
+            const mapSubmission = (s: any, source: 'palette_submissions' | 'palettes'): Submission => ({
                 id: s.id,
                 name: s.name,
                 colors: s.colors,
-                submitted_at: s.submitted_at,
+                submitted_at: s.submitted_at || s.created_at,
                 ip_address_numeric: s.ip_address_numeric,
-                tags: s.tags,
-                status: s.status,
-                category: s.category,
-                source: 'palette_submissions'
-            }));
-
-            const pSubmissions: Submission[] = (pData || []).map(s => ({
-                id: s.id,
-                name: s.name,
-                colors: s.colors,
-                submitted_at: s.created_at, // Use created_at as fallback
-                ip_address_numeric: undefined, // Legacy source doesn't have IP
                 tags: s.tags || [],
-                status: 'pending',
-                category: s.category || undefined,
-                source: 'palettes'
-            }));
+                status: s.status || 'pending',
+                category: s.category,
+                source,
+            });
 
-            setSubmissions([...psSubmissions, ...pSubmissions]);
-        } catch (error) {
-            console.error("Error fetching submissions:", error);
-            toast.error("Failed to load submissions");
+            setSubmissions([
+                ...(psData || []).map(s => mapSubmission(s, 'palette_submissions')),
+                ...(pData || []).map(s => mapSubmission(s, 'palettes')),
+            ]);
+            setApprovedPalettes((approvedData || []).map(s => mapSubmission(s, 'palette_submissions')));
+            setRejectedPalettes((rejectedData || []).map(s => mapSubmission(s, 'palette_submissions')));
+        } catch (err) {
+            toast.error("Failed to load data");
         } finally {
             setLoading(false);
         }
@@ -105,464 +109,498 @@ const AdminDashboard = () => {
 
     const handleApprove = async (submission: Submission) => {
         const category = selectedCategories[submission.id];
-        if (!category) {
-            toast.error("Please select a category");
-            return;
-        }
+        if (!category) { toast.error("Select a category first"); return; }
 
         setActionLoading(submission.id);
         try {
+            // ── 1. Duplicate detection ────────────────────────────────────────
+            const { data: existingPalettes } = await supabase
+                .from('palettes')
+                .select('id, name, colors');
+
+            const submissionKey = [...submission.colors].map(c => c.toLowerCase()).sort().join(',');
+
+            const duplicate = (existingPalettes || []).find(p => {
+                if (!Array.isArray(p.colors)) return false;
+                const key = [...p.colors].map((c: string) => c.toLowerCase()).sort().join(',');
+                return key === submissionKey;
+            });
+
+            if (duplicate) {
+                toast.error(
+                    `⚠️ This color palette already exists in the website as "${duplicate.name}". Please reject it.`,
+                    { duration: 6000 }
+                );
+                setActionLoading(null);
+                return;
+            }
+
+            // ── 2. Build final tags (include new_arrival) ─────────────────────
             const extraTags = editedTags[submission.id]
                 ? editedTags[submission.id].split(',').map(t => t.trim()).filter(Boolean)
                 : [];
+            const finalTags = Array.from(new Set([
+                ...(submission.tags || []),
+                category.toLowerCase(),
+                ...extraTags,
+                'new_arrival',   // ← automatically added
+            ]));
 
-            const currentTags = submission.tags || [];
-            const finalTags = Array.from(new Set([...currentTags, category.toLowerCase(), ...extraTags]));
+            const approvedAt = new Date().toISOString();
 
+            // ── 3. Approve ────────────────────────────────────────────────────
             if (submission.source === 'palette_submissions') {
                 const { error } = await supabase.rpc('approve_submission', {
                     submission_id: submission.id,
                     target_category: category.toLowerCase(),
                     target_tags: finalTags
                 });
-
                 if (error) throw error;
 
-                // Follow-up: Ensure section is set
-                const { data: newPaletteData } = await supabase
-                    .from('palettes')
-                    .select('id')
-                    .eq('name', submission.name)
-                    .order('created_at', { ascending: false })
-                    .limit(1)
-                    .single();
-
-                if (newPaletteData) {
-                    await supabase.from('palettes').update({ section: category.toLowerCase() }).eq('id', newPaletteData.id);
+                // Stamp approved_at + section after the RPC creates the palette row
+                const { data: newPal } = await supabase
+                    .from('palettes').select('id').eq('name', submission.name)
+                    .order('created_at', { ascending: false }).limit(1).single();
+                if (newPal) {
+                    await supabase.from('palettes').update({
+                        section: category.toLowerCase(),
+                        approved_at: approvedAt,
+                        tags: finalTags,
+                    }).eq('id', newPal.id);
                 }
             } else {
-                // Legacy support: direct update on palettes table
-                const { error } = await supabase
-                    .from('palettes')
-                    .update({
-                        section: category.toLowerCase(),
-                        category: category.toLowerCase(),
-                        tags: finalTags
-                    })
-                    .eq('id', submission.id);
+                // Legacy palettes table
+                const { error } = await supabase.from('palettes').update({
+                    section: category.toLowerCase(),
+                    category: category.toLowerCase(),
+                    tags: finalTags,
+                    approved_at: approvedAt,
+                }).eq('id', submission.id);
                 if (error) throw error;
             }
 
-            toast.success("Palette approved!");
+            toast.success(`✅ "${submission.name}" approved as ${category} — now live with NEW badge!`);
             setSubmissions(prev => prev.filter(s => s.id !== submission.id));
-        } catch (error) {
-            console.error("Error approving:", error);
-            toast.error("Failed to approve palette");
+        } catch (err: any) {
+            toast.error(err.message || "Failed to approve");
         } finally {
             setActionLoading(null);
         }
     };
 
-    const handleReject = async (submission: Submission) => {
-        if (!confirm("Are you sure you want to reject (delete) this palette?")) return;
 
+    const handleReject = async (submission: Submission) => {
+        if (!confirm(`Reject and delete "${submission.name}"?`)) return;
         setActionLoading(submission.id);
         try {
             if (submission.source === 'palette_submissions') {
-                const { error } = await supabase.rpc('reject_submission', {
-                    submission_id: submission.id
-                });
+                const { error } = await supabase.rpc('reject_submission', { submission_id: submission.id });
                 if (error) throw error;
             } else {
-                // Legacy support: direct delete on palettes table
-                const { error } = await supabase
-                    .from('palettes')
-                    .delete()
-                    .eq('id', submission.id);
+                const { error } = await supabase.from('palettes').delete().eq('id', submission.id);
                 if (error) throw error;
             }
-
-            toast.success("Palette rejected");
+            toast.success(`❌ "${submission.name}" rejected`);
             setSubmissions(prev => prev.filter(s => s.id !== submission.id));
-        } catch (error) {
-            console.error("Error rejecting:", error);
-            toast.error("Failed to reject palette");
+        } catch (err: any) {
+            toast.error(err.message || "Failed to reject");
         } finally {
             setActionLoading(null);
         }
     };
 
     const fixGenericPalettes = async () => {
-        if (!confirm("This will rename all palettes starting with 'Happy Dream' and add tags. Continue?")) return;
-
+        if (!confirm("Rename all 'Happy Dream' palettes based on their colors?")) return;
         setActionLoading('fixing_generic');
         try {
-            // 1. Fetch generic palettes
-            const { data: palettes, error: fetchError } = await supabase
-                .from('palettes')
-                .select('*')
-                .ilike('name', 'Happy Dream%');
-
-            if (fetchError) throw fetchError;
-            if (!palettes || palettes.length === 0) {
-                toast.info("No 'Happy Dream' palettes found to fix.");
-                return;
+            const { data: palettes, error } = await supabase.from('palettes').select('*').ilike('name', 'Happy Dream%');
+            if (error) throw error;
+            if (!palettes?.length) { toast.info("No generic palettes found."); return; }
+            let count = 0;
+            for (const p of palettes) {
+                const { name, tags } = generatePaletteMetadata(p.colors);
+                const merged = Array.from(new Set([...(Array.isArray(p.tags) ? p.tags : []), ...tags]));
+                const { error: ue } = await supabase.from('palettes').update({ name, tags: merged }).eq('id', p.id);
+                if (!ue) count++;
             }
-
-            let updatedCount = 0;
-
-            // 2. Iterate and update
-            for (const palette of palettes) {
-                const { name: newName, tags: newTags } = generatePaletteMetadata(palette.colors);
-
-                // Keep existing tags if any, distinct merge
-                const existingTags = Array.isArray(palette.tags) ? palette.tags : [];
-                const mergedTags = Array.from(new Set([...existingTags, ...newTags]));
-
-                const { error: updateError } = await supabase
-                    .from('palettes')
-                    .update({
-                        name: newName,
-                        tags: mergedTags
-                    })
-                    .eq('id', palette.id);
-
-                if (updateError) {
-                    console.error(`Failed to update ${palette.id}`, updateError);
-                } else {
-                    updatedCount++;
-                }
-            }
-
-            toast.success(`Successfully fixed ${updatedCount} palettes!`);
-
-        } catch (error: any) {
-            console.error('Error fixing palettes:', error);
-            toast.error(error.message || "Failed to fix palettes");
+            toast.success(`Fixed ${count} palettes!`);
+        } catch (err: any) {
+            toast.error(err.message || "Failed");
         } finally {
             setActionLoading(null);
         }
     };
 
+    const currentList = activeTab === 'pending' ? submissions
+        : activeTab === 'approved' ? approvedPalettes
+            : rejectedPalettes;
+
+    const tabs: { id: TabType; label: string; count?: number }[] = [
+        { id: 'pending', label: 'PENDING', count: submissions.length },
+        { id: 'approved', label: 'APPROVED', count: approvedPalettes.length },
+        { id: 'rejected', label: 'REJECTED', count: rejectedPalettes.length },
+    ];
+
     return (
-        <div className="min-h-screen bg-background text-foreground animate-in fade-in">
-            <div className="border-b bg-card">
-                <div className="container flex h-16 items-center justify-between px-4">
-                    <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+        <div className="min-h-screen text-white" style={{ background: '#080808', fontFamily: "'Space Grotesk', 'Inter', sans-serif" }}>
+
+            {/* Top Bar */}
+            <header style={{ borderBottom: '1px solid #1a1a1a', background: '#0d0d0d' }} className="sticky top-0 z-50">
+                <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div style={{ width: 42, height: 42, borderRadius: 10, background: 'linear-gradient(135deg, #00f5d4, #7b2fff)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
                         </div>
-                        <h1 className="text-xl font-bold font-display tracking-tight text-white/90">
-                            Admin <span className="text-primary/100">Dashboard</span>
-                            <span className="ml-2 text-[10px] text-white/30 uppercase tracking-[0.3em] font-mono border-l border-white/10 pl-2">by Jainil</span>
-                        </h1>
+                        <div>
+                            <span style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', color: '#fff' }}>
+                                CHROMATIC <span style={{ color: '#00f5d4' }}>ADMIN</span>
+                            </span>
+                            <span style={{ display: 'block', fontSize: 11, color: '#444', letterSpacing: '0.3em', textTransform: 'uppercase', fontFamily: 'monospace' }}>by Jainil</span>
+                        </div>
                     </div>
-                    <div className="flex gap-3">
-                        <Button
-                            variant="ghost"
+
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={fetchAll}
+                            style={{ padding: '9px 20px', borderRadius: 10, border: '1px solid #222', background: '#111', color: '#888', fontSize: 14, cursor: 'pointer', fontWeight: 600 }}
+                        >
+                            ↺ Refresh
+                        </button>
+                        <button
                             onClick={() => navigate('/')}
-                            className="text-white/60 hover:text-white hover:bg-white/5 rounded-xl px-4 flex items-center gap-2 transition-all font-medium"
+                            style={{ padding: '9px 20px', borderRadius: 10, border: '1px solid #222', background: '#111', color: '#aaa', fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600 }}
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m12 19-7-7 7-7" /><path d="M19 12H5" /></svg>
-                            Exit
-                        </Button>
-                        <Button
-                            variant="outline"
-                            onClick={async () => {
-                                await supabase.auth.signOut();
-                                navigate('/admin/login');
-                            }}
-                            className="bg-primary/10 hover:bg-primary border-primary/20 hover:border-primary text-primary hover:text-zinc-950 rounded-xl px-4 flex items-center gap-2 transition-all duration-300 font-bold shadow-[0_0_20px_rgba(var(--primary),0.1)] active:scale-95 group/logout"
+                            <ArrowLeft size={14} /> Exit
+                        </button>
+                        <button
+                            onClick={async () => { await supabase.auth.signOut(); navigate('/admin/login'); }}
+                            style={{ padding: '9px 22px', borderRadius: 10, border: '1px solid #00f5d430', background: '#00f5d410', color: '#00f5d4', fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700 }}
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover/logout:translate-x-0.5 transition-transform"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
-                            Logout
-                        </Button>
+                            <LogOut size={14} /> Logout
+                        </button>
                     </div>
                 </div>
-            </div>
+            </header>
 
-            <main className="container py-8 px-4 mx-auto">
-                <h2 className="text-2xl font-bold mb-6">Pending Submissions ({submissions.length})</h2>
+            <main className="max-w-7xl mx-auto px-6 py-8">
 
-                {loading ? (
-                    <div className="flex justify-center py-12">
-                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                {/* Tab Bar */}
+                <div className="flex items-center gap-4 mb-10">
+                    {tabs.map(tab => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            style={{
+                                padding: '13px 32px',
+                                borderRadius: 8,
+                                border: activeTab === tab.id ? '2px solid #00f5d4' : '2px solid #222',
+                                background: activeTab === tab.id ? '#00f5d415' : 'transparent',
+                                color: activeTab === tab.id ? '#00f5d4' : '#444',
+                                fontSize: 16,
+                                fontWeight: 800,
+                                letterSpacing: '0.12em',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 10,
+                            }}
+                        >
+                            {tab.label}
+                            {tab.count !== undefined && (
+                                <span style={{
+                                    background: activeTab === tab.id ? '#00f5d4' : '#222',
+                                    color: activeTab === tab.id ? '#000' : '#555',
+                                    borderRadius: 20,
+                                    padding: '2px 10px',
+                                    fontSize: 13,
+                                    fontWeight: 900,
+                                }}>
+                                    {tab.count}
+                                </span>
+                            )}
+                        </button>
+                    ))}
+
+                    <div style={{ marginLeft: 'auto', fontSize: 13, color: '#333', fontFamily: 'monospace' }}>
+                        reviewing {currentList.length} items
                     </div>
-                ) : submissions.length === 0 ? (
-                    <div className="text-center py-12 text-muted-foreground bg-card/50 rounded-xl border border-dashed">
-                        <p>No pending submissions.</p>
+                </div>
+
+                {/* Content */}
+                {loading ? (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 300 }}>
+                        <Loader2 className="animate-spin" size={32} style={{ color: '#00f5d4' }} />
+                    </div>
+                ) : currentList.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '100px 0', color: '#333' }}>
+                        <div style={{ fontSize: 64, marginBottom: 16 }}>
+                            {activeTab === 'pending' ? '📭' : activeTab === 'approved' ? '✅' : '🗑️'}
+                        </div>
+                        <p style={{ fontSize: 18, fontWeight: 600, color: '#444', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                            No {activeTab} submissions
+                        </p>
                     </div>
                 ) : (
-                    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                        {submissions.map((submission) => (
-                            <div key={submission.id} className="group bg-card/40 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
-                                {/* Color Preview */}
-                                <div className="h-40 flex shadow-inner relative">
-                                    {submission.colors.map((color, i) => (
-                                        <div
-                                            key={i}
-                                            style={{ backgroundColor: color }}
-                                            className="h-full flex-1 transition-all duration-500 group-hover:scale-[1.02] first:rounded-tl-2xl last:rounded-tr-2xl relative"
-                                            title={color}
-                                        >
-                                            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                        </div>
-                                    ))}
-                                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
-                                    <div className="absolute top-3 right-3 px-2 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-[10px] font-mono text-white/50 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                                        {submission.colors.length} COLORS
-                                    </div>
-                                </div>
-
-                                <div className="p-6 space-y-6">
-                                    <div className="space-y-4">
-                                        <div className="flex justify-between items-start">
-                                            <h3 className="font-bold text-2xl tracking-tight bg-gradient-to-br from-white to-white/60 bg-clip-text text-transparent">
-                                                {submission.name}
-                                            </h3>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="bg-white/5 rounded-xl p-3 border border-white/5">
-                                                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.2em] mb-1 flex items-center gap-1.5">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-                                                    Date
-                                                </p>
-                                                <p className="text-xs font-medium text-white/90">
-                                                    {new Date(submission.submitted_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                                                </p>
-                                            </div>
-                                            <div className="bg-white/5 rounded-xl p-3 border border-white/5">
-                                                <p className="text-[10px] text-primary/70 font-bold uppercase tracking-[0.2em] mb-1 flex items-center gap-1.5">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>
-                                                    Sender IP (Numeric)
-                                                </p>
-                                                <div className="flex items-center">
-                                                    {submission.ip_address_numeric ? (
-                                                        <div className="flex flex-col gap-1">
-                                                            <span className="text-xs font-mono text-primary font-bold" title={`Numeric: ${submission.ip_address_numeric.toString()}`}>
-                                                                {numericToIp(submission.ip_address_numeric.toString())}
-                                                            </span>
-                                                            <a
-                                                                href={`https://www.whois.com/whois/${numericToIp(submission.ip_address_numeric.toString())}`}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="text-[9px] uppercase tracking-tighter text-white/30 hover:text-primary transition-colors flex items-center gap-1"
-                                                            >
-                                                                Verify Source <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
-                                                            </a>
-                                                        </div>
-                                                    ) : (
-                                                        <span className="text-xs font-mono text-muted-foreground/40 italic">Hidden</span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-4 pt-2">
-                                        <div className="space-y-2">
-                                            <div className="flex justify-between items-center px-1">
-                                                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Classification</label>
-                                                <div className="flex flex-col items-end">
-                                                    <span className="text-[10px] text-white/20 font-mono">ID: {submission.id.slice(0, 8)}</span>
-                                                    <span className={cn(
-                                                        "text-[9px] font-bold uppercase tracking-tighter",
-                                                        submission.source === 'palette_submissions' ? "text-primary/40" : "text-amber-500/40"
-                                                    )}>
-                                                        {submission.source === 'palette_submissions' ? "New DB" : "Legacy DB"}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div className="relative group/select">
-                                                <select
-                                                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm appearance-none focus:ring-2 ring-primary/20 transition-all outline-none text-white/80 cursor-pointer hover:bg-white/[0.08]"
-                                                    value={selectedCategories[submission.id] || ""}
-                                                    onChange={(e) => setSelectedCategories(prev => ({ ...prev, [submission.id]: e.target.value }))}
-                                                >
-                                                    <option value="" className="bg-zinc-900">Uncategorized</option>
-                                                    {CATEGORIES.map(cat => (
-                                                        <option key={cat} value={cat} className="bg-zinc-900">{cat}</option>
-                                                    ))}
-                                                </select>
-                                                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/30 group-hover/select:text-white/50 transition-colors">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-1">Tags</label>
-                                            <div className="relative">
-                                                <input
-                                                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm focus:ring-2 ring-primary/20 transition-all outline-none text-white/80 placeholder:text-white/10 hover:bg-white/[0.08]"
-                                                    value={editedTags[submission.id] || ""}
-                                                    onChange={(e) => setEditedTags(prev => ({ ...prev, [submission.id]: e.target.value }))}
-                                                    placeholder="e.g. warm, sunset, vibrant"
-                                                />
-                                                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z" /><path d="M7 7h.01" /></svg>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex gap-3 pt-4 border-t border-white/5">
-                                        <Button
-                                            variant="default"
-                                            className="flex-1 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white border border-emerald-500/20 rounded-xl h-11 transition-all duration-300 font-bold active:scale-95 group/btn"
-                                            onClick={() => handleApprove(submission)}
-                                            disabled={!!actionLoading}
-                                        >
-                                            {actionLoading === submission.id ? (
-                                                <Loader2 className="h-4 w-4 animate-spin" />
-                                            ) : (
-                                                <>
-                                                    <Check className="h-4 w-4 mr-2 group-hover/btn:scale-125 transition-transform" /> Approve
-                                                </>
-                                            )}
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            className="flex-1 border-rose-500/20 hover:bg-rose-500/10 text-rose-500/80 hover:text-rose-500 hover:border-rose-500/50 rounded-xl h-11 transition-all duration-300 font-bold active:scale-95 group/btn"
-                                            onClick={() => handleReject(submission)}
-                                            disabled={!!actionLoading}
-                                        >
-                                            {actionLoading === submission.id ? (
-                                                <Loader2 className="h-4 w-4 animate-spin" />
-                                            ) : (
-                                                <>
-                                                    <X className="h-4 w-4 mr-2 group-hover/btn:rotate-90 transition-transform duration-300" /> Reject
-                                                </>
-                                            )}
-                                        </Button>
-                                    </div>
-                                </div>
-                            </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))', gap: 24 }}>
+                        {currentList.map((item) => (
+                            <PaletteCard
+                                key={item.id}
+                                item={item}
+                                activeTab={activeTab}
+                                selectedCategory={selectedCategories[item.id] || ''}
+                                onCategoryChange={(v) => setSelectedCategories(p => ({ ...p, [item.id]: v }))}
+                                editedTags={editedTags[item.id] || ''}
+                                onTagsChange={(v) => setEditedTags(p => ({ ...p, [item.id]: v }))}
+                                onApprove={() => handleApprove(item)}
+                                onReject={() => handleReject(item)}
+                                isLoading={actionLoading === item.id}
+                            />
                         ))}
                     </div>
                 )}
-            </main>
 
-            {/* Maintenance Section */}
-            <section className="container py-8 px-4 mx-auto border-t border-white/5 mt-8">
-                <h2 className="text-xl font-bold mb-4 text-white/80">Maintenance Tools</h2>
-                <div className="bg-card/30 rounded-xl p-6 border border-white/5">
-                    <h3 className="text-lg font-medium mb-2">Fix Generic Palettes</h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                        Finds palettes named "Happy Dream..." and renames them based on their colors, adding appropriate tags.
-                    </p>
-                    <Button
-                        variant="secondary"
-                        onClick={fixGenericPalettes}
-                        disabled={!!actionLoading}
-                    >
-                        {actionLoading === 'fixing_generic' ? (
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        ) : (
-                            <Sparkles className="h-4 w-4 mr-2" />
-                        )}
-                        Fix Names & Tags
-                    </Button>
-                </div>
-            </section>
+
+            </main>
         </div>
     );
 };
 
-// --- Helper Functions for Name/Tag Generation ---
+// ─── Palette Card Component ───────────────────────────────────────────────────
+
+interface CardProps {
+    item: Submission;
+    activeTab: TabType;
+    selectedCategory: string;
+    onCategoryChange: (v: string) => void;
+    editedTags: string;
+    onTagsChange: (v: string) => void;
+    onApprove: () => void;
+    onReject: () => void;
+    isLoading: boolean;
+}
+
+const BADGE_COLORS: Record<TabType, { bg: string; color: string; label: string }> = {
+    pending: { bg: '#f59e0b20', color: '#f59e0b', label: 'PENDING' },
+    approved: { bg: '#10b98120', color: '#10b981', label: 'APPROVED' },
+    rejected: { bg: '#ef444420', color: '#ef4444', label: 'REJECTED' },
+};
+
+const PaletteCard = ({
+    item, activeTab, selectedCategory, onCategoryChange,
+    editedTags, onTagsChange, onApprove, onReject, isLoading,
+}: CardProps) => {
+    const badge = BADGE_COLORS[activeTab];
+    const date = new Date(item.submitted_at).toLocaleDateString('en-US', {
+        month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit',
+    });
+
+    return (
+        <div style={{
+            background: '#0e0e0e',
+            border: '1px solid #1c1c1c',
+            borderRadius: 12,
+            overflow: 'hidden',
+            transition: 'border-color 0.2s, box-shadow 0.2s',
+        }}
+            onMouseEnter={e => {
+                (e.currentTarget as HTMLDivElement).style.borderColor = '#00f5d440';
+                (e.currentTarget as HTMLDivElement).style.boxShadow = '0 0 30px #00f5d408';
+            }}
+            onMouseLeave={e => {
+                (e.currentTarget as HTMLDivElement).style.borderColor = '#1c1c1c';
+                (e.currentTarget as HTMLDivElement).style.boxShadow = 'none';
+            }}
+        >
+            {/* Color Strip */}
+            <div style={{ display: 'flex', height: 180 }}>
+                {item.colors.map((c, i) => (
+                    <div key={i} style={{ flex: 1, background: c, position: 'relative' }} title={c} />
+                ))}
+            </div>
+
+            {/* Body */}
+            <div style={{ padding: '20px 22px 22px' }}>
+
+                {/* Status Badge + Source */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                    <span style={{
+                        padding: '5px 14px', borderRadius: 20,
+                        background: badge.bg, color: badge.color,
+                        fontSize: 11, fontWeight: 900, letterSpacing: '0.15em', textTransform: 'uppercase',
+                    }}>
+                        {badge.label}
+                    </span>
+                    <span style={{ fontSize: 11, color: '#2a2a2a', fontFamily: 'monospace' }}>{item.source === 'palette_submissions' ? 'NEW DB' : 'LEGACY'}</span>
+                </div>
+
+                {/* Name */}
+                <h3 style={{ fontSize: 24, fontWeight: 900, letterSpacing: '-0.02em', color: '#fff', marginBottom: 14, lineHeight: 1.1, textTransform: 'uppercase' }}>
+                    {item.name}
+                </h3>
+
+                {/* Meta */}
+                <div style={{ fontSize: 13, color: '#555', lineHeight: 2.1, marginBottom: 18 }}>
+                    <div><span style={{ color: '#444' }}>Category: </span>{item.category || '—'}</div>
+                    <div><span style={{ color: '#444' }}>IP: </span>
+                        {item.ip_address_numeric ? (
+                            <a href={`https://www.whois.com/whois/${numericToIp(item.ip_address_numeric)}`}
+                                target="_blank" rel="noopener noreferrer"
+                                style={{ color: '#00f5d470', textDecoration: 'none', fontFamily: 'monospace' }}>
+                                {numericToIp(item.ip_address_numeric)}
+                            </a>
+                        ) : 'Hidden'}
+                    </div>
+                    <div><span style={{ color: '#444' }}>Date: </span>{date}</div>
+                    {item.tags && item.tags.length > 0 && (
+                        <div><span style={{ color: '#444' }}>Tags: </span>{item.tags.join(', ')}</div>
+                    )}
+                </div>
+
+                {/* Actions — only editable on pending */}
+                {activeTab === 'pending' && (
+                    <>
+                        {/* Category Select */}
+                        <div style={{ marginBottom: 10, position: 'relative' }}>
+                            <select
+                                style={{
+                                    width: '100%', background: '#111', border: '1px solid #222',
+                                    borderRadius: 10, padding: '12px 16px', color: selectedCategory ? '#fff' : '#555',
+                                    fontSize: 15, fontWeight: 600, outline: 'none', cursor: 'pointer',
+                                    appearance: 'none',
+                                }}
+                                value={selectedCategory}
+                                onChange={e => onCategoryChange(e.target.value)}
+                            >
+                                <option value="" style={{ background: '#111' }}>— Select Category —</option>
+                                {CATEGORIES.map(c => (
+                                    <option key={c} value={c} style={{ background: '#111' }}>{c}</option>
+                                ))}
+                            </select>
+                            <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', color: '#444', pointerEvents: 'none', fontSize: 12 }}>▼</span>
+                        </div>
+
+                        {/* Tags Input */}
+                        <div style={{ marginBottom: 16 }}>
+                            <input
+                                style={{
+                                    width: '100%', background: '#111', border: '1px solid #1a1a1a',
+                                    borderRadius: 10, padding: '12px 16px', color: '#ccc',
+                                    fontSize: 14, outline: 'none', boxSizing: 'border-box',
+                                }}
+                                placeholder="Extra tags (comma separated)"
+                                value={editedTags}
+                                onChange={e => onTagsChange(e.target.value)}
+                            />
+                        </div>
+
+                        {/* Approve / Reject */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                            <button
+                                onClick={onApprove}
+                                disabled={isLoading}
+                                style={{
+                                    padding: '15px', borderRadius: 10,
+                                    background: isLoading ? '#065f46' : '#059669',
+                                    border: 'none',
+                                    color: '#fff', fontWeight: 900, fontSize: 15,
+                                    cursor: isLoading ? 'not-allowed' : 'pointer',
+                                    letterSpacing: '0.08em', textTransform: 'uppercase',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                                    transition: 'all 0.15s',
+                                    boxShadow: '0 4px 20px #05966940',
+                                }}
+                                onMouseEnter={e => !isLoading && ((e.currentTarget as HTMLButtonElement).style.background = '#10b981')}
+                                onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.background = '#059669')}
+                                onMouseDown={e => (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.97)'}
+                                onMouseUp={e => (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'}
+                            >
+                                {isLoading ? <Loader2 size={17} className="animate-spin" /> : <Check size={17} strokeWidth={3} />}
+                                APPROVE
+                            </button>
+                            <button
+                                onClick={onReject}
+                                disabled={isLoading}
+                                style={{
+                                    padding: '15px', borderRadius: 10,
+                                    background: '#dc2626',
+                                    border: 'none',
+                                    color: '#fff', fontWeight: 900, fontSize: 15,
+                                    cursor: isLoading ? 'not-allowed' : 'pointer',
+                                    letterSpacing: '0.08em', textTransform: 'uppercase',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                                    transition: 'all 0.15s',
+                                    boxShadow: '0 4px 20px #dc262640',
+                                }}
+                                onMouseEnter={e => !isLoading && ((e.currentTarget as HTMLButtonElement).style.background = '#ef4444')}
+                                onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.background = '#dc2626')}
+                                onMouseDown={e => (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.97)'}
+                                onMouseUp={e => (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'}
+                            >
+                                {isLoading ? <Loader2 size={17} className="animate-spin" /> : <X size={17} strokeWidth={3} />}
+                                REJECT
+                            </button>
+                        </div>
+                    </>
+                )}
+
+                {/* Read-only view for approved/rejected */}
+                {activeTab !== 'pending' && item.colors.length > 0 && (
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                        {item.colors.map((c, i) => (
+                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <div style={{ width: 12, height: 12, borderRadius: 3, background: c }} />
+                                <span style={{ fontSize: 9, fontFamily: 'monospace', color: '#444' }}>{c.toUpperCase()}</span>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+// ─── Helper Functions ─────────────────────────────────────────────────────────
 
 function generatePaletteMetadata(colors: string[]) {
-    // 1. Convert hex to HSL to understand the colors
-    const hslColors = colors.map(hex => hexToHSL(hex));
-
-    // 2. Determine dominant properties
-    const avgL = hslColors.reduce((acc, c) => acc + c.l, 0) / hslColors.length;
-    const avgS = hslColors.reduce((acc, c) => acc + c.s, 0) / hslColors.length;
-
-    // 3. Generate Tags
+    const hslColors = colors.map(hexToHSL);
+    const avgL = hslColors.reduce((a, c) => a + c.l, 0) / hslColors.length;
+    const avgS = hslColors.reduce((a, c) => a + c.s, 0) / hslColors.length;
     const tags = new Set<string>();
-
-    // Brightness tags
     if (avgL < 30) tags.add("dark");
     else if (avgL > 70) tags.add("light");
-
-    // Saturation tags
     if (avgS > 80) tags.add("vibrant");
     else if (avgS > 60) tags.add("neon");
     else if (avgS < 20) tags.add("pastel");
-    else if (avgS < 10) tags.add("muted");
-
-    // Warm/Cold tags based on hue
-    const warmCount = hslColors.filter(c => (c.h >= 0 && c.h < 60) || (c.h >= 300)).length;
+    const warmCount = hslColors.filter(c => (c.h >= 0 && c.h < 60) || c.h >= 300).length;
     const coldCount = hslColors.filter(c => c.h >= 150 && c.h < 300).length;
-
     if (warmCount > coldCount) tags.add("warm");
     if (coldCount > warmCount) tags.add("cold");
-
-    // 4. Generate Name
-    // Get the most saturated color to drive the name
-    const dominant = hslColors.reduce((prev, current) => (prev.s > current.s) ? prev : current);
-
-    let colorName = "Color";
+    const dominant = hslColors.reduce((p, c) => p.s > c.s ? p : c);
     const h = dominant.h;
-    if (h >= 0 && h < 15) colorName = "Red";
-    else if (h >= 15 && h < 45) colorName = "Orange";
-    else if (h >= 45 && h < 70) colorName = "Yellow";
-    else if (h >= 70 && h < 150) colorName = "Green";
-    else if (h >= 150 && h < 190) colorName = "Teal";
-    else if (h >= 190 && h < 250) colorName = "Blue";
-    else if (h >= 250 && h < 290) colorName = "Purple";
-    else if (h >= 290 && h < 330) colorName = "Pink";
-    else colorName = "Red";
-
-    // Adjectives
-    const adjective = avgL < 30 ? "Midnight"
-        : avgL > 80 ? "Soft"
-            : avgS > 80 ? "Electric"
-                : avgS < 20 ? "Dusty"
-                    : "Classic";
-
-    // Nouns
-    const nouns = ["Harmony", "Vibe", "Mood", "Essence", "Flow", "Scape", "Aura", "Dream"];
-    const noun = nouns[Math.floor(Math.random() * nouns.length)];
-
-    const name = `${adjective} ${colorName} ${noun}`;
-
-    return { name, tags: Array.from(tags) };
+    const colorName = h < 15 ? "Red" : h < 45 ? "Orange" : h < 70 ? "Yellow" : h < 150 ? "Green"
+        : h < 190 ? "Teal" : h < 250 ? "Blue" : h < 290 ? "Purple" : "Pink";
+    const adj = avgL < 30 ? "Midnight" : avgL > 80 ? "Soft" : avgS > 80 ? "Electric" : "Classic";
+    const nouns = ["Harmony", "Vibe", "Mood", "Essence", "Flow", "Aura", "Dream"];
+    return { name: `${adj} ${colorName} ${nouns[Math.floor(Math.random() * nouns.length)]}`, tags: Array.from(tags) };
 }
 
 function hexToHSL(H: string) {
-    // Convert hex to RGB first
     let r = 0, g = 0, b = 0;
-    if (H.length == 4) {
-        r = parseInt("0x" + H[1] + H[1]);
-        g = parseInt("0x" + H[2] + H[2]);
-        b = parseInt("0x" + H[3] + H[3]);
-    } else if (H.length == 7) {
-        r = parseInt("0x" + H[1] + H[2]);
-        g = parseInt("0x" + H[3] + H[4]);
-        b = parseInt("0x" + H[5] + H[6]);
-    }
-    // Then to HSL
+    if (H.length === 4) { r = parseInt("0x" + H[1] + H[1]); g = parseInt("0x" + H[2] + H[2]); b = parseInt("0x" + H[3] + H[3]); }
+    else if (H.length === 7) { r = parseInt("0x" + H[1] + H[2]); g = parseInt("0x" + H[3] + H[4]); b = parseInt("0x" + H[5] + H[6]); }
     r /= 255; g /= 255; b /= 255;
-    let cmin = Math.min(r, g, b), cmax = Math.max(r, g, b), delta = cmax - cmin;
+    const cmin = Math.min(r, g, b), cmax = Math.max(r, g, b), delta = cmax - cmin;
     let h = 0, s = 0, l = 0;
-
-    if (delta == 0) h = 0;
-    else if (cmax == r) h = ((g - b) / delta) % 6;
-    else if (cmax == g) h = (b - r) / delta + 2;
+    if (delta === 0) h = 0;
+    else if (cmax === r) h = ((g - b) / delta) % 6;
+    else if (cmax === g) h = (b - r) / delta + 2;
     else h = (r - g) / delta + 4;
-
     h = Math.round(h * 60);
     if (h < 0) h += 360;
-
     l = (cmax + cmin) / 2;
-    s = delta == 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
-    s = +(s * 100).toFixed(1);
-    l = +(l * 100).toFixed(1);
-
-    return { h, s, l };
+    s = delta === 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
+    return { h, s: +(s * 100).toFixed(1), l: +(l * 100).toFixed(1) };
 }
 
 export default AdminDashboard;

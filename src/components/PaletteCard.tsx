@@ -33,6 +33,17 @@ export const PaletteCard = memo(function PaletteCard({
   onEdit,
   onDelete,
 }: PaletteCardProps) {
+  // Show "NEW" badge only if tag exists AND approved within last 3 days
+  const isNewArrival = (() => {
+    if (!palette.tags?.includes('new_arrival')) return false;
+    if (!palette.approved_at) return true; // tag exists but no timestamp → show badge
+    const elapsed = Date.now() - new Date(palette.approved_at).getTime();
+    return elapsed < 3 * 24 * 60 * 60 * 1000; // 3 days in ms
+  })();
+
+  // Filter out new_arrival from visible tags (it's shown as a badge instead)
+  const visibleTags = palette.tags?.filter(t => t !== 'new_arrival').slice(0, 3) ?? [];
+
   return (
     <div className="relative group">
       <div
@@ -53,7 +64,7 @@ export const PaletteCard = memo(function PaletteCard({
       >
 
         {/* Color Preview */}
-        <div className="mb-4 flex h-14 overflow-hidden rounded-xl bg-black/20 ring-1 ring-white/10 group-hover:ring-white/20 transition-all">
+        <div className="mb-4 relative flex h-14 overflow-hidden rounded-xl bg-black/20 ring-1 ring-white/10 group-hover:ring-white/20 transition-all">
           {palette.colors.map((color, i) => (
             <div
               key={i}
@@ -65,6 +76,24 @@ export const PaletteCard = memo(function PaletteCard({
               title={color}
             />
           ))}
+
+          {/* NEW badge */}
+          {isNewArrival && (
+            <div
+              className="absolute top-1.5 left-1.5 flex items-center gap-1 px-2 py-0.5 rounded-full font-black uppercase select-none pointer-events-none"
+              style={{
+                fontSize: 9,
+                letterSpacing: '0.15em',
+                background: 'linear-gradient(135deg, #00f5d4, #06b6d4)',
+                color: '#000',
+                boxShadow: '0 0 8px #00f5d460, 0 0 16px #00f5d420',
+                animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              }}
+            >
+              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#000', display: 'inline-block', opacity: 0.5 }} />
+              NEW
+            </div>
+          )}
         </div>
 
         {/* Info */}
@@ -73,7 +102,7 @@ export const PaletteCard = memo(function PaletteCard({
             {palette.name}
           </h3>
           <div className="flex flex-wrap gap-1.5">
-            {palette.tags?.slice(0, 3).map((tag) => (
+            {visibleTags.map((tag) => (
               <span
                 key={tag}
                 className="rounded-full bg-white/[0.03] border border-white/5 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-secondary-foreground/70 transition-colors group-hover:border-white/10 group-hover:bg-white/[0.05]"

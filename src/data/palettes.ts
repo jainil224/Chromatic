@@ -7,6 +7,7 @@ export interface Palette {
   isCustom?: boolean;
   description?: string;
   created_at?: string;
+  approved_at?: string;
   section?: string;
 }
 
