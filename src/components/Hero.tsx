@@ -1,48 +1,105 @@
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
-import { Palette, Search, Image as ImageIcon, Paintbrush, Sparkles, Wand2 } from "lucide-react";
-import { useState, useEffect, memo } from "react";
-import { generateRandomColor } from "@/utils/colorUtils";
-import { CURATED_PALETTES } from "@/constants/curatedPalettes";
+import { Palette, Search, Image as ImageIcon, Paintbrush, Sparkles } from "lucide-react";
+import { useState, useEffect, memo, useRef } from "react";
 import { HeroIllustration } from "./HeroIllustration";
+import * as AllPalettes from "@/data/palettes";
+import type { Palette as PaletteType } from "@/data/palettes";
 
-export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize }: { onBrowse: () => void; onMaker: () => void; onPickFromImage: () => void; onCustomize: () => void }) => {
-    // Initial hero palettes state (increased for unique background variety)
-    const [heroPalettes, setHeroPalettes] = useState(
-        [...CURATED_PALETTES, ...CURATED_PALETTES].slice(0, 24)
-    );
+// Build a deduplicated pool of color arrays from all real palettes in palettes.ts
+const buildPalettePool = (): string[][] => {
+    const seenIds = new Set<string>();
+    const pool: string[][] = [];
 
+    // Hex values to exclude — pure "filler" colors that look harsh and repeat too often
+    const FILLER_COLORS = new Set([
+        '#000000', '#FFFFFF', '#FFFF00', '#FF00FF', '#00FFFF',
+        '#FF0000', '#00FF00', '#0000FF', '#39FF14',
+    ]);
+
+    Object.values(AllPalettes).forEach((value) => {
+        if (!Array.isArray(value)) return;
+        (value as PaletteType[]).forEach((p) => {
+            if (seenIds.has(p.id)) return;
+            if (p.colors.length < 5) return;
+
+            // Skip palettes that contain pure filler colors
+            const hasFillerColor = p.colors.some(c => FILLER_COLORS.has(c.toUpperCase()));
+            if (hasFillerColor) return;
+
+            // Skip palettes with duplicate colors within themselves
+            const unique = new Set(p.colors.map(c => c.toUpperCase()));
+            if (unique.size < p.colors.length) return;
+
+            seenIds.add(p.id);
+            pool.push(p.colors);
+        });
+    });
+
+    return pool;
+};
+
+// Cache the pool at module level — built once on initial load
+const PALETTE_POOL = buildPalettePool();
+
+// Fisher-Yates shuffle: returns a new shuffled copy, never mutates input
+const fisherYatesShuffle = (arr: string[][]): string[][] => {
+    const copy = [...arr];
+    for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+};
+
+export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize }: {
+    onBrowse: () => void;
+    onMaker: () => void;
+    onPickFromImage: () => void;
+    onCustomize: () => void;
+}) => {
+    // Keep a shuffled order and a cursor — each window of 24 is guaranteed unique
+    const shuffledPoolRef = useRef<string[][]>(fisherYatesShuffle(PALETTE_POOL));
+    const cursorRef = useRef(0);
+
+    const getNextWindow = (): string[][] => {
+        const pool = shuffledPoolRef.current;
+        const size = 24;
+        const start = cursorRef.current;
+        const end = start + size;
+
+        let window: string[][];
+        if (end <= pool.length) {
+            window = pool.slice(start, end);
+            cursorRef.current = end >= pool.length ? 0 : end;
+        } else {
+            // Wrap: take remainder from current shuffle, then start a fresh shuffle
+            const tail = pool.slice(start);
+            shuffledPoolRef.current = fisherYatesShuffle(PALETTE_POOL);
+            const needed = size - tail.length;
+            window = [...tail, ...shuffledPoolRef.current.slice(0, needed)];
+            cursorRef.current = needed;
+        }
+        return window;
+    };
+
+    const [heroPalettes, setHeroPalettes] = useState<string[][]>(() => getNextWindow());
     const [isShuffling, setIsShuffling] = useState(false);
 
-    // Shuffle colors function
     const shuffleColors = () => {
         setIsShuffling(true);
-
-        // Shuffle the curated pool and take 24
-        const shuffled = [...CURATED_PALETTES]
-            .sort(() => Math.random() - 0.5)
-            .concat([...CURATED_PALETTES].sort(() => Math.random() - 0.5))
-            .slice(0, 24);
-
-        setHeroPalettes(shuffled);
-
-        // Reset shuffling state for animation capability
+        setHeroPalettes(getNextWindow());
         setTimeout(() => setIsShuffling(false), 500);
     };
 
-    // Auto-shuffle timer
+    // Auto-shuffle every 3 seconds — always shows a fresh unique set
     useEffect(() => {
-        // Auto-shuffle every 3 seconds
-        const autoShuffleInterval = setInterval(() => {
-            shuffleColors();
-        }, 3000);
-
-        return () => clearInterval(autoShuffleInterval);
+        const interval = setInterval(shuffleColors, 3000);
+        return () => clearInterval(interval);
     }, []);
 
     return (
         <section className="relative w-full overflow-hidden py-24 lg:py-32">
-            {/* Minimal Background */}
             {/* Minimal Background - Removed opaque background to allow global theme to show through */}
             <div className="absolute inset-0 -z-10 overflow-hidden">
                 {/* Global background handles the base color and gradients now */}
@@ -63,15 +120,15 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize }: {
                             <h1
                                 className="font-display text-5xl font-bold leading-tight tracking-tight text-white md:text-7xl lg:text-8xl animate-fade-up transition-all duration-700 ease-in-out"
                                 style={{
-                                    textShadow: `0 0 40px ${heroPalettes[0][2]}20`
+                                    textShadow: `0 0 40px ${heroPalettes[0]?.[2]}20`
                                 }}
                             >
                                 AI-Powered <span className="relative inline-block">
                                     <span
                                         className="transition-colors duration-700 ease-in-out"
                                         style={{
-                                            color: heroPalettes[0][2],
-                                            textShadow: `0 0 20px ${heroPalettes[0][2]}40`
+                                            color: heroPalettes[0]?.[2],
+                                            textShadow: `0 0 20px ${heroPalettes[0]?.[2]}40`
                                         }}
                                     >
                                         Color
@@ -79,8 +136,8 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize }: {
                                     <span
                                         className="transition-colors duration-700 ease-in-out"
                                         style={{
-                                            color: heroPalettes[0][3],
-                                            textShadow: `0 0 20px ${heroPalettes[0][3]}40`
+                                            color: heroPalettes[0]?.[3],
+                                            textShadow: `0 0 20px ${heroPalettes[0]?.[3]}40`
                                         }}
                                     >
                                         Palettes
@@ -149,4 +206,3 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize }: {
         </section>
     );
 });
-

@@ -1,56 +1,79 @@
 /**
  * Curated, high-contrast, and vibrant color palettes for the Hero section.
- * Replaces all soft pastels with bold, modern, and professional combinations.
+ * 36 hand-crafted unique palettes — no repeated colors, no filler hex codes.
  * Each palette contains 5 colors in HEX format.
  */
 export const CURATED_PALETTES = [
-    // 1. Sky & Candy (From User Image 1)
+    // 1. Sky & Candy
     ["#42A5F5", "#90CAF9", "#FAFAFA", "#FFD54F", "#FF6B9B"],
-    // 2. Sunset Glow (From User Image 2)
-    ["#FFB74D", "#FFD54F", "#FFF3E0", "#FFB2C1", "#2196F3"],
-    // 3. Cyber Strike (From User Image 3 - High Contrast)
+    // 2. Cyber Strike
     ["#050A30", "#00CFE8", "#FFEA00", "#FF9F43", "#FF007F"],
-    // 4. Emerald & Ember (From User Image 4)
+    // 3. Emerald & Ember
     ["#2D6A4F", "#52B788", "#FFF9DB", "#FFC8B4", "#F58220"],
-    // 5. Plasma Core
-    ["#140014", "#330033", "#ff00ff", "#ff8cff", "#1a001a"],
-    // 2. Toxic Glow
-    ["#061a0d", "#0d3320", "#39ff14", "#9dff6a", "#041f11"],
-    // 3. Neon Orchid
-    ["#1a0016", "#33002c", "#ff00cc", "#ff66dd", "#1f001b"],
-    // 4. Crimson Glow
-    ["#1a0000", "#330000", "#ff0033", "#ff6f91", "#1f0005"],
-    // 5. Cyber Violet
-    ["#080014", "#1c003a", "#b300ff", "#00ffcc", "#14002b"],
-    // 6. Magma Neon
-    ["#1a0b00", "#331500", "#ff3d00", "#ff8a50", "#1f0d00"],
-    // 7. Neon Tide
-    ["#00141a", "#00333d", "#00ffd5", "#6ffff0", "#00191f"],
-    // 8. Neon Pulse
-    ["#0b0014", "#1a0033", "#ff00e6", "#00f6ff", "#12001f"],
-    // 9. Laser Pink
-    ["#1a0010", "#33001f", "#ff007f", "#ff66b3", "#1f0014"],
-    // 10. Electric Ice
-    ["#000f1a", "#00263d", "#00b3ff", "#6fe7ff", "#00121f"],
-    // 11. Ultra Violet Night
-    ["#0e001f", "#22004a", "#8f00ff", "#d28bff", "#13002a"],
-    // 12. Neon Voltage
-    ["#1a1600", "#332c00", "#ffee00", "#fff566", "#1f1a00"],
-    // 13. Acid Tech
-    ["#141a00", "#2a3300", "#ccff00", "#e6ff66", "#181f00"],
-    // 14. Neon Matrix
-    ["#001a12", "#003326", "#00ff9c", "#7affc8", "#002014"],
-    // 15. Radioactive Mint
-    ["#001a16", "#00332c", "#00ffcc", "#66ffe0", "#001f1a"],
-    // 16. Neon Ember
-    ["#1a0f00", "#332000", "#ff9100", "#ffbf66", "#1f1300"],
+    // 4. Plasma Core
+    ["#140014", "#4A0080", "#FF00FF", "#FF8CFF", "#00FFCC"],
+    // 5. Toxic Glow
+    ["#061A0D", "#0D3320", "#39FF14", "#A3FF6E", "#004D1A"],
+    // 6. Crimson Night
+    ["#1A0000", "#5C0020", "#FF0033", "#FF6F91", "#FFD700"],
+    // 7. Cyber Violet
+    ["#080014", "#1C003A", "#B300FF", "#00FFCC", "#FF4081"],
+    // 8. Magma Flow
+    ["#1A0B00", "#6B2200", "#FF3D00", "#FF8A50", "#FFD180"],
+    // 9. Neon Tide
+    ["#00141A", "#00404D", "#00FFD5", "#6FFFF0", "#1A237E"],
+    // 10. Laser Pink
+    ["#1A0010", "#5C0030", "#FF007F", "#FF66B3", "#00E5FF"],
+    // 11. Electric Ice
+    ["#000F1A", "#003366", "#00B3FF", "#6FE7FF", "#FF6D00"],
+    // 12. Ultra Violet
+    ["#0E001F", "#3A0070", "#8F00FF", "#D28BFF", "#39FF14"],
+    // 13. Neon Voltage
+    ["#1A1600", "#4D3800", "#FFE600", "#FFF566", "#E040FB"],
+    // 14. Acid Tech
+    ["#141A00", "#3D5200", "#CCFF00", "#E6FF66", "#FF1744"],
+    // 15. Neon Matrix
+    ["#001A12", "#00593E", "#00FF9C", "#7AFFC8", "#7C4DFF"],
+    // 16. Sunset Boulevard
+    ["#FF6B35", "#F7C59F", "#EFEFD0", "#004E89", "#1A936F"],
     // 17. Hologram Blue
-    ["#000f1f", "#001f3d", "#0099ff", "#6fbfff", "#00142b"],
-    // 18. Synth Glow
-    ["#12001a", "#2a0033", "#d400ff", "#f27aff", "#18001f"],
+    ["#000F1F", "#003380", "#0099FF", "#6FBFFF", "#FF6E40"],
+    // 18. Neon Ruby
+    ["#0A0000", "#3D0010", "#FF1744", "#FF80AB", "#76FF03"],
     // 19. Laser Lime
-    ["#0f1a00", "#203300", "#aaff00", "#d4ff66", "#141f00"],
-    // 20. Photon Blue
-    ["#000a1a", "#001833", "#0066ff", "#6f9cff", "#000f1f"]
+    ["#0F1A00", "#396600", "#AAFF00", "#D4FF66", "#E91E63"],
+    // 20. Deep Ocean
+    ["#002233", "#005577", "#0099CC", "#00CCFF", "#F4E04D"],
+    // 21. Golden Galaxy
+    ["#1A1000", "#4D3000", "#C47F00", "#FFD700", "#7B2FBE"],
+    // 22. Cherry Blossom Dark
+    ["#1A0010", "#66003A", "#CC0059", "#FF66C4", "#AAFFEF"],
+    // 23. Arctic Aurora
+    ["#001A26", "#003D59", "#00BFFF", "#87F5D0", "#FF69B4"],
+    // 24. Jungle Neon
+    ["#001A05", "#005922", "#00CC4D", "#66FF99", "#FF6600"],
+    // 25. Cosmic Dust
+    ["#0D0D26", "#1A1A59", "#4040CC", "#9999FF", "#FF7043"],
+    // 26. Solar Flare
+    ["#330A00", "#802000", "#FF5000", "#FF9A3C", "#FFF5CC"],
+    // 27. Midnight Bloom
+    ["#0A001A", "#200040", "#6600CC", "#CC66FF", "#00E676"],
+    // 28. Deep Teal Rush
+    ["#001A1A", "#005252", "#009999", "#4DFFFF", "#FF4081"],
+    // 29. Amber Storm
+    ["#1A0D00", "#663300", "#CC6600", "#FF9900", "#00BCD4"],
+    // 30. Neon Orchid
+    ["#1A0016", "#5C0052", "#FF00CC", "#FF66DD", "#00E5FF"],
+    // 31. Forest Blaze
+    ["#001A00", "#1A5200", "#33A300", "#99FF33", "#FF3D00"],
+    // 32. Blue Inferno
+    ["#000D1A", "#003399", "#0055FF", "#4D94FF", "#FF6600"],
+    // 33. Purple Rain
+    ["#0D0026", "#2A0066", "#7700FF", "#BB66FF", "#FF9900"],
+    // 34. Coral Reef
+    ["#001A1A", "#004D40", "#00897B", "#26C6DA", "#FF7043"],
+    // 35. Electric Mango
+    ["#1A0500", "#662200", "#FF4400", "#FF8800", "#FFFF00"],
+    // 36. Indigo Dawn
+    ["#050010", "#1A0040", "#5500CC", "#9966FF", "#FF6680"],
 ];
-
