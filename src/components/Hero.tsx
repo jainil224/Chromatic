@@ -60,10 +60,26 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize }: {
 
                             {/* Main Heading */}
                             <h1 className="font-display text-5xl font-bold leading-tight tracking-tight text-foreground md:text-7xl lg:text-8xl animate-fade-up">
-                                AI-Powered <span className="text-primary relative inline-block">
-                                    Color Palettes
+                                AI-Powered <span className="relative inline-block">
+                                    <span
+                                        className="transition-colors duration-700 ease-in-out"
+                                        style={{ color: heroPalettes[0][0] }}
+                                    >
+                                        Color
+                                    </span>{" "}
+                                    <span
+                                        className="transition-colors duration-700 ease-in-out"
+                                        style={{ color: heroPalettes[0][1] }}
+                                    >
+                                        Palettes
+                                    </span>
                                     {/* Underline decoration */}
-                                    <svg className="absolute w-full h-3 -bottom-1 left-0 text-primary/30" viewBox="0 0 100 10" preserveAspectRatio="none">
+                                    <svg
+                                        className="absolute w-full h-3 -bottom-1 left-0 transition-colors duration-700 ease-in-out"
+                                        viewBox="0 0 100 10"
+                                        preserveAspectRatio="none"
+                                        style={{ color: `${heroPalettes[0][2]}44` }} // Use the third color for the underline
+                                    >
                                         <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="2" fill="none" />
                                     </svg>
                                 </span> <br className="hidden lg:block" />
@@ -115,15 +131,6 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize }: {
                                 </Button>
                             </div>
 
-                            {/* Interactive Hint & Social Proof */}
-                            <div className="flex flex-col gap-3">
-                                <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground/60">
-                                    <span className="animate-pulse">▶</span>
-                                    <span>Shuffling <span className="text-primary/80 font-bold">automatically</span> every 3s</span>
-                                </div>
-
-
-                            </div>
                         </div>
                     </div>
 
