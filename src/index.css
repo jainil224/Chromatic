@@ -247,6 +247,26 @@
         0 0 20px -4px hsl(var(--dock-glow) / 0.2);
     }
   }
+
+  @keyframes scroll-up {
+    0% {
+      transform: translateY(0);
+    }
+
+    100% {
+      transform: translateY(-50%);
+    }
+  }
+
+  @keyframes floating-simple {
+    0% {
+      transform: translateY(0) scale(0.85);
+    }
+
+    100% {
+      transform: translateY(-15px) scale(0.88);
+    }
+  }
 }
 
 @layer base {

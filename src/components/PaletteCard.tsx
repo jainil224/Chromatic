@@ -19,9 +19,6 @@ interface PaletteCardProps {
   isCustom?: boolean;
   onEdit?: (palette: any) => void;
   onDelete?: (id: string) => void;
-  likeCount?: number;
-  isLiked?: boolean;
-  onToggleLike?: (id: string) => void;
 }
 
 export const PaletteCard = memo(function PaletteCard({
@@ -35,9 +32,6 @@ export const PaletteCard = memo(function PaletteCard({
   isCustom = false,
   onEdit,
   onDelete,
-  likeCount = 0,
-  isLiked = false,
-  onToggleLike
 }: PaletteCardProps) {
   return (
     <div className="relative group">
@@ -88,36 +82,6 @@ export const PaletteCard = memo(function PaletteCard({
               </span>
             ))}
           </div>
-
-          {/* Like Counter */}
-          {onToggleLike && (
-            <div className="flex items-center gap-1.5 mt-3 opacity-60 group-hover:opacity-100 transition-opacity">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onToggleLike(palette.id);
-                }}
-                className="transition-transform active:scale-90 hover:scale-110"
-                aria-label={isLiked ? "Unlike palette" : "Like palette"}
-              >
-                <Heart
-                  className={`h-3.5 w-3.5 transition-all duration-300 ${isLiked
-                    ? "fill-red-500 text-red-500 animate-[heart-pulse_0.3s_ease-in-out]"
-                    : "text-secondary-foreground/60 hover:text-red-400"
-                    }`}
-                />
-              </button>
-              <span className="font-mono text-[10px] text-secondary-foreground/60 tabular-nums uppercase tracking-tighter">
-                {(() => {
-                  if (likeCount >= 1000000) return `${(likeCount / 1000000).toFixed(1)}M`;
-                  if (likeCount >= 1000) return `${(likeCount / 1000).toFixed(1)}K`;
-                  return likeCount.toString();
-                })()}
-              </span>
-            </div>
-          )}
         </div>
 
         {/* Shimmer effect overlay */}

@@ -8,7 +8,6 @@ interface SupabasePalette {
     colors: string[];
     category: string | null;
     tags: string[] | null;
-    likes: number;
     created_at: string;
     section: string | null;
 }

@@ -20,7 +20,6 @@ import { toast } from "sonner";
 
 import { useFavorites } from "@/hooks/useFavorites";
 import { useUserPalettes, type UserPalette } from "@/hooks/useUserPalettes";
-import { useLikes } from "@/hooks/useLikes";
 import { usePalettes } from "@/hooks/usePalettes";
 
 const Index = () => {
@@ -37,7 +36,6 @@ const Index = () => {
   const [editingPalette, setEditingPalette] = useState<UserPalette | null>(null);
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const { userPalettes, addPalette, updatePalette, deletePalette } = useUserPalettes();
-  const { toggleLike, getLikeCount, isLiked: isPaletteLiked } = useLikes();
   const { palettes: supabasePalettes, loading: palettesLoading, error: palettesError } = usePalettes();
 
   // Defer search query to keep input responsive
@@ -215,7 +213,12 @@ const Index = () => {
 
   // Filter palettes based on search query and category
   const filteredPalettes = useMemo(() => {
-    // Filter by Search Query
+    // 1. Filter by Favorites Category
+    if (selectedCategory?.toLowerCase() === 'favorites') {
+      return favoritePalettes;
+    }
+
+    // 2. Filter by Search Query
     if (deferredSearchQuery.trim()) {
       const query = deferredSearchQuery.toLowerCase();
       return allPalettes.filter(
@@ -248,7 +251,7 @@ const Index = () => {
 
     // No filters: return empty (user must select category)
     return [];
-  }, [allPalettes, selectedCategory, deferredSearchQuery]);
+  }, [allPalettes, selectedCategory, deferredSearchQuery, favoritePalettes]);
 
   const totalResults = filteredPalettes.length;
 
@@ -326,7 +329,7 @@ const Index = () => {
 
       return false;
     });
-  }, [allPalettes]);
+  }, [allPalettes, favoritePalettes]);
 
   interface DashboardSection {
     title: string;
@@ -448,9 +451,6 @@ const Index = () => {
                       setIsModalOpen(true);
                     }}
                     onDeletePalette={deletePalette}
-                    getLikeCount={getLikeCount}
-                    isPaletteLiked={isPaletteLiked}
-                    onToggleLike={toggleLike}
                   />
                 ))}
 
@@ -527,9 +527,8 @@ const Index = () => {
               <div className="mt-6">
                 <PaletteDetail
                   palette={selectedPalette}
-                  likeCount={getLikeCount(selectedPalette.id)}
-                  isLiked={isPaletteLiked(selectedPalette.id)}
-                  onToggleLike={toggleLike}
+                  isFavorite={isFavorite(selectedPalette.id)}
+                  onToggleFavorite={toggleFavorite}
                 />
               </div>
             )}

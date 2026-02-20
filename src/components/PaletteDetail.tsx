@@ -10,16 +10,14 @@ import { Button } from "@/components/ui/button";
 
 interface PaletteDetailProps {
   palette: Palette;
-  likeCount?: number;
-  isLiked?: boolean;
-  onToggleLike?: (id: string) => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: (id: string) => void;
 }
 
 export function PaletteDetail({
   palette,
-  likeCount = 0,
-  isLiked = false,
-  onToggleLike
+  isFavorite = false,
+  onToggleFavorite,
 }: PaletteDetailProps) {
   const [isExporting, setIsExporting] = useState(false);
   const exportCardRef = useRef<HTMLDivElement>(null);
@@ -69,32 +67,23 @@ export function PaletteDetail({
             {palette.name}
           </h2>
           <div className="flex items-center gap-2">
-            {onToggleLike && (
-              <div className="flex items-center gap-1.5 mr-2">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onToggleLike(palette.id);
-                  }}
-                  className="transition-transform active:scale-90 hover:scale-110 p-2 rounded-full hover:bg-secondary"
-                  aria-label={isLiked ? "Unlike palette" : "Like palette"}
-                >
-                  <Heart
-                    className={`h-5 w-5 transition-all duration-300 ${isLiked
-                      ? "fill-red-500 text-red-500 animate-[heart-pulse_0.3s_ease-in-out]"
-                      : "text-secondary-foreground/60 hover:text-red-400"
-                      }`}
-                  />
-                </button>
-                <span className="font-mono text-sm text-secondary-foreground/60 tabular-nums">
-                  {(() => {
-                    if (likeCount >= 1000000) return `${(likeCount / 1000000).toFixed(1)}M`;
-                    if (likeCount >= 1000) return `${(likeCount / 1000).toFixed(1)}K`;
-                    return likeCount.toString();
-                  })()}
-                </span>
-              </div>
+            {onToggleFavorite && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onToggleFavorite(palette.id);
+                }}
+                className="transition-transform active:scale-90 hover:scale-110 p-2 rounded-full hover:bg-secondary"
+                aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+              >
+                <Heart
+                  className={`h-5 w-5 transition-all duration-300 ${isFavorite
+                    ? "fill-red-500 text-red-500"
+                    : "text-secondary-foreground/60 hover:text-red-400"
+                    }`}
+                />
+              </button>
             )}
             <Button
               variant="outline"

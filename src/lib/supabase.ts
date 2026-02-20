@@ -22,41 +22,18 @@ export interface Database {
                     id: string
                     name: string
                     colors: string[]
-                    likes: number
                     created_at: string
                 }
                 Insert: {
                     id?: string
                     name: string
                     colors: string[]
-                    likes?: number
                     created_at?: string
                 }
                 Update: {
                     id?: string
                     name?: string
                     colors?: string[]
-                    likes?: number
-                    created_at?: string
-                }
-            }
-            palette_likes: {
-                Row: {
-                    id: string
-                    palette_id: string
-                    user_id: string
-                    created_at: string
-                }
-                Insert: {
-                    id?: string
-                    palette_id: string
-                    user_id: string
-                    created_at?: string
-                }
-                Update: {
-                    id?: string
-                    palette_id?: string
-                    user_id?: string
                     created_at?: string
                 }
             }

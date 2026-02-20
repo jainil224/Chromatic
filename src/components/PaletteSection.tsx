@@ -16,9 +16,6 @@ interface PaletteSectionProps {
   gridClassName?: string;
   onEditPalette?: (palette: any) => void;
   onDeletePalette?: (id: string) => void;
-  getLikeCount?: (id: string) => number;
-  isPaletteLiked?: (id: string) => boolean;
-  onToggleLike?: (id: string) => void;
 }
 
 export const PaletteSection = memo(function PaletteSection({
@@ -34,9 +31,6 @@ export const PaletteSection = memo(function PaletteSection({
   gridClassName,
   onEditPalette,
   onDeletePalette,
-  getLikeCount,
-  isPaletteLiked,
-  onToggleLike,
 }: PaletteSectionProps) {
   const Icon = Palette;
 
@@ -79,9 +73,6 @@ export const PaletteSection = memo(function PaletteSection({
             isCustom={(palette as any).isCustom}
             onEdit={onEditPalette}
             onDelete={onDeletePalette}
-            likeCount={getLikeCount?.(palette.id)}
-            isLiked={isPaletteLiked?.(palette.id)}
-            onToggleLike={onToggleLike}
           />
         ))}
       </div>
