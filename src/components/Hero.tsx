@@ -3,14 +3,13 @@ import { cn } from "@/lib/utils";
 import { Palette, Search, Image as ImageIcon, Paintbrush, Sparkles, Wand2 } from "lucide-react";
 import { useState, useEffect, memo } from "react";
 import { generateRandomColor } from "@/utils/colorUtils";
+import { CURATED_PALETTES } from "@/constants/curatedPalettes";
 import { HeroIllustration } from "./HeroIllustration";
 
 export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize }: { onBrowse: () => void; onMaker: () => void; onPickFromImage: () => void; onCustomize: () => void }) => {
     // Initial hero palettes state (increased for unique background variety)
     const [heroPalettes, setHeroPalettes] = useState(
-        Array(24).fill(null).map(() =>
-            Array(4).fill(null).map(() => generateRandomColor())
-        )
+        [...CURATED_PALETTES, ...CURATED_PALETTES].slice(0, 24)
     );
 
     const [isShuffling, setIsShuffling] = useState(false);
@@ -18,12 +17,14 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize }: {
     // Shuffle colors function
     const shuffleColors = () => {
         setIsShuffling(true);
-        // Generate 24 new unique palettes
-        const newPalettes = Array(24).fill(null).map(() =>
-            Array(4).fill(null).map(() => generateRandomColor())
-        );
 
-        setHeroPalettes(newPalettes);
+        // Shuffle the curated pool and take 24
+        const shuffled = [...CURATED_PALETTES]
+            .sort(() => Math.random() - 0.5)
+            .concat([...CURATED_PALETTES].sort(() => Math.random() - 0.5))
+            .slice(0, 24);
+
+        setHeroPalettes(shuffled);
 
         // Reset shuffling state for animation capability
         setTimeout(() => setIsShuffling(false), 500);
@@ -62,24 +63,30 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize }: {
                             <h1
                                 className="font-display text-5xl font-bold leading-tight tracking-tight text-white md:text-7xl lg:text-8xl animate-fade-up transition-all duration-700 ease-in-out"
                                 style={{
-                                    textShadow: `0 0 40px ${heroPalettes[0][0]}15`
+                                    textShadow: `0 0 40px ${heroPalettes[0][2]}20`
                                 }}
                             >
-                                <span className="transition-colors duration-700" style={{ color: heroPalettes[0][3] }}>AI</span>-Powered <span className="relative inline-block">
+                                AI-Powered <span className="relative inline-block">
                                     <span
                                         className="transition-colors duration-700 ease-in-out"
-                                        style={{ color: heroPalettes[0][0] }}
+                                        style={{
+                                            color: heroPalettes[0][2],
+                                            textShadow: `0 0 20px ${heroPalettes[0][2]}40`
+                                        }}
                                     >
                                         Color
                                     </span>{" "}
                                     <span
                                         className="transition-colors duration-700 ease-in-out"
-                                        style={{ color: heroPalettes[0][1] }}
+                                        style={{
+                                            color: heroPalettes[0][3],
+                                            textShadow: `0 0 20px ${heroPalettes[0][3]}40`
+                                        }}
                                     >
                                         Palettes
                                     </span>
                                 </span> <br className="hidden lg:block" />
-                                for <span className="transition-colors duration-700" style={{ color: heroPalettes[0][2] }}>Modern</span> Design
+                                for Modern Design
                             </h1>
 
                             {/* Description */}

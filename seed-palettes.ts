@@ -11,7 +11,7 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 import {
     darkPalettes,
     lightPalettes,
-    pastelPalettes,
+    boldPalettes,
     vintagePalettes,
     retroPalettes,
     neonPalettes,
@@ -32,7 +32,10 @@ import {
     kidPalettes,
     skinPalettes,
     foodPalettes,
-    creamPalettes,
+    summerPalettes,
+    warmPalettes,
+    nightPalettes,
+    glowPalettes,
     coffeePalettes,
     weddingPalettes,
     christmasPalettes,
@@ -45,7 +48,7 @@ async function seedPalettes() {
     const allPalettes = [
         ...darkPalettes,
         ...lightPalettes,
-        ...pastelPalettes,
+        ...boldPalettes,
         ...vintagePalettes,
         ...retroPalettes,
         ...neonPalettes,
@@ -66,7 +69,10 @@ async function seedPalettes() {
         ...kidPalettes,
         ...skinPalettes,
         ...foodPalettes,
-        ...creamPalettes,
+        ...summerPalettes,
+        ...warmPalettes,
+        ...nightPalettes,
+        ...glowPalettes,
         ...coffeePalettes,
         ...weddingPalettes,
         ...christmasPalettes,
@@ -106,7 +112,7 @@ async function seedPalettes() {
                 console.log(`✅ Batch ${batchNumber} inserted successfully (${data?.length || 0} palettes)`);
                 successCount += data?.length || 0;
             }
-        } catch (err) {
+        } catch (err: any) {
             console.error(`❌ Exception in batch ${batchNumber}:`, err.message || err);
             errorCount += batch.length;
         }

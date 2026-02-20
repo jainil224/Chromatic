@@ -11,7 +11,6 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 import {
     darkPalettes,
     lightPalettes,
-    pastelPalettes,
     vintagePalettes,
     retroPalettes,
     neonPalettes,
@@ -32,7 +31,10 @@ import {
     kidPalettes,
     skinPalettes,
     foodPalettes,
-    creamPalettes,
+    summerPalettes,
+    warmPalettes,
+    nightPalettes,
+    glowPalettes,
     coffeePalettes,
     weddingPalettes,
     christmasPalettes,
@@ -42,7 +44,6 @@ import {
 const paletteCategories = [
     { palettes: darkPalettes, category: 'dark' },
     { palettes: lightPalettes, category: 'light' },
-    { palettes: pastelPalettes, category: 'pastel' },
     { palettes: vintagePalettes, category: 'vintage' },
     { palettes: retroPalettes, category: 'retro' },
     { palettes: neonPalettes, category: 'neon' },
@@ -63,7 +64,10 @@ const paletteCategories = [
     { palettes: kidPalettes, category: 'kid' },
     { palettes: skinPalettes, category: 'skin' },
     { palettes: foodPalettes, category: 'food' },
-    { palettes: creamPalettes, category: 'cream' },
+    { palettes: summerPalettes, category: 'summer' },
+    { palettes: warmPalettes, category: 'warm' },
+    { palettes: nightPalettes, category: 'night' },
+    { palettes: glowPalettes, category: 'glow' },
     { palettes: coffeePalettes, category: 'coffee' },
     { palettes: weddingPalettes, category: 'wedding' },
     { palettes: christmasPalettes, category: 'christmas' },
@@ -98,7 +102,7 @@ async function updatePaletteCategories() {
                         console.log(`  ✅ Updated ${totalUpdated} palettes so far...`);
                     }
                 }
-            } catch (err) {
+            } catch (err: any) {
                 console.error(`  ❌ Exception updating "${palette.name}":`, err.message || err);
                 totalErrors++;
             }

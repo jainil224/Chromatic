@@ -17,14 +17,14 @@ const MENU_SECTIONS = [
     title: "Vibes",
     icon: Zap,
     items: [
-      "Pastel", "Vintage", "Retro", "Neon", "Gold",
-      "Light", "Dark", "Warm", "Cold"
+      "Bold", "Vintage", "Retro", "Neon", "Gold",
+      "Glow", "Dark", "Warm", "Cold", "Happy", "Light"
     ]
   },
   {
     title: "Seasons",
     icon: Sun,
-    items: ["Summer", "Fall", "Winter", "Spring", "Happy"]
+    items: ["Summer", "Spring", "Fall", "Winter"]
   },
   {
     title: "Themes",
@@ -38,8 +38,7 @@ const MENU_SECTIONS = [
     title: "Special",
     icon: Gift,
     items: [
-      "Kid", "Skin", "Food", "Cream", "Coffee",
-      "Wedding", "Christmas"
+      "Skin", "Kid", "Food", "Coffee", "Wedding", "Christmas"
     ]
   }
 ];

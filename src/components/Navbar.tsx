@@ -15,6 +15,7 @@ interface NavbarProps {
     searchQuery: string;
     setSearchQuery: (query: string) => void;
     allPalettesCount: number;
+    totalUniqueColors?: number;
     totalResults: number;
     onAddNew: () => void;
     onPickFromImage: () => void;
@@ -30,6 +31,7 @@ export const Navbar = ({
     searchQuery,
     setSearchQuery,
     allPalettesCount,
+    totalUniqueColors,
     totalResults,
     onAddNew,
     onPickFromImage,
@@ -70,8 +72,13 @@ export const Navbar = ({
                                 Colors Palettes:
                             </span>
                             <span className="font-display text-base font-black text-white leading-none">
-                                {allPalettesCount}
+                                {allPalettesCount.toLocaleString()}
                             </span>
+                            {totalUniqueColors !== undefined && (
+                                <span className="font-mono text-[9px] text-white/60 ml-0.5 hidden xl:inline">
+                                    ({totalUniqueColors.toLocaleString()} colors)
+                                </span>
+                            )}
                         </div>
                         {/* Shimmer effect */}
                         <div className="absolute inset-0 overflow-hidden rounded-full pointer-events-none">

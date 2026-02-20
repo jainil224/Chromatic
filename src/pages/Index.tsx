@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useUserPalettes, type UserPalette } from "@/hooks/useUserPalettes";
 import { usePalettes } from "@/hooks/usePalettes";
+import * as DefaultPalettes from "@/data/palettes";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -104,8 +105,6 @@ const Index = () => {
   // Category keyword mapping for smart search
   const categoryKeywords: Record<string, string[]> = {
     'Dark': ['dark', 'darker', 'noir', 'black', 'shadow', 'midnight'],
-    'Light': ['light', 'bright', 'white', 'pale', 'airy'],
-    'Pastel': ['pastel', 'soft', 'gentle', 'muted'],
     'Vintage': ['vintage', 'retro', 'old', 'classic'],
     'Retro': ['retro', '80s', '90s', 'throwback'],
     'Neon': ['neon', 'fluorescent', 'glow', 'vibrant'],
@@ -113,8 +112,6 @@ const Index = () => {
     'Cold': ['cold', 'cool', 'icy', 'winter', 'blue'],
     'Fall': ['fall', 'autumn', 'orange', 'harvest'],
     'Winter': ['winter', 'snow', 'frost', 'ice'],
-    'Spring': ['spring', 'fresh', 'bloom', 'floral'],
-    'Happy': ['happy', 'cheerful', 'joy', 'bright'],
     'Nature': ['nature', 'natural', 'green', 'organic', 'earth'],
     'Earth': ['earth', 'brown', 'terracotta', 'soil'],
     'Space': ['space', 'cosmic', 'galaxy', 'star', 'universe'],
@@ -124,11 +121,8 @@ const Index = () => {
     'Sky': ['sky', 'azure', 'blue', 'clouds'],
     'Sea': ['sea', 'ocean', 'aqua', 'marine', 'water'],
     'Kid': ['kid', 'kids', 'children', 'playful', 'fun'],
-    'Skin': ['skin', 'tone', 'flesh', 'nude'],
     'Food': ['food', 'culinary', 'edible'],
-    'Cream': ['cream', 'beige', 'ivory', 'neutral'],
     'Coffee': ['coffee', 'mocha', 'espresso', 'latte'],
-    'Wedding': ['wedding', 'bridal', 'romantic'],
     'Christmas': ['christmas', 'holiday', 'festive', 'xmas']
   };
 
@@ -183,27 +177,72 @@ const Index = () => {
     setIsModalOpen(true);
   }, []);
 
-  // Combine Supabase palettes with user-created palettes and deduplicate by ID
+  // Combine Supabase palettes with user-created palettes and hardcoded defaults, and deduplicate by ID
   const allPalettes = useMemo(() => {
     const map = new Map<string, Palette>();
 
-    // Add Supabase palettes first as the base
+    // 1. Add Hardcoded Default Palettes (Source of Truth for Local Work)
+    Object.entries(DefaultPalettes).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        value.forEach((p: Palette) => {
+          // Add section tag based on the array name if not present
+          const sectionFromKey = key.replace('Palettes', '').toLowerCase();
+          const tags = p.tags || [];
+          if (!tags.includes(sectionFromKey)) {
+            tags.push(sectionFromKey);
+          }
+          map.set(p.id, { ...p, tags, section: p.section || sectionFromKey });
+        });
+      }
+    });
+
+    // 2. Add Supabase palettes (Override defaults if ID matches)
     supabasePalettes.forEach(p => map.set(p.id, p));
 
-    // Add user palettes (they might override or add new ones)
+    // 3. Add user palettes (Latest overrides)
     userPalettes.forEach(up => {
       const existing = map.get(up.id);
       map.set(up.id, {
         ...existing,
         ...up,
         category: up.category || existing?.category || "Custom",
-        // Keep tags from existing if user palette doesn't have them
         tags: up.tags && up.tags.length > 0 ? up.tags : (existing?.tags || [])
       });
     });
 
-    return Array.from(map.values());
+    // FILTER: Purge all muted, pastel, and low-contrast palettes globally
+    // We use a more careful matching to avoid accidental matches like 'nice' for 'ice'
+    const unwantedKeywords = [
+      'pastel', 'muted', 'soft', 'pale', 'beige', 'cream', 'serenity', 'gelato', 'chiffon',
+      'marshmallow', 'dusty', 'haze', 'lilac', 'peachy', 'candy', 'bubblegum', 'baby',
+      'frost', 'ice', 'lavender', 'pearl', 'blush', 'ivory', 'apricot', 'cotton',
+      'pistachio', 'keen', 'pop', 'blossom', 'petal', 'cloudy', 'dreamy', 'mist',
+      'linen', 'soap', 'feather', 'paper', 'wheat', 'antique', 'latte', 'bisque',
+      'puff', 'fair', 'complexion', 'rosy', 'peach', 'vanilla', 'sorbet', 'powder',
+      'faded', 'dawn', 'airy', 'gentle', 'delicate'
+    ];
+
+    return Array.from(map.values()).filter(p => {
+      const pTags = p.tags?.map(t => t.toLowerCase()) || [];
+      const pName = p.name.toLowerCase();
+      const pCategory = p.category?.toLowerCase() || "";
+      const pSection = p.section?.toLowerCase() || "";
+
+      // Check for unwanted keywords - STRICT matching to only hide truly muted palettes
+      const matchesUnwanted = unwantedKeywords.some(kw =>
+        pTags.some(tag => tag === kw) // Only filter if the palette is explicitly TAGGED as muted/pastel
+      );
+
+      return !matchesUnwanted;
+    });
   }, [userPalettes, supabasePalettes]);
+
+  // Calculate total unique colors across all active palettes
+  const totalUniqueColorsCount = useMemo(() => {
+    const colors = new Set<string>();
+    allPalettes.forEach(p => p.colors.forEach(c => colors.add(c.toUpperCase())));
+    return colors.size;
+  }, [allPalettes]);
 
   // Derive favorite palette objects
   const favoritePalettes = useMemo(() =>
@@ -232,10 +271,6 @@ const Index = () => {
     if (selectedCategory) {
       const cat = selectedCategory.toLowerCase();
       return allPalettes.filter(p => {
-        // EXCLUSIVITY: Pastel palettes only show in Pastel category
-        const isPastel = p.section?.toLowerCase() === 'pastel' || p.category?.toLowerCase() === 'pastel';
-        if (isPastel && cat !== 'pastel') return false;
-
         // 1. Exact category match (case-insensitive)
         if (p.category?.toLowerCase() === cat) return true;
 
@@ -258,22 +293,15 @@ const Index = () => {
   // Calculate total number of palettes (only Supabase palettes, not user-created)
   const totalPalettes = supabasePalettes.length;
 
-
-
-
-
   // Determine section properties based on current filter
   const getSectionProps = () => {
     if (searchQuery) return { title: "Search Results", mode: "dark" as const };
     if (selectedCategory) {
       // Simple heuristic: adjust icon mode based on category name or selected content
-      // For now default to dark theme consistency unless "Light" or "Bright"
-      const isLightCategory = ["light", "bright", "pale", "soft"].some(k =>
-        selectedCategory.toLowerCase().includes(k)
-      );
+      // For now default to dark theme consistency
       return {
         title: `${selectedCategory} Palettes`,
-        mode: (isLightCategory ? "light" : "dark") as "light" | "dark"
+        mode: "dark" as const
       };
     }
     return { title: "All Palettes", mode: "dark" as const };
@@ -286,13 +314,19 @@ const Index = () => {
   // Define the ordered list of categories to display on the home page (Dashboard)
   const HOME_CATEGORIES = [
     // Vibes
-    'Pastel', 'Vintage', 'Retro', 'Neon', 'Gold', 'Light', 'Dark', 'Warm', 'Cold',
+    'Bold', 'Dark', 'Neon', 'Gold', 'Glow',
+    // Styles
+    'Vintage', 'Retro', 'Warm', 'Cold',
     // Seasons
-    'Summer', 'Fall', 'Winter', 'Spring', 'Happy',
+    'Summer', 'Spring', 'Fall', 'Winter',
+    // Moods
+    'Happy', 'Night',
     // Themes
-    'Nature', 'Earth', 'Night', 'Space', 'Rainbow', 'Gradient', 'Sunset', 'Sky', 'Sea',
+    'Nature', 'Earth', 'Space', 'Rainbow', 'Gradient', 'Sunset', 'Sky', 'Sea',
+    // Light
+    'Light',
     // Special
-    'Kid', 'Skin', 'Food', 'Cream', 'Coffee', 'Wedding', 'Christmas',
+    'Skin', 'Kid', 'Food', 'Coffee', 'Wedding', 'Christmas',
   ];
 
   // Helper to get palettes for a specific category (Strict Filtering with Smart Meta-Categories)
@@ -306,10 +340,12 @@ const Index = () => {
 
     // Define Meta-Categories (collections of tags)
     const metaCategories: Record<string, string[]> = {
-      'warm': ['red', 'orange', 'yellow', 'amber', 'gold', 'crimson', 'ruby', 'rose', 'coral', 'peach', 'sunset', 'tangerine', 'apricot', 'chocolate', 'cocoa', 'bronze', 'terracotta'],
-      'cold': ['blue', 'cyan', 'teal', 'green', 'purple', 'indigo', 'violet', 'navy', 'sky', 'ocean', 'aqua', 'turquoise', 'ice', 'frost', 'denim', 'midnight', 'leaf', 'sage', 'mint', 'emerald', 'jade', 'forest', 'pine', 'seafoam'],
-      'summer': ['gold', 'yellow', 'orange', 'blue', 'sky', 'ocean', 'beach', 'sand', 'teal', 'turquoise', 'coral', 'peach', 'sunset', 'sun', 'bright', 'lemon', 'lime'],
-      'happy': ['yellow', 'orange', 'pink', 'bright', 'gold', 'lemon', 'lime', 'mint', 'coral', 'bubblegum', 'rainbow'],
+      'warm': ['red', 'orange', 'yellow', 'amber', 'gold', 'crimson', 'ruby', 'rose', 'coral', 'peach', 'sunset', 'tangerine', 'apricot', 'chocolate', 'cocoa', 'bronze', 'terracotta', 'warm'],
+      'cold': ['blue', 'cyan', 'teal', 'green', 'purple', 'indigo', 'violet', 'navy', 'sky', 'ocean', 'aqua', 'turquoise', 'ice', 'frost', 'denim', 'midnight', 'leaf', 'sage', 'mint', 'emerald', 'jade', 'forest', 'pine', 'seafoam', 'cold'],
+      'summer': ['gold', 'yellow', 'orange', 'blue', 'sky', 'ocean', 'beach', 'sand', 'teal', 'turquoise', 'coral', 'peach', 'sunset', 'sun', 'bright', 'lemon', 'lime', 'summer'],
+      'night': ['night', 'dark', 'midnight', 'stellar', 'cosmic', 'nebula', 'galaxy', 'star', 'moon', 'void', 'abyss'],
+      'glow': ['glow', 'neon', 'bright', 'electric', 'vibrant', 'shine', 'spark'],
+      'happy': ['yellow', 'orange', 'pink', 'bright', 'gold', 'lemon', 'lime', 'mint', 'coral', 'bubblegum', 'rainbow', 'happy'],
     };
 
     return allPalettes.filter(p => {
@@ -356,19 +392,29 @@ const Index = () => {
       }];
     }
 
-    // Home view: Render all known sections that have palettes
-    return HOME_CATEGORIES.map(cat => {
-      const palettes = getPalettesByCategory(cat);
-      if (palettes.length === 0) return null;
+    // Home view: Render all known sections — each palette only appears ONCE (first matching section wins)
+    const seenIds = new Set<string>();
+    const sections: DashboardSection[] = [];
+
+    for (const cat of HOME_CATEGORIES) {
+      const rawPalettes = getPalettesByCategory(cat);
+      // Filter out palettes already shown in an earlier section
+      const uniquePalettes = rawPalettes.filter(p => !seenIds.has(p.id));
+      // Mark all as seen
+      uniquePalettes.forEach(p => seenIds.add(p.id));
+
+      if (uniquePalettes.length === 0) continue;
 
       const isLight = ["light", "bright", "pale", "soft", "cream", "wedding", "spring"].some(k => cat.toLowerCase().includes(k));
-      return {
+      sections.push({
         title: `${cat} Palettes`,
-        palettes,
+        palettes: uniquePalettes,
         mode: (isLight ? 'light' : 'dark' as const),
         key: cat
-      };
-    }).filter((s): s is DashboardSection => s !== null);
+      });
+    }
+
+    return sections;
   }, [selectedCategory, searchQuery, filteredPalettes, getPalettesByCategory, HOME_CATEGORIES]);
 
   // Derived sections to actually show (performance optimization)
@@ -397,6 +443,7 @@ const Index = () => {
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         allPalettesCount={allPalettes.length}
+        totalUniqueColors={totalUniqueColorsCount}
         totalResults={totalResults}
         onAddNew={handleAddNew}
         onPickFromImage={handlePickFromImage}
