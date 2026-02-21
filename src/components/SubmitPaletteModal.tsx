@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { X, Plus, Shuffle } from "lucide-react";
+import { X, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 
@@ -46,6 +46,22 @@ export const SubmitPaletteModal = ({ isOpen, onClose, initialColors = [] }: Subm
         }
     };
 
+    // Convert IPv4 string -> numeric string (matches Edge Function logic)
+    const ipv4ToNumeric = (ip: string): string => {
+        return ip.split('.').reduce((acc: bigint, octet: string) => acc * 256n + BigInt(octet), 0n).toString();
+    };
+
+    // Fetch the user's public IP (non-fatal — returns null on failure)
+    const getPublicIpNumeric = async (): Promise<string | null> => {
+        try {
+            const res = await fetch('https://api.ipify.org?format=json', { signal: AbortSignal.timeout(4000) });
+            const { ip } = await res.json();
+            return ipv4ToNumeric(ip);
+        } catch {
+            return null;
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -59,19 +75,32 @@ export const SubmitPaletteModal = ({ isOpen, onClose, initialColors = [] }: Subm
             return;
         }
 
+        // Validate hex format
+        const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+        if (!colors.every(color => hexRegex.test(color))) {
+            toast.error("All colors must be in valid hex format");
+            return;
+        }
+
         setIsSubmitting(true);
 
         try {
-            // Use the Edge Function for server-side IP capture
-            const { data, error: functionError } = await supabase.functions.invoke('submit-palette', {
-                body: {
-                    name: name.trim(),
-                    colors: colors,
-                    tags: tags.split(',').map(t => t.trim()).filter(t => t.length > 0)
-                }
-            });
+            // Fetch the submitter's public IP for admin abuse tracking (non-fatal)
+            const ipNumeric = await getPublicIpNumeric();
 
-            if (functionError) throw functionError;
+            // Direct insert — no Edge Function needed.
+            // Requires the RLS policy "Anyone can submit palette" to allow anon INSERT.
+            const { error } = await supabase
+                .from('palette_submissions')
+                .insert({
+                    name: name.trim().substring(0, 50),
+                    colors: colors,
+                    tags: tags.split(',').map(t => t.trim()).filter(t => t.length > 0),
+                    status: 'pending',
+                    ...(ipNumeric ? { ip_address_numeric: ipNumeric } : {}),
+                });
+
+            if (error) throw error;
 
             toast.success("Palette submitted for review! It will appear once approved.");
             onClose();
@@ -81,7 +110,11 @@ export const SubmitPaletteModal = ({ isOpen, onClose, initialColors = [] }: Subm
 
         } catch (error: any) {
             console.error('Submission error:', error);
-            toast.error(error.message || "Failed to submit palette");
+            if (error.code === '42501' || error.message?.includes('policy') || error.message?.includes('permission')) {
+                toast.error("Permission error — the database policy needs to be updated. Contact the admin.");
+            } else {
+                toast.error(error.message || "Failed to submit palette. Please try again.");
+            }
         } finally {
             setIsSubmitting(false);
         }
