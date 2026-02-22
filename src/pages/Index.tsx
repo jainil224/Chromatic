@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, memo, lazy, Suspense, useDeferredValue, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Palette as PaletteIcon, Search, X, Menu, PanelLeftClose, PanelLeftOpen, Plus, Image as ImageIcon, Heart, Share2 } from "lucide-react";
+import { Palette as PaletteIcon, Search, X, Menu, PanelLeftClose, PanelLeftOpen, Plus, Image as ImageIcon, Heart, Share2, Paintbrush } from "lucide-react";
 import type { ThemeMode } from "@/components/ModeToggle";
 import type { Palette } from "@/data/palettes";
 const PaletteSection = lazy(() => import("@/components/PaletteSection").then(m => ({ default: m.PaletteSection })));
@@ -662,23 +662,62 @@ const Index = () => {
         />
       </Suspense>
 
-      {/* Floating Share FAB — always visible, bottom-right */}
-      <button
-        onClick={handleShareWebsite}
-        className="fixed bottom-6 right-6 z-50 group flex items-center gap-0 px-4 py-3 rounded-full
-                   bg-primary text-primary-foreground font-bold
-                   shadow-[0_8px_30px_rgba(0,0,0,0.3),0_0_30px_rgba(var(--primary),0.35)]
-                   hover:shadow-[0_8px_40px_rgba(0,0,0,0.4),0_0_50px_rgba(var(--primary),0.5)]
-                   hover:scale-[1.06] active:scale-95
-                   transition-all duration-300 ease-out"
-        title="Share Chromatic"
-        aria-label="Share Chromatic"
-      >
-        <Share2 className="h-4 w-4 shrink-0" />
-        <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-[130px] group-hover:ml-2 transition-all duration-300 text-sm font-bold">
-          Share Chromatic
-        </span>
-      </button>
+      {/* Floating Bottom Dock — always visible, centered */}
+      <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-2xl bg-background/80 backdrop-blur-xl border border-white/10 shadow-[0_8px_40px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.05)] ring-1 ring-white/5">
+        {/* Pixels */}
+        <button
+          onClick={handlePickFromImage}
+          className="group flex flex-col items-center gap-1 px-3 sm:px-4 py-2 rounded-xl hover:bg-sky-500/10 transition-all duration-200"
+          title="Pixels — Extract from Image"
+        >
+          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-sky-400 to-blue-600 shadow-[0_2px_10px_-2px_rgba(56,189,248,0.5)] group-hover:shadow-[0_4px_15px_-2px_rgba(56,189,248,0.6)] group-hover:scale-110 transition-all">
+            <ImageIcon className="h-4 w-4 text-white" />
+          </div>
+          <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-secondary-foreground/50 group-hover:text-sky-400 transition-colors">Pixels</span>
+        </button>
+
+        <div className="w-px h-8 bg-white/5" />
+
+        {/* Build */}
+        <button
+          onClick={handleMaker}
+          className="group flex flex-col items-center gap-1 px-3 sm:px-4 py-2 rounded-xl hover:bg-amber-500/10 transition-all duration-200"
+          title="Build — Create Palettes"
+        >
+          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-amber-400 to-orange-600 shadow-[0_2px_10px_-2px_rgba(245,158,11,0.5)] group-hover:shadow-[0_4px_15px_-2px_rgba(245,158,11,0.6)] group-hover:scale-110 transition-all">
+            <PaletteIcon className="h-4 w-4 text-white" />
+          </div>
+          <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-secondary-foreground/50 group-hover:text-amber-400 transition-colors">Build</span>
+        </button>
+
+        <div className="w-px h-8 bg-white/5" />
+
+        {/* Tweak */}
+        <button
+          onClick={handleCustomize}
+          className="group flex flex-col items-center gap-1 px-3 sm:px-4 py-2 rounded-xl hover:bg-violet-500/10 transition-all duration-200"
+          title="Tweak — Customize Colors"
+        >
+          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-violet-400 to-purple-600 shadow-[0_2px_10px_-2px_rgba(139,92,246,0.5)] group-hover:shadow-[0_4px_15px_-2px_rgba(139,92,246,0.6)] group-hover:scale-110 transition-all">
+            <Paintbrush className="h-4 w-4 text-white" />
+          </div>
+          <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-secondary-foreground/50 group-hover:text-violet-400 transition-colors">Tweak</span>
+        </button>
+
+        <div className="w-px h-8 bg-white/5" />
+
+        {/* Share */}
+        <button
+          onClick={handleShareWebsite}
+          className="group flex flex-col items-center gap-1 px-3 sm:px-4 py-2 rounded-xl hover:bg-emerald-500/10 transition-all duration-200"
+          title="Share Chromatic"
+        >
+          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-400 to-green-600 shadow-[0_2px_10px_-2px_rgba(52,211,153,0.5)] group-hover:shadow-[0_4px_15px_-2px_rgba(52,211,153,0.6)] group-hover:scale-110 transition-all">
+            <Share2 className="h-4 w-4 text-white" />
+          </div>
+          <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-secondary-foreground/50 group-hover:text-emerald-400 transition-colors">Share</span>
+        </button>
+      </div>
     </div>
   );
 };

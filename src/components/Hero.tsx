@@ -157,47 +157,65 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize, liv
                             </p>
                         </div>
 
-                        {/* Buttons Grid */}
-                        <div className="flex flex-col gap-6 w-full max-w-[580px] animate-fade-up [animation-delay:0.2s]">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                                <Button
-                                    onClick={onBrowse}
-                                    size="lg"
-                                    className="h-12 xs:h-14 rounded-full bg-primary px-8 text-sm xs:text-base font-medium text-primary-foreground shadow-[0_0_20px_-5px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_30px_-5px_hsl(var(--primary)/0.6)] hover:scale-[1.02] transition-all duration-300"
-                                >
-                                    <Search className="mr-2 h-4 w-4" />
-                                    Browse Palettes
-                                </Button>
-                                <Button
-                                    onClick={onPickFromImage}
-                                    size="lg"
-                                    className="h-12 xs:h-14 rounded-full border border-primary/20 bg-primary/5 px-8 text-sm xs:text-base font-medium text-primary backdrop-blur-sm hover:bg-primary/10 transition-all hover:scale-[1.02]"
-                                >
-                                    <ImageIcon className="mr-2 h-4 w-4" />
-                                    From Image
-                                </Button>
-                                <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:col-span-2">
-                                    <Button
-                                        onClick={onMaker}
-                                        variant="outline"
-                                        size="lg"
-                                        className="h-11 xs:h-12 rounded-full border-white/10 bg-white/5 px-4 text-[11px] xs:text-xs font-medium backdrop-blur-sm transition-all hover:bg-white/10 hover:border-white/20"
-                                    >
-                                        <Palette className="mr-2 h-4 w-4" />
-                                        Maker
-                                    </Button>
-                                    <Button
-                                        onClick={onCustomize}
-                                        variant="outline"
-                                        size="lg"
-                                        className="h-11 xs:h-12 rounded-full border-white/10 bg-white/5 px-4 text-[11px] xs:text-xs font-medium backdrop-blur-sm transition-all hover:bg-white/10 hover:border-white/20"
-                                    >
-                                        <Paintbrush className="mr-2 h-4 w-4" />
-                                        Customize
-                                    </Button>
-                                </div>
-                            </div>
+                        {/* Action Cards Grid */}
+                        <div className="w-full max-w-[580px] animate-fade-up [animation-delay:0.2s]">
+                            {/* Primary CTA */}
+                            <Button
+                                onClick={onBrowse}
+                                size="lg"
+                                className="w-full h-12 xs:h-14 rounded-full bg-primary px-8 text-sm xs:text-base font-medium text-primary-foreground shadow-[0_0_20px_-5px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_30px_-5px_hsl(var(--primary)/0.6)] hover:scale-[1.02] transition-all duration-300 mb-5"
+                            >
+                                <Search className="mr-2 h-4 w-4" />
+                                Browse Palettes
+                            </Button>
 
+                            {/* Tool Cards */}
+                            <div className="grid grid-cols-3 gap-3">
+                                {/* Pixels Card */}
+                                <button
+                                    onClick={onPickFromImage}
+                                    className="group relative flex flex-col items-center gap-3 p-4 sm:p-5 rounded-2xl border border-sky-500/10 bg-sky-500/5 backdrop-blur-sm overflow-hidden transition-all duration-300 hover:scale-[1.04] hover:border-sky-500/30 hover:bg-sky-500/10 hover:shadow-[0_8px_30px_-10px_rgba(56,189,248,0.3)]"
+                                >
+                                    <div className="relative z-10 flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 shadow-[0_4px_15px_-3px_rgba(56,189,248,0.5)] group-hover:shadow-[0_4px_20px_-3px_rgba(56,189,248,0.7)] transition-all">
+                                        <ImageIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                                    </div>
+                                    <div className="relative z-10 text-center">
+                                        <p className="font-bold text-sm sm:text-base text-foreground">Pixels</p>
+                                        <p className="text-[10px] sm:text-xs text-secondary-foreground/50 mt-0.5 leading-tight">Extract from images</p>
+                                    </div>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-sky-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </button>
+
+                                {/* Build Card */}
+                                <button
+                                    onClick={onMaker}
+                                    className="group relative flex flex-col items-center gap-3 p-4 sm:p-5 rounded-2xl border border-amber-500/10 bg-amber-500/5 backdrop-blur-sm overflow-hidden transition-all duration-300 hover:scale-[1.04] hover:border-amber-500/30 hover:bg-amber-500/10 hover:shadow-[0_8px_30px_-10px_rgba(245,158,11,0.3)]"
+                                >
+                                    <div className="relative z-10 flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-amber-400 to-orange-600 shadow-[0_4px_15px_-3px_rgba(245,158,11,0.5)] group-hover:shadow-[0_4px_20px_-3px_rgba(245,158,11,0.7)] transition-all">
+                                        <Palette className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                                    </div>
+                                    <div className="relative z-10 text-center">
+                                        <p className="font-bold text-sm sm:text-base text-foreground">Build</p>
+                                        <p className="text-[10px] sm:text-xs text-secondary-foreground/50 mt-0.5 leading-tight">Create palettes</p>
+                                    </div>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </button>
+
+                                {/* Tweak Card */}
+                                <button
+                                    onClick={onCustomize}
+                                    className="group relative flex flex-col items-center gap-3 p-4 sm:p-5 rounded-2xl border border-violet-500/10 bg-violet-500/5 backdrop-blur-sm overflow-hidden transition-all duration-300 hover:scale-[1.04] hover:border-violet-500/30 hover:bg-violet-500/10 hover:shadow-[0_8px_30px_-10px_rgba(139,92,246,0.3)]"
+                                >
+                                    <div className="relative z-10 flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-violet-400 to-purple-600 shadow-[0_4px_15px_-3px_rgba(139,92,246,0.5)] group-hover:shadow-[0_4px_20px_-3px_rgba(139,92,246,0.7)] transition-all">
+                                        <Paintbrush className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                                    </div>
+                                    <div className="relative z-10 text-center">
+                                        <p className="font-bold text-sm sm:text-base text-foreground">Tweak</p>
+                                        <p className="text-[10px] sm:text-xs text-secondary-foreground/50 mt-0.5 leading-tight">Customize colors</p>
+                                    </div>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-violet-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </button>
+                            </div>
                         </div>
                     </div>
 
