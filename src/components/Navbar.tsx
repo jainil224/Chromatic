@@ -43,8 +43,19 @@ export const Navbar = ({
     onLogoClick,
 }: NavbarProps) => {
     const navigate = useNavigate();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
     const [shareOpen, setShareOpen] = useState(false);
+
+    const handleLogoClickInternal = () => {
+        onLogoClick?.();
+        setIsMenuOpen(false);
+    };
+
+    const handleCategorySelect = (category: string | null) => {
+        setSelectedCategory(category);
+        setIsMenuOpen(false);
+    };
 
     const shareUrl = window.location.origin;
     const shareText = "Discover beautiful, hand-picked color palettes for your next design project on Chromatic.";
@@ -81,7 +92,7 @@ export const Navbar = ({
                 <div className="flex items-center gap-2 pr-3 sm:pr-4 border-r border-white/10">
                     <button
                         id="tour-logo"
-                        onClick={onLogoClick}
+                        onClick={handleLogoClickInternal}
                         className={cn(
                             "group relative flex items-center gap-2 rounded-full pl-2 sm:pl-3 pr-3 sm:pr-4 py-1.5 transition-all hover:scale-[1.02] ring-1 ring-white/20 shadow-[0_0_20px_-5px_rgba(0,0,0,0.4)]",
                             themeMode === 'midnight'
@@ -218,18 +229,33 @@ export const Navbar = ({
                     <ModeToggle id="tour-theme-toggle" mode={themeMode} onToggle={onToggleTheme} />
 
                     {/* Mobile Menu Trigger moved into Dock */}
-                    <Sheet>
+                    <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
                         <SheetTrigger asChild>
                             <Button variant="ghost" size="icon" className="lg:hidden h-10 w-10 sm:h-8 sm:w-8 rounded-full hover:bg-white/5">
                                 <Menu className="h-4 w-4" />
                             </Button>
                         </SheetTrigger>
                         <SheetContent side="left" className="w-[280px] border-r-border bg-background/95 backdrop-blur-xl p-0">
-                            <CategoryMenu
-                                selectedCategory={selectedCategory}
-                                onSelectCategory={setSelectedCategory}
-                                className="mt-8 px-4"
-                            />
+                            <div className="flex flex-col h-full">
+                                <div className="p-6 border-b border-white/5 flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <div className="h-6 w-6 rounded-md bg-primary flex items-center justify-center">
+                                            <PaletteIcon className="h-3.5 w-3.5 text-white" />
+                                        </div>
+                                        <span className="font-display font-bold text-sm tracking-tight">Chromatic</span>
+                                    </div>
+                                    <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(false)} className="rounded-full h-8 w-8">
+                                        <X className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                                <div className="flex-1 overflow-y-auto no-scrollbar">
+                                    <CategoryMenu
+                                        selectedCategory={selectedCategory}
+                                        onSelectCategory={handleCategorySelect}
+                                        className="mt-4 px-4"
+                                    />
+                                </div>
+                            </div>
                         </SheetContent>
                     </Sheet>
                 </div>

@@ -141,6 +141,7 @@ const Index = () => {
   // Centralized Category Selection
   const handleSelectCategory = useCallback((category: string | null) => {
     setSelectedCategory(category);
+    setSearchQuery(""); // Clear search when a category is selected
     // Reset visible sections when filtering
     setVisibleSectionsCount(6);
   }, []);
