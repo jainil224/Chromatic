@@ -1,14 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ColorGrid, type BaseColor } from "@/components/palette-maker/ColorGrid";
 import { PaletteBuilder } from "@/components/palette-maker/PaletteBuilder";
 import { SubmitPaletteModal } from "@/components/SubmitPaletteModal";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Sparkles, Wand2, Plus, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
-import { generateRandomColor, hexToRgbString, generateColorHarmonies } from "@/utils/colorUtils";
+import { generateRandomColor, hexToRgbString, generateColorHarmonies, hexToHSL, hslToHex } from "@/utils/colorUtils";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { Plus, RefreshCw, Sparkles } from "lucide-react";
 
 // Predefined colors with shades
 const PALETTE_MAKER_COLORS: BaseColor[] = [
@@ -199,6 +199,8 @@ const PaletteMaker = () => {
     const [selectedColors, setSelectedColors] = useState<{ name: string; hex: string; rgb: string }[]>([]);
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
     const [creationColor, setCreationColor] = useState<string>("#3b82f6"); // Default blue-ish
+    // Keep track of hashes of generated palettes to ensure uniqueness
+    const generatedHashesRef = useRef<Set<string>>(new Set());
 
     const handleColorSelect = (color: { name: string; hex: string; rgb: string }) => {
         // Prevent duplicates
@@ -223,6 +225,53 @@ const PaletteMaker = () => {
 
     const handleClearPalette = () => {
         setSelectedColors([]);
+    };
+
+    const handleAutoGenerate = () => {
+        let attempts = 0;
+        let finalColors: { name: string; hex: string; rgb: string }[] = [];
+        let hash = "";
+
+        // Try up to 10 times to find a unique combination
+        while (attempts < 10) {
+            // Add a small random jitter to the base color to ensure unique starting point
+            const baseHsl = hexToHSL(creationColor);
+            const activeBase = attempts === 0 ? creationColor : hslToHex(
+                (baseHsl.h + (Math.random() * 6 - 3)) % 360,
+                Math.min(100, Math.max(0, baseHsl.s + (Math.random() * 8 - 4))),
+                Math.min(100, Math.max(0, baseHsl.l + (Math.random() * 8 - 4)))
+            );
+
+            const harmonies = generateColorHarmonies(activeBase, true);
+            const tempColors = [
+                { name: "Base", hex: activeBase, rgb: hexToRgbString(activeBase) }
+            ];
+
+            const allHarmonyColors = harmonies.flatMap(h => h.colors);
+            for (const hex of allHarmonyColors) {
+                if (tempColors.length >= 5) break;
+                if (!tempColors.some(c => c.hex === hex)) {
+                    tempColors.push({
+                        name: "Auto Match",
+                        hex: hex,
+                        rgb: hexToRgbString(hex)
+                    });
+                }
+            }
+
+            // Create a unique hash for this palette (sorted hex codes)
+            hash = tempColors.map(c => c.hex.toLowerCase()).sort().join('|');
+
+            if (!generatedHashesRef.current.has(hash)) {
+                finalColors = tempColors;
+                generatedHashesRef.current.add(hash);
+                break;
+            }
+            attempts++;
+        }
+
+        setSelectedColors(finalColors.length > 0 ? finalColors : []); // Fallback (should not happen with jitter)
+        toast.success("Generated a unique matching palette!");
     };
 
     const handleColorChange = (index: number, newHex: string) => {
@@ -296,6 +345,7 @@ const PaletteMaker = () => {
                                             type="color"
                                             value={creationColor}
                                             onChange={(e) => setCreationColor(e.target.value)}
+                                            onInput={(e) => setCreationColor((e.target as HTMLInputElement).value)}
                                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                             title="Pick a color"
                                         />
@@ -330,6 +380,16 @@ const PaletteMaker = () => {
                                     >
                                         <RefreshCw className="mr-2 h-5 w-5" />
                                         Randomize
+                                    </Button>
+
+                                    <Button
+                                        size="lg"
+                                        variant="outline"
+                                        onClick={handleAutoGenerate}
+                                        className="h-14 text-base border-white/10 hover:bg-white/5 hover:border-white/20"
+                                    >
+                                        <Wand2 className="mr-2 h-5 w-5" />
+                                        Auto Palette
                                     </Button>
 
                                     <Button
@@ -396,22 +456,22 @@ const PaletteMaker = () => {
                         {generateColorHarmonies(creationColor).map((harmony) => (
                             <div key={harmony.type} className="space-y-3 bg-card/40 p-4 rounded-2xl border border-white/5">
                                 <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{harmony.type.replace('-', ' ')}</h3>
-                                <div className="flex gap-3">
-                                    {harmony.colors.map((hex) => (
+                                <div className="flex gap-1.5 h-16">
+                                    {harmony.colors.map((hex, hIdx) => (
                                         <button
-                                            key={hex}
+                                            key={`${harmony.type}-${hex}-${hIdx}`}
                                             onClick={() => handleColorSelect({
                                                 name: `${harmony.type} match`,
                                                 hex: hex,
                                                 rgb: hexToRgbString(hex)
                                             })}
                                             disabled={selectedColors.length >= 5}
-                                            className="group relative h-16 w-full rounded-xl shadow-sm border border-white/10 overflow-hidden transition-all hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:hover:scale-100"
+                                            className="group relative flex-1 h-full rounded-md shadow-sm border border-white/5 overflow-hidden transition-all hover:scale-x-125 hover:z-10 disabled:opacity-50 disabled:hover:scale-100"
                                             style={{ backgroundColor: hex }}
                                             title={`Add ${hex}`}
                                         >
                                             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/20 transition-opacity">
-                                                <Plus className="text-white w-5 h-5 drop-shadow-md" />
+                                                <Plus className="text-white w-4 h-4 drop-shadow-md" />
                                             </div>
                                         </button>
                                     ))}

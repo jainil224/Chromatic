@@ -150,12 +150,20 @@ export interface ColorHarmony {
     colors: string[];
 }
 
-export const generateColorHarmonies = (baseHex: string): ColorHarmony[] => {
+export const generateColorHarmonies = (baseHex: string, jitter = true): ColorHarmony[] => {
     const hsl = hexToHSL(baseHex);
 
-    // Helper to shift hue and return hex
-    const shiftHue = (h: number, degree: number): string => {
-        return hslToHex((h + degree) % 360, hsl.s, hsl.l);
+    const shiftHue = (h: number, degree: number, s = hsl.s, l = hsl.l): string => {
+        // Add small random noise to ensure uniqueness if jitter is enabled
+        const hJitter = jitter ? (Math.random() * 4 - 2) : 0;
+        const sJitter = jitter ? (Math.random() * 6 - 3) : 0;
+        const lJitter = jitter ? (Math.random() * 6 - 3) : 0;
+
+        return hslToHex(
+            (h + degree + hJitter + 360) % 360,
+            Math.min(100, Math.max(0, s + sJitter)),
+            Math.min(100, Math.max(0, l + lJitter))
+        );
     };
 
     return [
@@ -169,15 +177,31 @@ export const generateColorHarmonies = (baseHex: string): ColorHarmony[] => {
         },
         {
             type: 'triadic',
-            colors: [shiftHue(hsl.h, 120), shiftHue(hsl.h, 240)]
+            colors: [
+                shiftHue(hsl.h, 120, hsl.s, Math.max(30, hsl.l - 10)),
+                shiftHue(hsl.h, 120, hsl.s, hsl.l),
+                shiftHue(hsl.h, 240, hsl.s, hsl.l),
+            ]
         },
         {
             type: 'split-complementary',
-            colors: [shiftHue(hsl.h, 150), shiftHue(hsl.h, 210)]
+            colors: [
+                shiftHue(hsl.h, 150, hsl.s, Math.max(30, hsl.l - 10)),
+                shiftHue(hsl.h, 150, hsl.s, hsl.l),
+                shiftHue(hsl.h, 210, hsl.s, hsl.l),
+                shiftHue(hsl.h, 210, hsl.s, Math.min(80, hsl.l + 10)),
+            ]
         },
         {
             type: 'tetradic',
-            colors: [shiftHue(hsl.h, 90), shiftHue(hsl.h, 180), shiftHue(hsl.h, 270)]
+            colors: [
+                shiftHue(hsl.h, 90, hsl.s, Math.max(30, hsl.l - 10)),
+                shiftHue(hsl.h, 90, hsl.s, hsl.l),
+                shiftHue(hsl.h, 180, hsl.s, hsl.l),
+                shiftHue(hsl.h, 180, hsl.s, Math.min(80, hsl.l + 10)),
+                shiftHue(hsl.h, 270, hsl.s, hsl.l),
+                shiftHue(hsl.h, 270, hsl.s, Math.min(80, hsl.l + 10)),
+            ]
         }
     ];
 };
