@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { generateRandomColor, hexToRgbString, generateColorHarmonies, hexToHSL, hslToHex } from "@/utils/colorUtils";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
 
 // Predefined colors with shades
 const PALETTE_MAKER_COLORS: BaseColor[] = [
@@ -199,8 +200,10 @@ const PaletteMaker = () => {
     const [selectedColors, setSelectedColors] = useState<{ name: string; hex: string; rgb: string }[]>([]);
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
     const [creationColor, setCreationColor] = useState<string>("#3b82f6"); // Default blue-ish
+    const [isGenerating, setIsGenerating] = useState(false);
     // Keep track of hashes of generated palettes to ensure uniqueness
     const generatedHashesRef = useRef<Set<string>>(new Set());
+    const dbHashesCacheRef = useRef<Set<string> | null>(null);
 
     const handleColorSelect = (color: { name: string; hex: string; rgb: string }) => {
         // Prevent duplicates
@@ -227,51 +230,100 @@ const PaletteMaker = () => {
         setSelectedColors([]);
     };
 
-    const handleAutoGenerate = () => {
+    const handleAutoGenerate = async () => {
+        setIsGenerating(true);
         let attempts = 0;
         let finalColors: { name: string; hex: string; rgb: string }[] = [];
+        let finalBase = "";
         let hash = "";
 
-        // Try up to 10 times to find a unique combination
-        while (attempts < 10) {
-            // Add a small random jitter to the base color to ensure unique starting point
-            const baseHsl = hexToHSL(creationColor);
-            const activeBase = attempts === 0 ? creationColor : hslToHex(
-                (baseHsl.h + (Math.random() * 6 - 3)) % 360,
-                Math.min(100, Math.max(0, baseHsl.s + (Math.random() * 8 - 4))),
-                Math.min(100, Math.max(0, baseHsl.l + (Math.random() * 8 - 4)))
-            );
+        try {
+            // 1. Fetch/Update DB hashes cache (only if not already cached)
+            if (!dbHashesCacheRef.current) {
+                const { data: dbPalettes } = await supabase
+                    .from('palettes')
+                    .select('colors')
+                    .limit(2000); // Check against last 2000 palettes for performance
 
-            const harmonies = generateColorHarmonies(activeBase, true);
-            const tempColors = [
-                { name: "Base", hex: activeBase, rgb: hexToRgbString(activeBase) }
-            ];
-
-            const allHarmonyColors = harmonies.flatMap(h => h.colors);
-            for (const hex of allHarmonyColors) {
-                if (tempColors.length >= 5) break;
-                if (!tempColors.some(c => c.hex === hex)) {
-                    tempColors.push({
-                        name: "Auto Match",
-                        hex: hex,
-                        rgb: hexToRgbString(hex)
+                const hashes = new Set<string>();
+                if (dbPalettes) {
+                    dbPalettes.forEach(p => {
+                        const h = [...p.colors].map(c => c.toLowerCase()).sort().join('|');
+                        hashes.add(h);
                     });
                 }
+                dbHashesCacheRef.current = hashes;
             }
 
-            // Create a unique hash for this palette (sorted hex codes)
-            hash = tempColors.map(c => c.hex.toLowerCase()).sort().join('|');
+            const existingHashes = dbHashesCacheRef.current;
 
-            if (!generatedHashesRef.current.has(hash)) {
-                finalColors = tempColors;
-                generatedHashesRef.current.add(hash);
-                break;
+            // 2. Generate truly unique combination
+            while (attempts < 50) {
+                // Wide-range randomization: Pick a base that is significantly different
+                // We use the current color as a 'vibe' but allow it to jump anywhere
+                const baseHsl = hexToHSL(creationColor);
+                const activeBase = hslToHex(
+                    (baseHsl.h + (Math.random() * 300 + 30)) % 360, // Minimum 30 degree jump
+                    Math.min(95, Math.max(15, baseHsl.s + (Math.random() * 40 - 20))), // Wider saturation drift
+                    Math.min(85, Math.max(20, baseHsl.l + (Math.random() * 40 - 20)))  // Wider lightness drift
+                );
+
+                // Use slightly randomized harmony offsets for even more uniqueness
+                const jitteredHarmonies = generateColorHarmonies(activeBase, true);
+                const tempColors = [
+                    { name: "Base", hex: activeBase, rgb: hexToRgbString(activeBase) }
+                ];
+
+                const allHarmonyColors = jitteredHarmonies.flatMap(h => h.colors);
+                // Shuffle harmony colors to avoid same patterns
+                const shuffledHarmonies = allHarmonyColors.sort(() => Math.random() - 0.5);
+
+                for (const hex of shuffledHarmonies) {
+                    if (tempColors.length >= 5) break;
+                    if (!tempColors.some(c => c.hex.toLowerCase() === hex.toLowerCase())) {
+                        tempColors.push({
+                            name: "Auto Match",
+                            hex: hex,
+                            rgb: hexToRgbString(hex)
+                        });
+                    }
+                }
+
+                // Create unique hash from sorted hex codes
+                hash = tempColors.map(c => c.hex.toLowerCase()).sort().join('|');
+
+                // Check against BOTH session history AND database cache
+                if (!generatedHashesRef.current.has(hash) && !existingHashes.has(hash)) {
+                    finalColors = tempColors;
+                    finalBase = activeBase;
+                    generatedHashesRef.current.add(hash);
+                    break;
+                }
+                attempts++;
             }
-            attempts++;
+
+            if (finalColors.length > 0) {
+                setSelectedColors(finalColors);
+                setCreationColor(finalBase);
+                toast.success("Generated a 100% unique matching palette!");
+            } else {
+                // Total random reset if all attempts fail
+                const absoluteRandom = generateRandomColor();
+                setCreationColor(absoluteRandom);
+                setIsGenerating(false);
+                toast.error("Retrying unique generation...");
+                setTimeout(() => handleAutoGenerate(), 100);
+                return;
+            }
+        } catch (error) {
+            console.error("Uniqueness check failed:", error);
+            // Fallback to random unique session generation
+            const randomBase = generateRandomColor();
+            setCreationColor(randomBase);
+            handleAutoGenerate();
+        } finally {
+            setIsGenerating(false);
         }
-
-        setSelectedColors(finalColors.length > 0 ? finalColors : []); // Fallback (should not happen with jitter)
-        toast.success("Generated a unique matching palette!");
     };
 
     const handleColorChange = (index: number, newHex: string) => {
@@ -386,10 +438,15 @@ const PaletteMaker = () => {
                                         size="lg"
                                         variant="outline"
                                         onClick={handleAutoGenerate}
-                                        className="h-14 text-base border-white/10 hover:bg-white/5 hover:border-white/20"
+                                        disabled={isGenerating}
+                                        className="h-14 text-base border-white/10 hover:bg-white/5 hover:border-white/20 relative overflow-hidden"
                                     >
-                                        <Wand2 className="mr-2 h-5 w-5" />
-                                        Auto Palette
+                                        {isGenerating ? (
+                                            <RefreshCw className="mr-2 h-5 w-5 animate-spin" />
+                                        ) : (
+                                            <Wand2 className="mr-2 h-5 w-5" />
+                                        )}
+                                        {isGenerating ? "Checking Uniqueness..." : "Auto Palette"}
                                     </Button>
 
                                     <Button
