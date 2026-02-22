@@ -85,7 +85,7 @@ export const PaletteCard = memo(function PaletteCard({
             onClick();
           }
         }}
-        className={`palette-card-btn group relative w-full overflow-hidden rounded-lg border bg-card p-4 text-left transition-all duration-300 opacity-0 animate-fade-up ${isSelected
+        className={`palette-card-btn group relative w-full overflow-hidden rounded-lg border bg-card p-3 sm:p-4 text-left transition-all duration-300 opacity-0 animate-fade-up ${isSelected
           ? "border-primary glow-accent"
           : "border-border hover:border-secondary-foreground/30"
           }`}
@@ -93,7 +93,7 @@ export const PaletteCard = memo(function PaletteCard({
       >
 
         {/* Color Preview */}
-        <div className="mb-4 relative flex h-14 overflow-hidden rounded-xl bg-black/20 ring-1 ring-white/10 group-hover:ring-white/20 transition-all">
+        <div className="mb-3 sm:mb-4 relative flex h-12 sm:h-14 overflow-hidden rounded-xl bg-black/20 ring-1 ring-white/10 group-hover:ring-white/20 transition-all">
           {palette.colors.map((color, i) => (
             <div
               key={i}
@@ -143,8 +143,8 @@ export const PaletteCard = memo(function PaletteCard({
         </div>
 
         {/* Info */}
-        <div className="space-y-2 pr-8">
-          <h3 className="font-display text-lg text-foreground tracking-tight transition-colors group-hover:text-primary truncate">
+        <div className="space-y-1.5 sm:space-y-2 pr-8">
+          <h3 className="font-display text-sm sm:text-lg text-foreground tracking-tight transition-colors group-hover:text-primary truncate">
             {palette.name}
           </h3>
           <div className="flex flex-wrap gap-1.5">
@@ -235,7 +235,7 @@ export const PaletteCard = memo(function PaletteCard({
               e.stopPropagation();
               onToggleFavorite(palette.id);
             }}
-            className={`flex h-8 w-8 items-center justify-center rounded-full transition-all hover:bg-secondary ${isFavorite ? "text-red-500 hover:text-red-600" : "text-secondary-foreground/60 hover:text-red-500"
+            className={`flex h-10 w-10 sm:h-8 sm:w-8 items-center justify-center rounded-full transition-all hover:bg-secondary ${isFavorite ? "text-red-500 hover:text-red-600" : "text-secondary-foreground/60 hover:text-red-500"
               }`}
             aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
           >
@@ -247,7 +247,7 @@ export const PaletteCard = memo(function PaletteCard({
         <button
           type="button"
           onClick={handleShare}
-          className="flex h-8 w-8 items-center justify-center rounded-full text-secondary-foreground/60 transition-all hover:bg-secondary hover:text-primary"
+          className="flex h-10 w-10 sm:h-8 sm:w-8 items-center justify-center rounded-full text-secondary-foreground/60 transition-all hover:bg-secondary hover:text-primary"
           aria-label="Share palette"
           title="Share"
         >

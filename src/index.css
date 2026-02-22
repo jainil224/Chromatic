@@ -468,3 +468,69 @@
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--secondary-foreground) / 0.5);
 }
+
+/* ══════════════════════════════════════════════════
+   MOBILE-ONLY OPTIMIZATIONS (max-width: 768px)
+   Desktop layout is completely unaffected.
+   ══════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* Prevent horizontal scroll globally */
+  html,
+  body {
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent iOS input zoom (font-size < 16px triggers zoom) */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* Extra bottom padding so content isn't hidden behind the floating dock */
+  body {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Touch-friendly tap targets on palette cards */
+  .palette-card-btn {
+    min-height: 44px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Always show action buttons on mobile (no hover reveal) */
+  .palette-card-btn .group-hover\:opacity-100 {
+    opacity: 1 !important;
+  }
+
+  /* Modals: full-width on mobile */
+  [role="dialog"]>div,
+  .DialogContent,
+  [data-radix-dialog-content] {
+    max-width: 100vw !important;
+    width: 100vw !important;
+    max-height: 90dvh !important;
+    margin: 0 !important;
+    border-radius: 16px 16px 0 0 !important;
+    bottom: 0 !important;
+  }
+
+  /* Smooth touch scrolling for scroll containers */
+  .thin-scrollbar,
+  [class*="overflow-y-auto"] {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Reduce glass dock pulse animation on mobile for perf */
+  .pulse-glow {
+    animation: none;
+  }
+
+  /* Reduce heavy shimmer effects on mobile for perf */
+  .palette-card-btn .animate-\[premium-shimmer_4s_infinite\] {
+    animation: none;
+  }
+}

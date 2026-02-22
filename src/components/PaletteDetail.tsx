@@ -85,7 +85,7 @@ export function PaletteDetail({
       {/* Header */}
       <div className="space-y-2 opacity-0 animate-fade-up" style={{ animationDelay: "0.1s" }}>
         <div className="flex items-start justify-between gap-4">
-          <h2 className="font-display text-4xl italic text-foreground md:text-5xl">
+          <h2 className="font-display text-2xl italic text-foreground sm:text-4xl md:text-5xl">
             {palette.name}
           </h2>
           <div className="flex items-center gap-2">
@@ -96,7 +96,7 @@ export function PaletteDetail({
                   e.preventDefault();
                   onToggleFavorite(palette.id);
                 }}
-                className="transition-transform active:scale-90 hover:scale-110 p-2 rounded-full hover:bg-secondary"
+                className="transition-transform active:scale-90 hover:scale-110 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-secondary"
                 aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
               >
                 <Heart
@@ -111,7 +111,7 @@ export function PaletteDetail({
               variant="outline"
               size="icon"
               onClick={handleShare}
-              className="shrink-0 rounded-full hover:bg-secondary"
+              className="shrink-0 rounded-full hover:bg-secondary min-w-[44px] min-h-[44px]"
               title="Share Palette"
             >
               <Share2 className="h-4 w-4" />
@@ -121,7 +121,7 @@ export function PaletteDetail({
               size="icon"
               onClick={handleExport}
               disabled={isExporting}
-              className="shrink-0 rounded-full hover:bg-secondary"
+              className="shrink-0 rounded-full hover:bg-secondary min-w-[44px] min-h-[44px]"
               title="Export as Image"
             >
               {isExporting ? (
@@ -139,7 +139,7 @@ export function PaletteDetail({
 
       {/* Color Swatches */}
       <div className="overflow-hidden rounded-xl opacity-0 animate-fade-up" style={{ animationDelay: "0.2s" }}>
-        <div className="flex h-48 md:h-64">
+        <div className="flex h-28 sm:h-48 md:h-64">
           {palette.colors.map((color, index) => (
             <ColorSwatch key={color} color={color} index={index} />
           ))}
@@ -147,7 +147,7 @@ export function PaletteDetail({
       </div>
 
       {/* Hex Values Grid */}
-      <div className="grid grid-cols-5 gap-2 opacity-0 animate-fade-up" style={{ animationDelay: "0.3s" }}>
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 sm:gap-2 opacity-0 animate-fade-up" style={{ animationDelay: "0.3s" }}>
         {palette.colors.map((color, index) => (
           <div
             key={index}
