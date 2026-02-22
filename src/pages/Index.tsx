@@ -668,12 +668,12 @@ const Index = () => {
         <button
           onClick={handlePickFromImage}
           className="group flex flex-col items-center gap-1 px-3 sm:px-4 py-2 rounded-xl hover:bg-sky-500/10 transition-all duration-200"
-          title="Pixels — Extract from Image"
+          title="Extract — Colors from Image"
         >
           <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-sky-400 to-blue-600 shadow-[0_2px_10px_-2px_rgba(56,189,248,0.5)] group-hover:shadow-[0_4px_15px_-2px_rgba(56,189,248,0.6)] group-hover:scale-110 transition-all">
             <ImageIcon className="h-4 w-4 text-white" />
           </div>
-          <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-secondary-foreground/50 group-hover:text-sky-400 transition-colors">Pixels</span>
+          <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-secondary-foreground/50 group-hover:text-sky-400 transition-colors">Extract</span>
         </button>
 
         <div className="w-px h-8 bg-white/5" />
@@ -682,12 +682,12 @@ const Index = () => {
         <button
           onClick={handleMaker}
           className="group flex flex-col items-center gap-1 px-3 sm:px-4 py-2 rounded-xl hover:bg-amber-500/10 transition-all duration-200"
-          title="Build — Create Palettes"
+          title="Create — Build Palettes"
         >
           <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-amber-400 to-orange-600 shadow-[0_2px_10px_-2px_rgba(245,158,11,0.5)] group-hover:shadow-[0_4px_15px_-2px_rgba(245,158,11,0.6)] group-hover:scale-110 transition-all">
             <PaletteIcon className="h-4 w-4 text-white" />
           </div>
-          <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-secondary-foreground/50 group-hover:text-amber-400 transition-colors">Build</span>
+          <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-secondary-foreground/50 group-hover:text-amber-400 transition-colors">Create</span>
         </button>
 
         <div className="w-px h-8 bg-white/5" />
@@ -696,12 +696,12 @@ const Index = () => {
         <button
           onClick={handleCustomize}
           className="group flex flex-col items-center gap-1 px-3 sm:px-4 py-2 rounded-xl hover:bg-violet-500/10 transition-all duration-200"
-          title="Tweak — Customize Colors"
+          title="Customize — Fine-tune Colors"
         >
           <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-violet-400 to-purple-600 shadow-[0_2px_10px_-2px_rgba(139,92,246,0.5)] group-hover:shadow-[0_4px_15px_-2px_rgba(139,92,246,0.6)] group-hover:scale-110 transition-all">
             <Paintbrush className="h-4 w-4 text-white" />
           </div>
-          <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-secondary-foreground/50 group-hover:text-violet-400 transition-colors">Tweak</span>
+          <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-secondary-foreground/50 group-hover:text-violet-400 transition-colors">Customize</span>
         </button>
 
         <div className="w-px h-8 bg-white/5" />

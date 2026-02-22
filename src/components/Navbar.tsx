@@ -147,7 +147,7 @@ export const Navbar = ({
                             className="rounded-full h-8 px-3 text-[10px] font-mono text-secondary-foreground/60 hover:text-foreground hover:bg-white/10 hover:shadow-lg transition-all uppercase"
                         >
                             <ImageIcon className="h-3 w-3 mr-1.5" />
-                            Pixels
+                            Extract
                         </Button>
                         <Button
                             variant="ghost"
@@ -157,7 +157,7 @@ export const Navbar = ({
                             className="rounded-full h-8 px-3 text-[10px] font-mono text-secondary-foreground/60 hover:text-foreground hover:bg-white/10 hover:shadow-lg transition-all uppercase"
                         >
                             <PaletteIcon className="h-3 w-3 mr-1.5" />
-                            Build
+                            Create
                         </Button>
                         <Button
                             variant="ghost"
@@ -167,7 +167,7 @@ export const Navbar = ({
                             className="rounded-full h-8 px-3 text-[10px] font-mono text-secondary-foreground/60 hover:text-foreground hover:bg-white/10 hover:shadow-lg transition-all uppercase"
                         >
                             <Paintbrush className="h-3 w-3 mr-1.5" />
-                            Tweak
+                            Customize
                         </Button>
 
                         {/* Share Dropdown — desktop */}

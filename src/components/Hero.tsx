@@ -180,8 +180,8 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize, liv
                                         <ImageIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                                     </div>
                                     <div className="relative z-10 text-center">
-                                        <p className="font-bold text-sm sm:text-base text-foreground">Pixels</p>
-                                        <p className="text-[10px] sm:text-xs text-secondary-foreground/50 mt-0.5 leading-tight">Extract from images</p>
+                                        <p className="font-bold text-sm sm:text-base text-foreground">Extract</p>
+                                        <p className="text-[10px] sm:text-xs text-secondary-foreground/50 mt-0.5 leading-tight">Colors from images</p>
                                     </div>
                                     <div className="absolute inset-0 bg-gradient-to-t from-sky-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                 </button>
@@ -195,8 +195,8 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize, liv
                                         <Palette className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                                     </div>
                                     <div className="relative z-10 text-center">
-                                        <p className="font-bold text-sm sm:text-base text-foreground">Build</p>
-                                        <p className="text-[10px] sm:text-xs text-secondary-foreground/50 mt-0.5 leading-tight">Create palettes</p>
+                                        <p className="font-bold text-sm sm:text-base text-foreground">Create</p>
+                                        <p className="text-[10px] sm:text-xs text-secondary-foreground/50 mt-0.5 leading-tight">Build palettes</p>
                                     </div>
                                     <div className="absolute inset-0 bg-gradient-to-t from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                 </button>
@@ -210,8 +210,8 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize, liv
                                         <Paintbrush className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                                     </div>
                                     <div className="relative z-10 text-center">
-                                        <p className="font-bold text-sm sm:text-base text-foreground">Tweak</p>
-                                        <p className="text-[10px] sm:text-xs text-secondary-foreground/50 mt-0.5 leading-tight">Customize colors</p>
+                                        <p className="font-bold text-sm sm:text-base text-foreground">Customize</p>
+                                        <p className="text-[10px] sm:text-xs text-secondary-foreground/50 mt-0.5 leading-tight">Fine-tune colors</p>
                                     </div>
                                     <div className="absolute inset-0 bg-gradient-to-t from-violet-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                 </button>
