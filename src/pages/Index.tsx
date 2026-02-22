@@ -438,7 +438,7 @@ const Index = () => {
            Contains the vertical CategoryMenu — scrolls independently.
            Palette grid sits to its right and scrolls up/down. */}
       <aside
-        className="fixed left-0 bottom-0 z-[38] overflow-y-auto thin-scrollbar"
+        className="fixed left-0 bottom-0 z-[38] overflow-y-auto thin-scrollbar hidden lg:block"
         style={{
           top: 80,
           width: 220,
@@ -464,7 +464,7 @@ const Index = () => {
         </div>
       </aside>
 
-      <main className="flex-1 min-h-0 pt-[80px] overflow-hidden" style={{ paddingLeft: 220 }}>
+      <main className="flex-1 min-h-0 pt-[80px] overflow-hidden lg:pl-[220px]">
         {/* Content Area — scrolls ONLY vertically */}
         <div id="main-scroll-view" className="h-full overflow-y-auto thin-scrollbar">
           {/* HERO — shown only on the home dashboard (no category / search active) */}
@@ -480,9 +480,19 @@ const Index = () => {
             </div>
           )}
 
+          {/* MOBILE ONLY CATEGORY SLIDER */}
+          <div className="lg:hidden sticky top-0 z-[30] -mx-4 sm:-mx-6 px-4 sm:px-6 py-2 bg-background/80 backdrop-blur-xl border-b border-white/5 mb-8">
+            <Suspense fallback={null}>
+              <CategoryMenu
+                horizontal
+                selectedCategory={selectedCategory}
+                onSelectCategory={handleSelectCategory}
+                className="w-full"
+              />
+            </Suspense>
+          </div>
+
           <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8 py-12">
-
-
             {/* PALETTE GRID — shown only when a category or search is active */}
             {(selectedCategory || searchQuery) && (
               <div id="palette-grid" className="space-y-16 pb-32 animate-fade-up">
@@ -556,7 +566,6 @@ const Index = () => {
             </footer>
           </div>
         </div>
-
       </main>
 
       {/* Sheet (Mobile Sidebar Content remains) */}
@@ -585,18 +594,19 @@ const Index = () => {
               updatePalette(editingPalette.id, p);
             } else {
               addPalette({
-                ...p,
+                id: crypto.randomUUID(),
+                name: p.name,
+                colors: p.colors,
+                tags: p.tags || [],
                 section: selectedCategory === 'Kid' ? 'kid' : null
-              });
+              } as UserPalette);
             }
+            setIsModalOpen(false);
+            setEditingPalette(null);
           }}
-          initialPalette={editingPalette ? {
-            ...editingPalette,
-            tags: editingPalette.tags || []
-          } : undefined}
+          initialPalette={editingPalette || undefined}
         />
-      </Suspense>
-      <Suspense fallback={null}>
+
         <ImagePickerModal
           isOpen={isImagePickerOpen}
           onClose={() => setIsImagePickerOpen(false)}
@@ -604,7 +614,7 @@ const Index = () => {
             addPalette({
               ...p,
               tags: ["image-extracted"],
-            });
+            } as UserPalette);
             toast.success("Extracted palette added to your collection!");
           }}
           // Persistence props
@@ -616,7 +626,7 @@ const Index = () => {
           onNumColorsChange={setPickerNumColors}
         />
       </Suspense>
-    </div >
+    </div>
   );
 };
 

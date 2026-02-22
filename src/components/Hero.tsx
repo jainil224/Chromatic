@@ -123,7 +123,7 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize, liv
                             {/* Main Heading — colors sync with the foreground palette card */}
                             {/* heroPalettes[4] = same palette shown in the foreground card */}
                             <h1
-                                className="font-display text-5xl font-bold leading-tight tracking-tight text-white md:text-7xl lg:text-8xl animate-fade-up transition-all duration-700 ease-in-out"
+                                className="font-display text-4xl xs:text-5xl font-bold leading-tight tracking-tight text-white md:text-7xl lg:text-8xl animate-fade-up transition-all duration-700 ease-in-out"
                                 style={{
                                     textShadow: `0 0 40px ${heroPalettes[4]?.[2]}20`
                                 }}
@@ -133,7 +133,7 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize, liv
                                         className="transition-colors duration-700 ease-in-out"
                                         style={{
                                             color: heroPalettes[4]?.[1],
-                                            textShadow: `0 0 24px ${heroPalettes[4]?.[1]}60`
+                                            textShadow: `0 0-24px ${heroPalettes[4]?.[1]}60`
                                         }}
                                     >
                                         Color
@@ -152,18 +152,18 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize, liv
                             </h1>
 
                             {/* Description */}
-                            <p className="max-w-[580px] font-mono text-base text-secondary-foreground/80 md:text-lg animate-fade-up [animation-delay:0.1s] leading-relaxed">
+                            <p className="max-w-[580px] font-mono text-sm xs:text-base text-secondary-foreground/80 md:text-lg animate-fade-up [animation-delay:0.1s] leading-relaxed">
                                 Generate, customize, and share stunning color palettes powered by intelligent analysis and community creativity.
                             </p>
                         </div>
 
                         {/* Buttons Grid */}
                         <div className="flex flex-col gap-6 w-full max-w-[580px] animate-fade-up [animation-delay:0.2s]">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                 <Button
                                     onClick={onBrowse}
                                     size="lg"
-                                    className="h-14 rounded-full bg-primary px-8 text-base font-medium text-primary-foreground shadow-[0_0_20px_-5px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_30px_-5px_hsl(var(--primary)/0.6)] hover:scale-[1.02] transition-all duration-300"
+                                    className="h-12 xs:h-14 rounded-full bg-primary px-8 text-sm xs:text-base font-medium text-primary-foreground shadow-[0_0_20px_-5px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_30px_-5px_hsl(var(--primary)/0.6)] hover:scale-[1.02] transition-all duration-300"
                                 >
                                     <Search className="mr-2 h-4 w-4" />
                                     Browse Palettes
@@ -171,36 +171,38 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize, liv
                                 <Button
                                     onClick={onPickFromImage}
                                     size="lg"
-                                    className="h-14 rounded-full border border-primary/20 bg-primary/5 px-8 text-base font-medium text-primary backdrop-blur-sm hover:bg-primary/10 transition-all hover:scale-[1.02]"
+                                    className="h-12 xs:h-14 rounded-full border border-primary/20 bg-primary/5 px-8 text-sm xs:text-base font-medium text-primary backdrop-blur-sm hover:bg-primary/10 transition-all hover:scale-[1.02]"
                                 >
                                     <ImageIcon className="mr-2 h-4 w-4" />
                                     From Image
                                 </Button>
-                                <Button
-                                    onClick={onMaker}
-                                    variant="outline"
-                                    size="lg"
-                                    className="h-12 rounded-full border-white/10 bg-white/5 px-6 text-sm font-medium backdrop-blur-sm transition-all hover:bg-white/10 hover:border-white/20"
-                                >
-                                    <Palette className="mr-2 h-4 w-4" />
-                                    Maker
-                                </Button>
-                                <Button
-                                    onClick={onCustomize}
-                                    variant="outline"
-                                    size="lg"
-                                    className="h-12 rounded-full border-white/10 bg-white/5 px-6 text-sm font-medium backdrop-blur-sm transition-all hover:bg-white/10 hover:border-white/20"
-                                >
-                                    <Paintbrush className="mr-2 h-4 w-4" />
-                                    Customize
-                                </Button>
+                                <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:col-span-2">
+                                    <Button
+                                        onClick={onMaker}
+                                        variant="outline"
+                                        size="lg"
+                                        className="h-11 xs:h-12 rounded-full border-white/10 bg-white/5 px-4 text-[11px] xs:text-xs font-medium backdrop-blur-sm transition-all hover:bg-white/10 hover:border-white/20"
+                                    >
+                                        <Palette className="mr-2 h-4 w-4" />
+                                        Maker
+                                    </Button>
+                                    <Button
+                                        onClick={onCustomize}
+                                        variant="outline"
+                                        size="lg"
+                                        className="h-11 xs:h-12 rounded-full border-white/10 bg-white/5 px-4 text-[11px] xs:text-xs font-medium backdrop-blur-sm transition-all hover:bg-white/10 hover:border-white/20"
+                                    >
+                                        <Paintbrush className="mr-2 h-4 w-4" />
+                                        Customize
+                                    </Button>
+                                </div>
                             </div>
 
                         </div>
                     </div>
 
                     {/* Right Visual Component */}
-                    <div className="relative h-[500px] lg:h-[650px] w-full animate-fade-in [animation-delay:0.3s]">
+                    <div className="relative h-[350px] xs:h-[450px] lg:h-[650px] w-full animate-fade-in [animation-delay:0.3s]">
                         <HeroIllustration
                             palettes={heroPalettes}
                             isShuffling={isShuffling}

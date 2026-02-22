@@ -41,16 +41,18 @@ export const HeroIllustration = memo(({ palettes, isShuffling }: HeroIllustratio
         <div className="relative h-full w-full flex items-center justify-start overflow-visible">
             {/* Background Scrolling Layer - Contained clipping */}
             <div className="absolute inset-0 z-0 overflow-hidden rounded-3xl pointer-events-none opacity-[0.40] lg:opacity-[0.50]">
-                <div className="grid grid-cols-3 gap-4 p-4 h-full">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 h-full">
                     {renderColumn(col1, '35s', '0s')}
                     {renderColumn(col2, '45s', '-8s')}
-                    {renderColumn(col3, '40s', '-16s')}
+                    <div className="hidden md:block">
+                        {renderColumn(col3, '40s', '-16s')}
+                    </div>
                 </div>
             </div>
 
             {/* Main Foreground Card - Repositioned to avoid clipping while staying on the left */}
             <div
-                className="relative z-10 w-full max-w-[320px] lg:max-w-[420px] ml-4 lg:ml-8 transition-all duration-700 ease-out"
+                className="relative z-10 w-[85%] sm:w-full max-w-[320px] lg:max-w-[420px] mx-auto lg:ml-8 transition-all duration-700 ease-out"
                 style={{
                     transform: isShuffling ? 'scale(1.03) translateY(-8px)' : 'scale(1) translateY(0)',
                 }}

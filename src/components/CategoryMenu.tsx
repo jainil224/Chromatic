@@ -46,14 +46,14 @@ const MENU_SECTIONS = [
 export function CategoryMenu({ selectedCategory, onSelectCategory, className, horizontal = false }: CategoryMenuProps) {
   if (horizontal) {
     return (
-      <div className={cn("inline-flex items-center gap-2 py-4 px-2 overflow-x-auto no-scrollbar max-w-full", className)}>
+      <div className={cn("flex flex-row items-center gap-2 py-4 px-2 overflow-x-auto no-scrollbar max-w-full touch-pan-x", className)}>
         {/* "All" Reset Button */}
         <button
           onClick={() => onSelectCategory(null)}
           className={cn(
             "group flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-full transition-all duration-300 border font-bold",
             !selectedCategory
-              ? "bg-primary text-primary-foreground border-primary shadow-[0_0_20px_rgba(var(--primary),0.3)] scale-[1.05]"
+              ? "bg-primary text-primary-foreground border-primary shadow-[0_10px_20px_-10px_rgba(var(--primary),0.3)] scale-[1.05]"
               : "bg-white/5 text-secondary-foreground/60 border-white/10 hover:bg-white/10 hover:text-foreground"
           )}
         >
@@ -61,45 +61,36 @@ export function CategoryMenu({ selectedCategory, onSelectCategory, className, ho
           <span className="font-display text-sm">All</span>
         </button>
 
-        <div className="flex items-center gap-2">
-          {/* Favorites Filter */}
+        {/* Favorites Filter */}
+        <button
+          onClick={() => onSelectCategory('Favorites')}
+          className={cn(
+            "group flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-full transition-all duration-300 border font-bold",
+            selectedCategory === 'Favorites'
+              ? "bg-red-500/20 text-red-500 border-red-500/40 shadow-inner"
+              : "bg-white/5 text-secondary-foreground/60 border-white/10 hover:bg-white/10 hover:text-foreground"
+          )}
+        >
+          <Heart className={cn("h-4 w-4", selectedCategory === 'Favorites' ? "fill-red-500 text-red-500" : "text-red-500/60 group-hover:text-red-500")} />
+          <span className="font-display text-sm">Favorites</span>
+        </button>
+
+        <div className="h-6 w-px bg-white/10 mx-1 flex-shrink-0" />
+
+        {MENU_SECTIONS.flatMap(section => section.items).map((item) => (
           <button
-            onClick={() => onSelectCategory('Favorites')}
+            key={item}
+            onClick={() => onSelectCategory(item === selectedCategory ? null : item)}
             className={cn(
-              "group flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-full transition-all duration-300 border font-bold",
-              selectedCategory === 'Favorites'
-                ? "bg-red-500/20 text-red-500 border-red-500/40 shadow-inner"
-                : "bg-white/5 text-secondary-foreground/60 border-white/10 hover:bg-white/10 hover:text-foreground"
+              "group flex-shrink-0 px-5 py-2.5 rounded-full transition-all duration-300 border text-sm font-medium",
+              selectedCategory === item
+                ? "bg-primary/20 text-primary border-primary/40 shadow-inner"
+                : "bg-white/5 text-secondary-foreground/60 border-white/5 hover:bg-white/10 hover:text-foreground"
             )}
           >
-            <Heart className={cn("h-4 w-4", selectedCategory === 'Favorites' ? "fill-red-500 text-red-500" : "text-red-500/60 group-hover:text-red-500")} />
-            <span className="font-display text-sm">Favorites</span>
+            {item}
           </button>
-
-          <div className="h-6 w-px bg-white/5 mx-2" />
-        </div>
-
-        <div className="flex items-center gap-2">
-          {MENU_SECTIONS.map((section) => (
-            <div key={section.title} className="flex items-center gap-2">
-              <div className="h-6 w-px bg-white/5 mx-2" />
-              {section.items.map((item) => (
-                <button
-                  key={item}
-                  onClick={() => onSelectCategory(item === selectedCategory ? null : item)}
-                  className={cn(
-                    "group flex-shrink-0 px-5 py-2.5 rounded-full transition-all duration-300 border text-sm font-medium",
-                    selectedCategory === item
-                      ? "bg-primary/20 text-primary border-primary/40 shadow-inner"
-                      : "bg-white/5 text-secondary-foreground/60 border-white/5 hover:bg-white/10 hover:text-foreground"
-                  )}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-          ))}
-        </div>
+        ))}
       </div>
     );
   }

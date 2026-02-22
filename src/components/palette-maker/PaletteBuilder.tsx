@@ -212,19 +212,21 @@ export const PaletteBuilder = memo(({ colors, onRemoveColor, onClearPalette, onR
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap gap-3 pt-4 border-t border-white/5">
-                <Button onClick={handleDownloadJSON} variant="outline" size="sm" className="gap-2 h-9 text-xs border-white/10 hover:bg-white/5">
-                    <Download className="h-3.5 w-3.5" /> JSON
-                </Button>
-                <Button onClick={handleDownloadCSS} variant="outline" size="sm" className="gap-2 h-9 text-xs border-white/10 hover:bg-white/5">
-                    <Download className="h-3.5 w-3.5" /> CSS
-                </Button>
-                <div className="flex-1" />
-                <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 pt-4 border-t border-white/5">
+                <div className="flex gap-2">
+                    <Button onClick={handleDownloadJSON} variant="outline" size="sm" className="flex-1 sm:flex-none gap-2 h-9 text-xs border-white/10 hover:bg-white/5">
+                        <Download className="h-3.5 w-3.5" /> JSON
+                    </Button>
+                    <Button onClick={handleDownloadCSS} variant="outline" size="sm" className="flex-1 sm:flex-none gap-2 h-9 text-xs border-white/10 hover:bg-white/5">
+                        <Download className="h-3.5 w-3.5" /> CSS
+                    </Button>
+                </div>
+                <div className="hidden sm:block flex-1" />
+                <div className="flex flex-col xs:flex-row flex-wrap gap-3">
                     <Button
                         onClick={handleDownloadPNG}
                         disabled={colors.length === 0}
-                        className="gap-3 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 px-6 h-12"
+                        className="w-full xs:w-auto gap-3 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] px-6 h-12"
                     >
                         <ImageIcon className="h-4 w-4" />
                         <span className="font-mono font-bold tracking-[0.1em] text-xs">DOWNLOAD IMAGE</span>
@@ -232,7 +234,7 @@ export const PaletteBuilder = memo(({ colors, onRemoveColor, onClearPalette, onR
                     <Button
                         onClick={onSubmit}
                         disabled={colors.length < 3}
-                        className="h-12 px-6 bg-[#00FF88] hover:bg-[#00FF88]/90 text-[#050505] font-bold border-none transition-all hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+                        className="w-full xs:w-auto h-12 px-6 bg-[#00FF88] hover:bg-[#00FF88]/90 text-[#050505] font-bold border-none transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >
                         Submit to Community
                     </Button>

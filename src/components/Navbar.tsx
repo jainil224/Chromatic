@@ -44,23 +44,21 @@ export const Navbar = ({
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
 
     return (
-        <header className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-[1200px] pointer-events-none">
-            <div className="glass-dock pulse-glow flex items-center justify-between px-4 py-2 pointer-events-auto ring-1 ring-white/10 shadow-2xl">
+        <header className="fixed top-0 sm:top-6 left-1/2 -translate-x-1/2 z-50 w-full sm:w-[95%] max-w-[1200px] pointer-events-none transition-all duration-300">
+            <div className="glass-dock pulse-glow flex items-center justify-between px-3 sm:px-4 py-2 pointer-events-auto ring-1 ring-white/10 shadow-2xl rounded-none sm:rounded-full">
                 {/* Branding Pill */}
-                <div className="flex items-center gap-2 pr-4 border-r border-white/10">
+                <div className="flex items-center gap-2 pr-3 sm:pr-4 border-r border-white/10">
                     <button
                         id="tour-logo"
                         onClick={onLogoClick}
                         className={cn(
-                            "group relative flex items-center gap-2 rounded-full pl-3 pr-4 py-1.5 transition-all hover:scale-[1.02] ring-1 ring-white/20 shadow-[0_0_20px_-5px_rgba(0,0,0,0.4)]",
+                            "group relative flex items-center gap-2 rounded-full pl-2 sm:pl-3 pr-3 sm:pr-4 py-1.5 transition-all hover:scale-[1.02] ring-1 ring-white/20 shadow-[0_0_20px_-5px_rgba(0,0,0,0.4)]",
                             themeMode === 'midnight'
                                 ? "bg-gradient-to-r from-blue-600 to-indigo-700 hover:shadow-[0_0_30px_-5px_rgba(59,130,246,0.5)]"
-                                : themeMode === 'light'
-                                    ? "bg-gradient-to-r from-orange-500 to-amber-600 hover:shadow-[0_0_30px_-5px_rgba(249,115,22,0.4)]"
-                                    : "bg-gradient-to-r from-amber-500 to-orange-600 shadow-[0_0_20px_-5px_hsl(var(--primary)/0.4)] hover:shadow-[0_0_30px_-5px_hsl(var(--primary)/0.6)]"
+                                : "bg-gradient-to-r from-amber-500 to-orange-600 shadow-[0_0_20px_-5px_hsl(var(--primary)/0.4)] hover:shadow-[0_0_30px_-5px_hsl(var(--primary)/0.6)]"
                         )}
                     >
-                        <div className="h-4 w-4 flex items-center justify-center overflow-hidden rounded-sm bg-white/10 group-hover:bg-white/20 transition-colors ring-1 ring-white/20">
+                        <div className="h-4 w-4 flex items-center justify-center overflow-hidden rounded-sm bg-white/10 group-hover:bg-white/20 transition-colors ring-1 ring-white/20 shrink-0">
                             <img
                                 src="/logo_1_upscaled.png?v=2"
                                 alt="Chromatic Logo"
@@ -69,9 +67,9 @@ export const Navbar = ({
                         </div>
                         <div className="flex items-center gap-1.5 whitespace-nowrap">
                             <span className="font-mono text-[10px] font-bold uppercase tracking-tight text-white/90">
-                                Colours:
+                                Color Palettes:
                             </span>
-                            <span className="font-display text-base font-black text-white leading-none">
+                            <span className="font-display text-sm sm:text-base font-black text-white leading-none">
                                 {allPalettesCount.toLocaleString()}
                             </span>
                         </div>
@@ -83,31 +81,31 @@ export const Navbar = ({
                 </div>
 
                 {/* Main Navigation Logic */}
-                <div className="flex items-center gap-2 px-4 flex-1 max-w-xl">
+                <div className="flex items-center gap-2 px-2 sm:px-4 flex-1 max-w-xl">
                     <div className="relative flex-1 group/search">
-                        <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-secondary-foreground/40 transition-colors group-focus-within/search:text-primary" />
+                        <Search className="absolute left-2.5 sm:left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-secondary-foreground/40 transition-colors group-focus-within/search:text-primary" />
                         <input
                             id="navbar-search"
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && onSearchSubmit?.()}
-                            placeholder="Find inspiration..."
-                            className="w-full rounded-full border border-white/5 bg-white/5 py-1.5 pl-9 pr-8 font-mono text-xs text-foreground placeholder:text-secondary-foreground/30 focus:bg-white/10 focus:border-white/10 focus:ring-1 focus:ring-white/10 focus:outline-none transition-all"
+                            placeholder="Search..."
+                            className="w-full rounded-full border border-white/5 bg-white/5 py-1.5 pl-8 sm:pl-9 pr-7 sm:pr-8 font-mono text-[10px] sm:text-xs text-foreground placeholder:text-secondary-foreground/30 focus:bg-white/10 focus:border-white/10 focus:ring-1 focus:ring-white/10 focus:outline-none transition-all"
                         />
                         {searchQuery && (
                             <button
                                 onClick={() => setSearchQuery("")}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-secondary-foreground/40 hover:bg-white/10 hover:text-foreground transition-colors"
+                                className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-full p-1 text-secondary-foreground/40 hover:bg-white/10 hover:text-foreground transition-colors"
                             >
-                                <X className="h-3 w-3" />
+                                <X className="h-2.5 w-2.5" />
                             </button>
                         )}
                     </div>
                 </div>
 
                 {/* Actions & Theme */}
-                <div className="flex items-center gap-2 pl-4 border-l border-white/10">
+                <div className="flex items-center gap-1.5 sm:gap-2 pl-3 sm:pl-4 border-l border-white/10">
                     {/* Compact Action Buttons */}
                     <div className="hidden lg:flex items-center gap-1">
                         <Button

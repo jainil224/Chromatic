@@ -370,17 +370,17 @@ const PaletteMaker = () => {
 
                 {/* Color Grid Section */}
                 {/* Color Creation Studio */}
-                <section className="relative rounded-3xl border border-white/10 bg-card/30 p-8 md:p-12 shadow-2xl overflow-hidden">
+                <section className="relative rounded-3xl border border-white/10 bg-card/30 p-6 sm:p-8 md:p-12 shadow-2xl overflow-hidden">
                     {/* Background Glow */}
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
 
-                    <div className="relative z-10 grid gap-12 lg:grid-cols-2 items-center max-w-5xl mx-auto">
+                    <div className="relative z-10 grid gap-8 md:gap-12 lg:grid-cols-2 items-center max-w-5xl mx-auto">
 
                         {/* Left: Controls */}
                         <div className="space-y-8">
                             <div className="space-y-2">
-                                <h2 className="text-4xl font-display font-bold text-foreground">Color Studio</h2>
-                                <p className="text-muted-foreground text-lg">
+                                <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground font-display">Color Studio</h2>
+                                <p className="text-muted-foreground text-base sm:text-lg">
                                     Craft your perfect color. Pick, tweak, or randomize to find the missing piece of your palette.
                                 </p>
                             </div>
@@ -423,14 +423,14 @@ const PaletteMaker = () => {
                                 </div>
 
                                 {/* Action Buttons */}
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
                                     <Button
                                         size="lg"
                                         variant="outline"
                                         onClick={() => setCreationColor(generateRandomColor())}
-                                        className="h-14 text-base border-white/10 hover:bg-white/5 hover:border-white/20"
+                                        className="h-12 sm:h-14 text-sm sm:text-base border-white/10 hover:bg-white/5 hover:border-white/20"
                                     >
-                                        <RefreshCw className="mr-2 h-5 w-5" />
+                                        <RefreshCw className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                                         Randomize
                                     </Button>
 
@@ -439,14 +439,14 @@ const PaletteMaker = () => {
                                         variant="outline"
                                         onClick={handleAutoGenerate}
                                         disabled={isGenerating}
-                                        className="h-14 text-base border-white/10 hover:bg-white/5 hover:border-white/20 relative overflow-hidden"
+                                        className="h-12 sm:h-14 text-sm sm:text-base border-white/10 hover:bg-white/5 hover:border-white/20 relative overflow-hidden"
                                     >
                                         {isGenerating ? (
-                                            <RefreshCw className="mr-2 h-5 w-5 animate-spin" />
+                                            <RefreshCw className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
                                         ) : (
-                                            <Wand2 className="mr-2 h-5 w-5" />
+                                            <Wand2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                                         )}
-                                        {isGenerating ? "Checking Uniqueness..." : "Auto Palette"}
+                                        {isGenerating ? "Checking..." : "Auto Palette"}
                                     </Button>
 
                                     <Button
@@ -457,9 +457,9 @@ const PaletteMaker = () => {
                                             rgb: hexToRgbString(creationColor)
                                         })}
                                         disabled={selectedColors.length >= 5}
-                                        className="h-14 text-base bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25"
+                                        className="h-12 sm:h-14 text-sm sm:text-base bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25 xs:col-span-2"
                                     >
-                                        <Plus className="mr-2 h-5 w-5" />
+                                        <Plus className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                                         Add to Palette
                                     </Button>
                                 </div>
