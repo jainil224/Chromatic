@@ -1,6 +1,7 @@
 import { memo, useState } from "react";
 import type { Palette } from "@/data/palettes";
-import { Heart, Trash2 } from "lucide-react";
+import { Heart, Trash2, Share2 } from "lucide-react";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,6 +39,27 @@ export const PaletteCard = memo(function PaletteCard({
   isAdmin = false,
   onAdminDelete,
 }: PaletteCardProps) {
+  const handleShare = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const shareData = {
+      title: `Chromatic - ${palette.name}`,
+      text: `Check out this color palette: ${palette.name}`,
+      url: window.location.href, // This might need refinement if URL changes per palette
+    };
+
+    if (navigator.share) {
+      navigator.share(shareData).catch(err => {
+        if (err.name !== 'AbortError') toast.error("Sharing failed");
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        toast.success("Link copied to clipboard!");
+      });
+    }
+  };
+
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   // Show "NEW" badge only if tag exists AND approved within last 3 days
   const isNewArrival = (() => {
@@ -220,6 +242,17 @@ export const PaletteCard = memo(function PaletteCard({
             <Heart className={`h-4 w-4 ${isFavorite ? "fill-current" : ""}`} />
           </button>
         )}
+
+        {/* Share Button */}
+        <button
+          type="button"
+          onClick={handleShare}
+          className="flex h-8 w-8 items-center justify-center rounded-full text-secondary-foreground/60 transition-all hover:bg-secondary hover:text-primary"
+          aria-label="Share palette"
+          title="Share"
+        >
+          <Share2 className="h-4 w-4" />
+        </button>
       </div>
     </div>
   );

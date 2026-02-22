@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { Download, Loader2, Heart } from "lucide-react";
+import { Download, Loader2, Heart, Share2 } from "lucide-react";
 import { toPng } from "html-to-image";
 import { toast } from "sonner";
 import type { Palette } from "@/data/palettes";
@@ -53,6 +53,28 @@ export function PaletteDetail({
     }
   }, [palette.name]);
 
+  const handleShare = useCallback(async () => {
+    const shareData = {
+      title: `Chromatic - ${palette.name} Palette`,
+      text: `Check out this beautiful color palette: ${palette.name}`,
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success("Link copied to clipboard!");
+      }
+    } catch (err) {
+      if ((err as Error).name !== 'AbortError') {
+        console.error(err);
+        toast.error("Failed to share palette");
+      }
+    }
+  }, [palette.name]);
+
   return (
     <div className="space-y-8 relative">
       {/* Hidden Export Card */}
@@ -85,6 +107,15 @@ export function PaletteDetail({
                 />
               </button>
             )}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleShare}
+              className="shrink-0 rounded-full hover:bg-secondary"
+              title="Share Palette"
+            >
+              <Share2 className="h-4 w-4" />
+            </Button>
             <Button
               variant="outline"
               size="icon"

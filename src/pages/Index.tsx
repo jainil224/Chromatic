@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, memo, lazy, Suspense, useDeferredValue, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Palette as PaletteIcon, Search, X, Menu, PanelLeftClose, PanelLeftOpen, Plus, Image as ImageIcon, Heart } from "lucide-react";
+import { Palette as PaletteIcon, Search, X, Menu, PanelLeftClose, PanelLeftOpen, Plus, Image as ImageIcon, Heart, Share2 } from "lucide-react";
 import type { ThemeMode } from "@/components/ModeToggle";
 import type { Palette } from "@/data/palettes";
 const PaletteSection = lazy(() => import("@/components/PaletteSection").then(m => ({ default: m.PaletteSection })));
@@ -178,7 +178,29 @@ const Index = () => {
 
   const handleLogoClick = useCallback(() => {
     setSelectedCategory(null);
-    setSearchQuery('');
+    setSearchQuery("");
+  }, []);
+
+  const handleShareWebsite = useCallback(async () => {
+    const shareData = {
+      title: "Chromatic - Modern Color Palettes",
+      text: "Discover beautiful, hand-picked color palettes for your next design project on Chromatic.",
+      url: window.location.origin,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.origin);
+        toast.success("Website link copied to clipboard!");
+      }
+    } catch (err) {
+      if ((err as Error).name !== 'AbortError') {
+        console.error('Error sharing website:', err);
+        toast.error("Failed to share website");
+      }
+    }
   }, []);
 
   const handleBrowse = useCallback(() => {
@@ -561,6 +583,14 @@ const Index = () => {
                   </span>
                   <span className="hidden sm:block h-1 w-1 rounded-full bg-white/10" />
                   <span className="font-display text-[11px] sm:text-[12px] tracking-wide font-light text-white">Chromatic — A curated palette of colours.</span>
+                  <span className="hidden sm:block h-1 w-1 rounded-full bg-white/10" />
+                  <button
+                    onClick={handleShareWebsite}
+                    className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-secondary-foreground/60 hover:text-foreground transition-all"
+                  >
+                    <Share2 className="h-3 w-3" />
+                    Share Site
+                  </button>
                 </div>
               </div>
             </footer>
@@ -594,17 +624,21 @@ const Index = () => {
               updatePalette(editingPalette.id, p);
             } else {
               addPalette({
-                id: crypto.randomUUID(),
                 name: p.name,
                 colors: p.colors,
                 tags: p.tags || [],
-                section: selectedCategory === 'Kid' ? 'kid' : null
-              } as UserPalette);
+                section: selectedCategory === 'Kid' ? 'kid' : undefined
+              });
             }
             setIsModalOpen(false);
             setEditingPalette(null);
           }}
-          initialPalette={editingPalette || undefined}
+          initialPalette={editingPalette ? {
+            id: editingPalette.id,
+            name: editingPalette.name,
+            colors: editingPalette.colors,
+            tags: editingPalette.tags || []
+          } : undefined}
         />
 
         <ImagePickerModal
@@ -612,9 +646,10 @@ const Index = () => {
           onClose={() => setIsImagePickerOpen(false)}
           onExport={(p) => {
             addPalette({
-              ...p,
+              name: p.name,
+              colors: p.colors,
               tags: ["image-extracted"],
-            } as UserPalette);
+            });
             toast.success("Extracted palette added to your collection!");
           }}
           // Persistence props

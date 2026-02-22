@@ -1,4 +1,5 @@
-import { Palette as PaletteIcon, Search, X, Menu, Image as ImageIcon, Paintbrush, PanelLeftClose, PanelLeftOpen, Upload } from "lucide-react";
+import { Palette as PaletteIcon, Search, X, Menu, Image as ImageIcon, Paintbrush, PanelLeftClose, PanelLeftOpen, Upload, Share2 } from "lucide-react";
+import { toast } from "sonner";
 import { ModeToggle, type ThemeMode } from "./ModeToggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -42,6 +43,28 @@ export const Navbar = ({
 }: NavbarProps) => {
     const navigate = useNavigate();
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
+
+    const handleShareWebsite = async () => {
+        const shareData = {
+            title: "Chromatic - Modern Color Palettes",
+            text: "Discover beautiful, hand-picked color palettes for your next design project on Chromatic.",
+            url: window.location.origin,
+        };
+
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(window.location.origin);
+                toast.success("Website link copied to clipboard!");
+            }
+        } catch (err) {
+            if ((err as Error).name !== 'AbortError') {
+                console.error('Error sharing website:', err);
+                toast.error("Failed to share website");
+            }
+        }
+    };
 
     return (
         <header className="fixed top-0 sm:top-6 left-1/2 -translate-x-1/2 z-50 w-full sm:w-[95%] max-w-[1200px] pointer-events-none transition-all duration-300">
@@ -140,6 +163,16 @@ export const Navbar = ({
                         </Button>
 
                     </div>
+
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleShareWebsite}
+                        className="h-8 w-8 rounded-full hover:bg-white/10 text-secondary-foreground/60 hover:text-foreground transition-all"
+                        title="Share Website"
+                    >
+                        <Share2 className="h-4 w-4" />
+                    </Button>
 
                     <ModeToggle id="tour-theme-toggle" mode={themeMode} onToggle={onToggleTheme} />
 
