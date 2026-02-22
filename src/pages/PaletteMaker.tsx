@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, useDeferredValue, memo } from "react";
 import { ColorGrid, type BaseColor } from "@/components/palette-maker/ColorGrid";
 import { PaletteBuilder } from "@/components/palette-maker/PaletteBuilder";
 import { SubmitPaletteModal } from "@/components/SubmitPaletteModal";
@@ -306,7 +306,7 @@ const PaletteMaker = () => {
             <main className="container py-8 px-4 mx-auto space-y-12 relative">
                 {/* Palette Builder Section */}
                 <section className="rounded-2xl border border-white/10 bg-background/80 p-6 shadow-2xl backdrop-blur-xl transition-all duration-300">
-                    <PaletteBuilder
+                    <MemoizedPaletteBuilder
                         colors={selectedColors}
                         onRemoveColor={handleRemoveColor}
                         onClearPalette={handleClearPalette}
@@ -446,40 +446,7 @@ const PaletteMaker = () => {
                 </section>
 
                 {/* Perfect Matches / Harmonies */}
-                <section className="space-y-6">
-                    <div className="space-y-1 px-2">
-                        <h2 className="text-3xl font-display font-bold text-foreground/90">Perfect Matches</h2>
-                        <p className="text-sm text-muted-foreground">Automatically generated harmonies to pair with your color.</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {generateColorHarmonies(creationColor).map((harmony) => (
-                            <div key={harmony.type} className="space-y-3 bg-card/40 p-4 rounded-2xl border border-white/5">
-                                <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{harmony.type.replace('-', ' ')}</h3>
-                                <div className="flex gap-1.5 h-16">
-                                    {harmony.colors.map((hex, hIdx) => (
-                                        <button
-                                            key={`${harmony.type}-${hex}-${hIdx}`}
-                                            onClick={() => handleColorSelect({
-                                                name: `${harmony.type} match`,
-                                                hex: hex,
-                                                rgb: hexToRgbString(hex)
-                                            })}
-                                            disabled={selectedColors.length >= 5}
-                                            className="group relative flex-1 h-full rounded-md shadow-sm border border-white/5 overflow-hidden transition-all hover:scale-x-125 hover:z-10 disabled:opacity-50 disabled:hover:scale-100"
-                                            style={{ backgroundColor: hex }}
-                                            title={`Add ${hex}`}
-                                        >
-                                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/20 transition-opacity">
-                                                <Plus className="text-white w-4 h-4 drop-shadow-md" />
-                                            </div>
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
+                <PerfectMatchesSection creationColor={creationColor} onColorSelect={handleColorSelect} selectedColorsCount={selectedColors.length} />
             </main>
 
             <SubmitPaletteModal
@@ -490,5 +457,51 @@ const PaletteMaker = () => {
         </div>
     );
 };
+
+// Optimized sub-components for better performance
+const MemoizedPaletteBuilder = memo(PaletteBuilder);
+
+const PerfectMatchesSection = memo(({ creationColor, onColorSelect, selectedColorsCount }: { creationColor: string, onColorSelect: (c: any) => void, selectedColorsCount: number }) => {
+    // Defer the color update for harmonies to keep the picker responsive
+    const deferredColor = useDeferredValue(creationColor);
+    const harmonies = useMemo(() => generateColorHarmonies(deferredColor), [deferredColor]);
+
+    return (
+        <section className="space-y-6">
+            <div className="space-y-1 px-2">
+                <h2 className="text-3xl font-display font-bold text-foreground/90">Perfect Matches</h2>
+                <p className="text-sm text-muted-foreground">Automatically generated harmonies to pair with your color.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {harmonies.map((harmony) => (
+                    <div key={harmony.type} className="space-y-3 bg-card/40 p-4 rounded-2xl border border-white/5">
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{harmony.type.replace('-', ' ')}</h3>
+                        <div className="flex gap-1.5 h-16">
+                            {harmony.colors.map((hex, hIdx) => (
+                                <button
+                                    key={`${harmony.type}-${hex}-${hIdx}`}
+                                    onClick={() => onColorSelect({
+                                        name: `${harmony.type} match`,
+                                        hex: hex,
+                                        rgb: hexToRgbString(hex)
+                                    })}
+                                    disabled={selectedColorsCount >= 5}
+                                    className="group relative flex-1 h-full rounded-md shadow-sm border border-white/5 overflow-hidden transition-all hover:scale-x-125 hover:z-10 disabled:opacity-50 disabled:hover:scale-100"
+                                    style={{ backgroundColor: hex }}
+                                    title={`Add ${hex}`}
+                                >
+                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/20 transition-opacity">
+                                        <Plus className="text-white w-4 h-4 drop-shadow-md" />
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </section>
+    );
+});
 
 export default PaletteMaker;

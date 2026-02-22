@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import { cn } from "@/lib/utils";
 import { Check, Copy } from "lucide-react";
 import { toast } from "sonner";
@@ -18,7 +18,7 @@ interface ColorGridProps {
     onColorSelect: (color: { name: string; hex: string; rgb: string }) => void;
 }
 
-export const ColorGrid = ({ colors, selectedColors, onColorSelect }: ColorGridProps) => {
+export const ColorGrid = memo(({ colors, selectedColors, onColorSelect }: ColorGridProps) => {
     const [hoveredColor, setHoveredColor] = useState<string | null>(null);
 
     const copyToClipboard = (hex: string, e: React.MouseEvent) => {
@@ -110,4 +110,4 @@ export const ColorGrid = ({ colors, selectedColors, onColorSelect }: ColorGridPr
             ))}
         </div>
     );
-};
+});

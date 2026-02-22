@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { toPng } from 'html-to-image';
-import { useRef, useState } from "react";
+import { useRef, useState, memo } from "react";
 import { PaletteExportCard } from "@/components/PaletteExportCard";
 
 interface PaletteColor {
@@ -21,7 +21,7 @@ interface PaletteBuilderProps {
     onSubmit: () => void;
 }
 
-export const PaletteBuilder = ({ colors, onRemoveColor, onClearPalette, onReorder, onColorChange, onSubmit }: PaletteBuilderProps) => { // Added prop
+export const PaletteBuilder = memo(({ colors, onRemoveColor, onClearPalette, onReorder, onColorChange, onSubmit }: PaletteBuilderProps) => { // Added prop
     const paletteRef = useRef<HTMLDivElement>(null);
     const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
 
@@ -254,4 +254,4 @@ export const PaletteBuilder = ({ colors, onRemoveColor, onClearPalette, onReorde
             </div>
         </div>
     );
-};
+});
