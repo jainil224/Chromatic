@@ -182,13 +182,11 @@ const Index = () => {
   }, []);
 
   const handleBrowse = useCallback(() => {
-    if (!selectedCategory) {
-      handleSelectCategory('Bold');
-    } else {
-      const grid = document.getElementById('palette-grid');
-      grid?.scrollIntoView({ behavior: 'smooth' });
+    const searchInput = document.getElementById('navbar-search');
+    if (searchInput) {
+      searchInput.focus();
     }
-  }, [selectedCategory, handleSelectCategory]);
+  }, []);
 
   const handleMaker = useCallback(() => navigate('/palette-maker'), [navigate]);
   const handleCustomize = useCallback(() => navigate('/customize'), [navigate]);
