@@ -14,7 +14,7 @@ export const WhyChromatic = memo(() => {
                         Why <span className="text-primary italic">Chromatic?</span>
                     </h2>
                     <p className="mx-auto max-w-2xl font-mono text-sm text-secondary-foreground/70 sm:text-base animate-fade-up [animation-delay:0.1s]">
-                        Everything you need to discover, create, and export perfect color palettes.
+                        Everything you need to discover, create, and export perfect palette of colours.
                     </p>
                 </div>
 
@@ -28,20 +28,20 @@ export const WhyChromatic = memo(() => {
                     }}
                 >
                     <h3 className="mb-6 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                        Chromatic Color Palette – Find Perfect Color Combinations
+                        Chromatic Colours. – Find Perfect Combinations
                     </h3>
 
                     <div className="space-y-4 font-mono text-sm leading-relaxed text-secondary-foreground/80 sm:text-base">
                         <p className="opacity-0 animate-fade-up [animation-delay:0.2s] [animation-fill-mode:forwards]">
-                            Chromatic Color Palette is a powerful and easy-to-use <strong>online color palette generator</strong> and <strong>gradient tool</strong> that helps designers, developers, and creatives discover beautiful color schemes.
+                            Chromatic Colours. is a powerful and easy-to-use <strong>online colours palette generator</strong> and <strong>gradient tool</strong> that helps designers, developers, and creatives discover beautiful combinations of colours.
                         </p>
 
                         <p className="opacity-0 animate-fade-up [animation-delay:0.4s] [animation-fill-mode:forwards]">
-                            Browse trending color combinations, generate <strong>custom palettes</strong>, and copy HEX, RGB, and HSL values instantly. Whether you're building a website, mobile app, logo, or UI design, Chromatic makes <strong>color selection</strong> fast and effortless with our <strong>image color extractor</strong>.
+                            Browse trending colours., generate <strong>custom palettes</strong>, and copy HEX, RGB, and HSL values instantly. Whether you're building a website, mobile app, logo, or UI design, Chromatic makes <strong>colours selection</strong> fast and effortless with our <strong>image colours extractor</strong>.
                         </p>
 
                         <p className="opacity-0 animate-fade-up [animation-delay:0.6s] [animation-fill-mode:forwards]">
-                            Our platform is a free <strong>professional color tool</strong>, optimized for <strong>creative workflows</strong>. No sign-up required—just pure inspiration for your next project.
+                            Our platform is a free <strong>professional colours tool</strong>, optimized for <strong>creative workflows</strong>. No sign-up required—just pure inspiration for your next project.
                         </p>
                     </div>
 

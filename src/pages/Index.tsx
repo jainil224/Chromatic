@@ -465,6 +465,7 @@ const Index = () => {
                 onMaker={handleMaker}
                 onCustomize={handleCustomize}
                 onPickFromImage={handlePickFromImage}
+                livePalettes={allPalettes}
               />
             </div>
           )}
@@ -539,7 +540,7 @@ const Index = () => {
                     <span className="font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.3em] font-medium text-primary/90">© 2026 Jainil Patel</span>
                   </span>
                   <span className="hidden sm:block h-1 w-1 rounded-full bg-white/10" />
-                  <span className="font-display text-[11px] sm:text-[12px] tracking-wide font-light text-white">Chromatic — A curated color palette platform.</span>
+                  <span className="font-display text-[11px] sm:text-[12px] tracking-wide font-light text-white">Chromatic — A curated palette of colours.</span>
                 </div>
               </div>
             </footer>

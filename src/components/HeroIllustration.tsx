@@ -8,37 +8,43 @@ interface HeroIllustrationProps {
 }
 
 export const HeroIllustration = memo(({ palettes, isShuffling }: HeroIllustrationProps) => {
-    // Distribute unique palettes across columns
-    const col1 = palettes.slice(0, 8);
-    const col2 = palettes.slice(8, 16);
-    const col3 = palettes.slice(16, 24);
+    // 90-palette window split evenly: 30 unique palettes per column — no visible repeats
+    const col1 = palettes.slice(0, 30);
+    const col2 = palettes.slice(30, 60);
+    const col3 = palettes.slice(60, 90);
 
-    // Foreground palette remains one of the items (e.g., index 0)
-    const foregroundPalette = palettes[0];
+    // Foreground card uses a palette from the middle for visual variety
+    const foregroundPalette = palettes[4] ?? palettes[0];
 
-    const renderColumn = (colPalettes: string[][], duration: string, delay: string) => (
-        <div className="flex flex-col gap-4 py-4" style={{ animation: `scroll-up ${duration} linear infinite`, animationDelay: delay }}>
-            {[...colPalettes, ...colPalettes].map((colors, idx) => (
-                <div
-                    key={idx}
-                    className="h-24 lg:h-32 w-full rounded-xl overflow-hidden border border-white/5 flex flex-row shadow-sm opacity-60"
-                >
-                    {colors.map((color, i) => (
-                        <div key={i} className="flex-1 h-full" style={{ backgroundColor: color }} />
-                    ))}
-                </div>
-            ))}
-        </div>
-    );
+    const renderColumn = (colPalettes: string[][], duration: string, delay: string) => {
+        // For the CSS infinite scroll technique we need to duplicate content.
+        // Simple duplication [A,B,C, A,B,C] ensures a frame-perfect loop 
+        // with no back-to-back repeats at the seam.
+        const doubled = [...colPalettes, ...colPalettes];
+        return (
+            <div className="flex flex-col gap-4 py-4" style={{ animation: `scroll-up ${duration} linear infinite`, animationDelay: delay }}>
+                {doubled.map((colors, idx) => (
+                    <div
+                        key={idx}
+                        className="h-24 lg:h-32 w-full rounded-xl overflow-hidden border border-white/10 flex flex-row shadow-md opacity-90"
+                    >
+                        {colors.map((color, i) => (
+                            <div key={i} className="flex-1 h-full" style={{ backgroundColor: color }} />
+                        ))}
+                    </div>
+                ))}
+            </div>
+        );
+    };
 
     return (
         <div className="relative h-full w-full flex items-center justify-start overflow-visible">
             {/* Background Scrolling Layer - Contained clipping */}
-            <div className="absolute inset-0 z-0 overflow-hidden rounded-3xl pointer-events-none opacity-[0.1] lg:opacity-[0.15]">
+            <div className="absolute inset-0 z-0 overflow-hidden rounded-3xl pointer-events-none opacity-[0.40] lg:opacity-[0.50]">
                 <div className="grid grid-cols-3 gap-4 p-4 h-full">
-                    {renderColumn(col1, '12s', '0s')}
-                    {renderColumn(col2, '15s', '-2s')}
-                    {renderColumn(col3, '13s', '-5s')}
+                    {renderColumn(col1, '35s', '0s')}
+                    {renderColumn(col2, '45s', '-8s')}
+                    {renderColumn(col3, '40s', '-16s')}
                 </div>
             </div>
 

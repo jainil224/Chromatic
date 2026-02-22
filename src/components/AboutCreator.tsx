@@ -38,7 +38,7 @@ export const AboutCreator = memo(function AboutCreator() {
                             <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full bg-black flex items-center justify-center overflow-hidden border-4 border-black shadow-[0_0_60px_rgba(var(--primary),0.2)]">
                                 <img
                                     src="/logo_1_upscaled.png?v=2"
-                                    alt="Chromatic Color Palette Branding Logo"
+                                    alt="Chromatic Colours Branding Logo"
                                     className="relative w-full h-full object-contain p-0 transition-all duration-700 scale-[1.6] translate-y-[12%]"
                                 />
                             </div>
@@ -54,7 +54,7 @@ export const AboutCreator = memo(function AboutCreator() {
                             <p className="text-lg text-foreground/80 leading-relaxed font-light first-letter:text-4xl first-letter:font-display first-letter:text-primary first-letter:mr-1 first-letter:float-left">
                                 I am a UI/UX designer and creative technologist with a profound focus on visual systems and the human experience within digital spaces.
                                 Chromatic was built from the ground up to provide a premium, distraction-free sanctuary where designers and developers
-                                can explore the emotional and psychological impact of color.
+                                can explore the emotional and psychological impact of colours.
                             </p>
 
                             <p className="text-lg text-foreground/80 leading-relaxed font-light mt-4">

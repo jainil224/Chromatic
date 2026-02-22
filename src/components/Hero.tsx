@@ -6,95 +6,99 @@ import { HeroIllustration } from "./HeroIllustration";
 import * as AllPalettes from "@/data/palettes";
 import type { Palette as PaletteType } from "@/data/palettes";
 
-// Build a deduplicated pool of color arrays from all real palettes in palettes.ts
-const buildPalettePool = (): string[][] => {
+// Hex values to exclude — pure "filler" colors that look harsh or flat
+const FILLER_COLORS = new Set([
+    '#000000', '#FFFFFF', '#FFFF00', '#FF00FF', '#00FFFF',
+    '#FF0000', '#00FF00', '#0000FF', '#39FF14',
+]);
+
+// Build a pool from the provided live palettes.
+// Falls back to static palettes.ts if the live list is empty.
+const buildPool = (live: PaletteType[]): string[][] => {
     const seenIds = new Set<string>();
     const pool: string[][] = [];
 
-    // Hex values to exclude — pure "filler" colors that look harsh and repeat too often
-    const FILLER_COLORS = new Set([
-        '#000000', '#FFFFFF', '#FFFF00', '#FF00FF', '#00FFFF',
-        '#FF0000', '#00FF00', '#0000FF', '#39FF14',
-    ]);
-
-    Object.values(AllPalettes).forEach((value) => {
-        if (!Array.isArray(value)) return;
-        (value as PaletteType[]).forEach((p) => {
-            if (seenIds.has(p.id)) return;
-            if (p.colors.length < 5) return;
-
-            // Skip palettes that contain pure filler colors
-            const hasFillerColor = p.colors.some(c => FILLER_COLORS.has(c.toUpperCase()));
-            if (hasFillerColor) return;
-
-            // Skip palettes with duplicate colors within themselves
-            const unique = new Set(p.colors.map(c => c.toUpperCase()));
-            if (unique.size < p.colors.length) return;
-
-            seenIds.add(p.id);
-            pool.push(p.colors);
-        });
+    // Combine live palettes with the full static set to guarantee a large, diverse pool (200+ palettes)
+    const staticSet: PaletteType[] = [];
+    Object.values(AllPalettes).forEach(v => {
+        if (Array.isArray(v)) staticSet.push(...(v as PaletteType[]));
     });
+
+    const source = [...live, ...staticSet];
+
+    for (const p of source) {
+        if (seenIds.has(p.id)) continue;
+        if (!p.colors || p.colors.length < 5) continue;
+        if (p.colors.some(c => FILLER_COLORS.has(c.toUpperCase()))) continue;
+        const unique = new Set(p.colors.map(c => c.toUpperCase()));
+        if (unique.size < p.colors.length) continue;
+        seenIds.add(p.id);
+        pool.push(p.colors);
+    }
+
+    // ✔ Shuffle using Fisher-Yates to ensure visually distinct palettes spread across columns
+    for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
 
     return pool;
 };
 
-// Cache the pool at module level — built once on initial load
-const PALETTE_POOL = buildPalettePool();
-
-// Fisher-Yates shuffle: returns a new shuffled copy, never mutates input
-const fisherYatesShuffle = (arr: string[][]): string[][] => {
-    const copy = [...arr];
-    for (let i = copy.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [copy[i], copy[j]] = [copy[j], copy[i]];
-    }
-    return copy;
-};
-
-export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize }: {
+export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize, livePalettes = [] }: {
     onBrowse: () => void;
     onMaker: () => void;
     onPickFromImage: () => void;
     onCustomize: () => void;
+    livePalettes?: PaletteType[];   // ← actual site palettes from Supabase
 }) => {
-    // Keep a shuffled order and a cursor — each window of 24 is guaranteed unique
-    const shuffledPoolRef = useRef<string[][]>(fisherYatesShuffle(PALETTE_POOL));
+    // Build the pool from live palettes (sequential, no shuffle)
+    const poolRef = useRef<string[][]>([]);
     const cursorRef = useRef(0);
 
-    const getNextWindow = (): string[][] => {
-        const pool = shuffledPoolRef.current;
-        const size = 24;
-        const start = cursorRef.current;
-        const end = start + size;
+    // Rebuild & shuffle whenever livePalettes updates
+    useEffect(() => {
+        const newPool = buildPool(livePalettes);
+        poolRef.current = newPool;
+        cursorRef.current = 0;
+        // Immediately sync the state with newest pool to avoid stale/duplicate frames
+        setHeroPalettes(getNextWindowFrom(newPool, 0));
+    }, [livePalettes]);
 
-        let window: string[][];
-        if (end <= pool.length) {
-            window = pool.slice(start, end);
-            cursorRef.current = end >= pool.length ? 0 : end;
-        } else {
-            // Wrap: take remainder from current shuffle, then start a fresh shuffle
-            const tail = pool.slice(start);
-            shuffledPoolRef.current = fisherYatesShuffle(PALETTE_POOL);
-            const needed = size - tail.length;
-            window = [...tail, ...shuffledPoolRef.current.slice(0, needed)];
-            cursorRef.current = needed;
+    // 90 palettes per window = 30 per column
+    // This ensures the CSS-scroll duplicate is completely off-screen
+    const WINDOW = 90;
+
+    // Helper: get next WINDOW palettes starting from a given cursor position
+    const getNextWindowFrom = (pool: string[][], start: number): string[][] => {
+        if (pool.length === 0) return [];
+        const result: string[][] = [];
+        for (let i = 0; i < WINDOW; i++) {
+            result.push(pool[(start + i) % pool.length]);
         }
-        return window;
+        cursorRef.current = (start + WINDOW) % pool.length;
+        return result;
     };
 
-    const [heroPalettes, setHeroPalettes] = useState<string[][]>(() => getNextWindow());
+    const getNextWindow = (): string[][] =>
+        getNextWindowFrom(poolRef.current, cursorRef.current);
+
+    const [heroPalettes, setHeroPalettes] = useState<string[][]>(() => {
+        // Initial: use static pool so something renders immediately
+        poolRef.current = buildPool([]);
+        return getNextWindow();
+    });
     const [isShuffling, setIsShuffling] = useState(false);
 
-    const shuffleColors = () => {
+    const advanceColors = () => {
         setIsShuffling(true);
         setHeroPalettes(getNextWindow());
         setTimeout(() => setIsShuffling(false), 500);
     };
 
-    // Auto-shuffle every 3 seconds — always shows a fresh unique set
+    // Cycle to next batch every 4 seconds
     useEffect(() => {
-        const interval = setInterval(shuffleColors, 3000);
+        const interval = setInterval(advanceColors, 4000);
         return () => clearInterval(interval);
     }, []);
 
@@ -116,19 +120,20 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize }: {
                                 <span>Powered by Chromatic Color Intelligence</span>
                             </div>
 
-                            {/* Main Heading */}
+                            {/* Main Heading — colors sync with the foreground palette card */}
+                            {/* heroPalettes[4] = same palette shown in the foreground card */}
                             <h1
                                 className="font-display text-5xl font-bold leading-tight tracking-tight text-white md:text-7xl lg:text-8xl animate-fade-up transition-all duration-700 ease-in-out"
                                 style={{
-                                    textShadow: `0 0 40px ${heroPalettes[0]?.[2]}20`
+                                    textShadow: `0 0 40px ${heroPalettes[4]?.[2]}20`
                                 }}
                             >
                                 AI-Powered <span className="relative inline-block">
                                     <span
                                         className="transition-colors duration-700 ease-in-out"
                                         style={{
-                                            color: heroPalettes[0]?.[2],
-                                            textShadow: `0 0 20px ${heroPalettes[0]?.[2]}40`
+                                            color: heroPalettes[4]?.[1],
+                                            textShadow: `0 0 24px ${heroPalettes[4]?.[1]}60`
                                         }}
                                     >
                                         Color
@@ -136,8 +141,8 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize }: {
                                     <span
                                         className="transition-colors duration-700 ease-in-out"
                                         style={{
-                                            color: heroPalettes[0]?.[3],
-                                            textShadow: `0 0 20px ${heroPalettes[0]?.[3]}40`
+                                            color: heroPalettes[4]?.[3],
+                                            textShadow: `0 0 24px ${heroPalettes[4]?.[3]}60`
                                         }}
                                     >
                                         Palettes
@@ -148,7 +153,7 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize }: {
 
                             {/* Description */}
                             <p className="max-w-[580px] font-mono text-base text-secondary-foreground/80 md:text-lg animate-fade-up [animation-delay:0.1s] leading-relaxed">
-                                Generate, customize, and share stunning color palettes powered by intelligent color analysis and community creativity.
+                                Generate, customize, and share stunning color palettes powered by intelligent analysis and community creativity.
                             </p>
                         </div>
 

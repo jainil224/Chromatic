@@ -142,7 +142,10 @@ export function CategoryMenu({ selectedCategory, onSelectCategory, className, ho
       <div className="space-y-8">
         {MENU_SECTIONS.map((section) => (
           <div key={section.title} className="space-y-4">
-            <div className="flex items-center gap-2.5 px-3">
+            <div
+              id={section.title === 'Vibes' ? 'tour-cat-vibes' : undefined}
+              className="flex items-center gap-2.5 px-3"
+            >
               <div className="p-1 rounded-md bg-secondary/30">
                 <section.icon className="h-3 w-3 text-primary/70" />
               </div>

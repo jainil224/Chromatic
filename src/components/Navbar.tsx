@@ -69,7 +69,7 @@ export const Navbar = ({
                         </div>
                         <div className="flex items-center gap-1.5 whitespace-nowrap">
                             <span className="font-mono text-[10px] font-bold uppercase tracking-tight text-white/90">
-                                Colors Palettes:
+                                Colours:
                             </span>
                             <span className="font-display text-base font-black text-white leading-none">
                                 {allPalettesCount.toLocaleString()}

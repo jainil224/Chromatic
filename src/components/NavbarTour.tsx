@@ -9,7 +9,7 @@ interface TourStep {
     targetId: string;
     title: string;
     message: string;
-    position?: 'bottom' | 'bottom-start' | 'bottom-end' | 'top';
+    position?: 'bottom' | 'bottom-start' | 'bottom-end' | 'top' | 'right';
 }
 
 // --- Tour Data ---
@@ -17,38 +17,45 @@ const TOUR_STEPS: TourStep[] = [
     {
         targetId: 'tour-logo',
         title: 'Explore the Palette Library',
-        message: 'Browse thousands of curated color palettes crafted for modern UI, branding, and creative projects.',
+        message: 'Browse thousands of curated palette of colours. crafted for modern UI, branding, and creative projects.',
         position: 'bottom-start',
     },
     {
         targetId: 'navbar-search',
         title: 'Find Your Inspiration',
-        message: 'Search by mood, theme, or color tone to instantly discover palettes that match your vision.',
+        message: 'Search by mood, theme, or tone to instantly discover sets of colours. that match your vision.',
         position: 'bottom',
     },
     {
         targetId: 'tour-pixels',
-        title: 'Extract Colors from Images',
-        message: 'Upload any image and let AI generate a perfectly matched color palette based on dominant colors.',
+        title: 'Extract from Images',
+        message: 'Upload any image and let AI generate a perfectly matched palette based on dominant colours.',
         position: 'bottom',
     },
     {
         targetId: 'tour-build',
-        title: 'Create & Share Your Palette',
-        message: "Design your own custom color combinations from scratch. Once you're satisfied, submit your palette to the Chromomatic Community and inspire designers worldwide.",
+        title: 'Create & Share',
+        message: "Design your own custom combinations of colours. from scratch. Once you're satisfied, submit and inspire designers worldwide.",
         position: 'bottom',
     },
     {
         targetId: 'tour-tweak',
         title: 'Refine with Precision',
-        message: 'Adjust brightness, saturation, and tones to perfect every shade in your palette.',
+        message: 'Adjust brightness, saturation, and tones to perfect every shade in your colours.',
         position: 'bottom',
     },
     {
         targetId: 'tour-theme-toggle',
         title: 'Switch Display Mode',
-        message: 'Toggle between light and dark mode for a more comfortable and personalized creative experience.',
+        message: 'Toggle between light and dark mode for a personalized creative experience with colours.',
         position: 'bottom-end',
+    },
+    // ─── Sidebar Category Guidance ────────────────────────────────────────
+    {
+        targetId: 'tour-cat-vibes',
+        title: 'Filter by Vibes',
+        message: 'Choose a mood — Bold, Neon, Retro, Dark, Warm and more — to instantly filter the library to colours.',
+        position: 'right',
     },
 ];
 
@@ -80,19 +87,32 @@ export const NavbarTour = () => {
                 const rect = element.getBoundingClientRect();
                 setTargetRect(rect);
 
-                // Calculate Tooltip Position
                 const tooltipWidth = 340;
-                let top = rect.bottom + 20; // 20px gap
-                let left = rect.left + rect.width / 2;
-
-                // Edge detection
+                const tooltipHeight = 180; // estimated
+                const GAP = 20;
                 const windowWidth = window.innerWidth;
-                if (left - tooltipWidth / 2 < 20) left = tooltipWidth / 2 + 20;
-                if (left + tooltipWidth / 2 > windowWidth - 20) left = windowWidth - tooltipWidth / 2 - 20;
+                const windowHeight = window.innerHeight;
+
+                let top = 0;
+                let left = 0;
+
+                if (step.position === 'right') {
+                    // Tooltip appears to the right of the element
+                    top = rect.top + rect.height / 2 - tooltipHeight / 2;
+                    left = rect.right + GAP;
+                    // Clamp vertically
+                    if (top < GAP) top = GAP;
+                    if (top + tooltipHeight > windowHeight - GAP) top = windowHeight - tooltipHeight - GAP;
+                } else {
+                    // Default: below the element, centred
+                    top = rect.bottom + GAP;
+                    left = rect.left + rect.width / 2;
+                    // Edge detection for left/right
+                    if (left - tooltipWidth / 2 < GAP) left = tooltipWidth / 2 + GAP;
+                    if (left + tooltipWidth / 2 > windowWidth - GAP) left = windowWidth - tooltipWidth / 2 - GAP;
+                }
 
                 setTooltipPosition({ top, left });
-
-                // Scroll element into view smoothly if needed
                 element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
             }
         };
