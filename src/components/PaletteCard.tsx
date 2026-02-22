@@ -143,7 +143,7 @@ export const PaletteCard = memo(function PaletteCard({
         </div>
 
         {/* Info */}
-        <div className="space-y-1.5 sm:space-y-2 pr-8">
+        <div className="space-y-1.5 sm:space-y-2 pr-20 sm:pr-8">
           <h3 className="font-display text-sm sm:text-lg text-foreground tracking-tight transition-colors group-hover:text-primary truncate">
             {palette.name}
           </h3>
@@ -175,7 +175,7 @@ export const PaletteCard = memo(function PaletteCard({
       </div>
 
       {/* Action Buttons Container */}
-      <div className="absolute right-4 bottom-4 z-10 flex items-center gap-1">
+      <div className="absolute right-2 bottom-2 sm:right-4 sm:bottom-4 z-10 flex items-center gap-0.5 sm:gap-1">
 
         {/* Admin Delete Button — only visible when admin is logged in */}
         {isAdmin && onAdminDelete && (
@@ -235,7 +235,7 @@ export const PaletteCard = memo(function PaletteCard({
               e.stopPropagation();
               onToggleFavorite(palette.id);
             }}
-            className={`flex h-10 w-10 sm:h-8 sm:w-8 items-center justify-center rounded-full transition-all hover:bg-secondary ${isFavorite ? "text-red-500 hover:text-red-600" : "text-secondary-foreground/60 hover:text-red-500"
+            className={`flex h-9 w-9 sm:h-8 sm:w-8 items-center justify-center rounded-full transition-all hover:bg-secondary ${isFavorite ? "text-red-500 hover:text-red-600" : "text-secondary-foreground/60 hover:text-red-500"
               }`}
             aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
           >
@@ -247,7 +247,7 @@ export const PaletteCard = memo(function PaletteCard({
         <button
           type="button"
           onClick={handleShare}
-          className="flex h-10 w-10 sm:h-8 sm:w-8 items-center justify-center rounded-full text-secondary-foreground/60 transition-all hover:bg-secondary hover:text-primary"
+          className="flex h-9 w-9 sm:h-8 sm:w-8 items-center justify-center rounded-full text-secondary-foreground/60 transition-all hover:bg-secondary hover:text-primary"
           aria-label="Share palette"
           title="Share"
         >

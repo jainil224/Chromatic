@@ -495,12 +495,9 @@ export function ImagePickerModal({
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent className="sm:max-w-[800px] h-[90vh] flex flex-col p-0 gap-0 border-border bg-background/95 backdrop-blur-xl">
-                <DialogHeader className="p-6 border-b border-border">
-                    <DialogTitle className="text-2xl font-display flex items-center justify-between">
+                <DialogHeader className="p-4 sm:p-6 border-b border-border">
+                    <DialogTitle className="text-xl sm:text-2xl font-display">
                         Select image
-                        <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
-                            <X className="h-5 w-5" />
-                        </Button>
                     </DialogTitle>
                 </DialogHeader>
 
@@ -514,7 +511,7 @@ export function ImagePickerModal({
                             </TabsList>
                         </div>
 
-                        <div className="p-6">
+                        <div className="p-4 sm:p-6">
                             <TabsContent value="upload" className="mt-0">
                                 {!savedImage ? (
                                     <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-border rounded-2xl cursor-pointer hover:bg-secondary/50 transition-colors group">
@@ -762,11 +759,11 @@ export function ImagePickerModal({
                     </Tabs>
                 </div>
 
-                <DialogFooter className="p-6 border-t border-border bg-card/30 flex flex-row items-center justify-between">
-                    <div className="flex items-center gap-3">
+                <DialogFooter className="p-4 sm:p-6 border-t border-border bg-card/30 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="outline" className="h-11 px-4 font-mono text-xs uppercase tracking-wider">
+                                <Button variant="outline" className="h-10 sm:h-11 px-4 font-mono text-xs uppercase tracking-wider w-full sm:w-auto">
                                     Export Options <ChevronDown className="ml-2 h-4 w-4" />
                                 </Button>
                             </DropdownMenuTrigger>
@@ -802,23 +799,23 @@ export function ImagePickerModal({
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
-                    </div>
-
-                    <div className="flex gap-3">
-                        <Button variant="outline" onClick={onClose} className="h-11 px-6 font-mono text-xs uppercase tracking-wider border-border hover:bg-secondary">
+                        <Button variant="outline" onClick={onClose} className="h-10 sm:h-11 px-6 font-mono text-xs uppercase tracking-wider border-border hover:bg-secondary w-full sm:w-auto">
                             Cancel
                         </Button>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                         <Button
                             onClick={handleDownloadImage}
                             disabled={!savedImage || localMarkers.length === 0}
-                            className="h-11 px-8 font-mono text-xs uppercase tracking-wider bg-gradient-to-r from-primary to-accent hover:shadow-lg hover:shadow-primary/20 transition-all font-bold"
+                            className="h-10 sm:h-11 px-8 font-mono text-xs uppercase tracking-wider bg-gradient-to-r from-primary to-accent hover:shadow-lg hover:shadow-primary/20 transition-all font-bold w-full sm:w-auto"
                         >
-                            <ImageIcon className="mr-2 h-4 w-4" /> Download Image
+                            <ImageIcon className="mr-2 h-4 w-4" /> Image
                         </Button>
                         <Button
                             onClick={() => setIsSubmitModalOpen(true)}
                             disabled={!savedImage || localMarkers.length < 3}
-                            className="h-11 px-6 bg-[#00FF88] hover:bg-[#00FF88]/90 text-[#050505] font-bold border-none transition-all hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+                            className="h-10 sm:h-11 px-6 bg-[#00FF88] hover:bg-[#00FF88]/90 text-[#050505] font-bold border-none transition-all hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 w-full sm:w-auto"
                         >
                             Submit to Community
                         </Button>
@@ -848,4 +845,5 @@ export function ImagePickerModal({
             </div>
         </Dialog>
     );
+
 }
