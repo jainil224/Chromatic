@@ -1,10 +1,11 @@
-import { Palette as PaletteIcon, Search, X, Menu, Image as ImageIcon, Paintbrush, PanelLeftClose, PanelLeftOpen, Upload, Share2 } from "lucide-react";
+import { Palette as PaletteIcon, Search, X, Menu, Image as ImageIcon, Paintbrush, PanelLeftClose, PanelLeftOpen, Upload, Share2, Link2, Twitter } from "lucide-react";
 import { toast } from "sonner";
 import { ModeToggle, type ThemeMode } from "./ModeToggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { CategoryMenu } from "@/components/CategoryMenu";
 import { SubmitPaletteModal } from "@/components/SubmitPaletteModal";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { NavbarTour } from "./NavbarTour";
 import { useNavigate } from "react-router-dom";
@@ -43,27 +44,34 @@ export const Navbar = ({
 }: NavbarProps) => {
     const navigate = useNavigate();
     const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
+    const [shareOpen, setShareOpen] = useState(false);
 
-    const handleShareWebsite = async () => {
-        const shareData = {
-            title: "Chromatic - Modern Color Palettes",
-            text: "Discover beautiful, hand-picked color palettes for your next design project on Chromatic.",
-            url: window.location.origin,
-        };
+    const shareUrl = window.location.origin;
+    const shareText = "Discover beautiful, hand-picked color palettes for your next design project on Chromatic.";
 
+    const handleCopyLink = async () => {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success("Link copied to clipboard!");
+        setShareOpen(false);
+    };
+
+    const handleShareNative = async () => {
         try {
             if (navigator.share) {
-                await navigator.share(shareData);
+                await navigator.share({ title: "Chromatic - Modern Color Palettes", text: shareText, url: shareUrl });
             } else {
-                await navigator.clipboard.writeText(window.location.origin);
-                toast.success("Website link copied to clipboard!");
+                await handleCopyLink();
             }
         } catch (err) {
-            if ((err as Error).name !== 'AbortError') {
-                console.error('Error sharing website:', err);
-                toast.error("Failed to share website");
-            }
+            if ((err as Error).name !== 'AbortError') toast.error("Sharing failed");
         }
+        setShareOpen(false);
+    };
+
+    const handleShareTwitter = () => {
+        const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+        window.open(tweetUrl, '_blank', 'noopener,noreferrer');
+        setShareOpen(false);
     };
 
     return (
@@ -162,17 +170,50 @@ export const Navbar = ({
                             Tweak
                         </Button>
 
+                        {/* Share Dropdown — desktop */}
+                        <Popover open={shareOpen} onOpenChange={setShareOpen}>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="rounded-full h-8 px-3 text-[10px] font-mono text-secondary-foreground/60 hover:text-foreground hover:bg-white/10 hover:shadow-lg transition-all uppercase"
+                                    title="Share Chromatic"
+                                >
+                                    <Share2 className="h-3 w-3 mr-1.5" />
+                                    Share
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent
+                                side="bottom"
+                                align="end"
+                                sideOffset={12}
+                                className="w-52 p-2 bg-background/95 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl"
+                            >
+                                <p className="px-2 py-1 text-[9px] font-mono uppercase tracking-widest text-secondary-foreground/40 mb-1">Share Chromatic</p>
+                                <button
+                                    onClick={handleCopyLink}
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-foreground/80 hover:bg-white/5 hover:text-foreground transition-all"
+                                >
+                                    <Link2 className="h-4 w-4 text-primary/70" />
+                                    <span className="font-medium text-xs">Copy Link</span>
+                                </button>
+                                <button
+                                    onClick={handleShareTwitter}
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-foreground/80 hover:bg-white/5 hover:text-foreground transition-all"
+                                >
+                                    <Twitter className="h-4 w-4 text-sky-400/80" />
+                                    <span className="font-medium text-xs">Share on X / Twitter</span>
+                                </button>
+                                <button
+                                    onClick={handleShareNative}
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-foreground/80 hover:bg-white/5 hover:text-foreground transition-all"
+                                >
+                                    <Share2 className="h-4 w-4 text-green-400/80" />
+                                    <span className="font-medium text-xs">More Options</span>
+                                </button>
+                            </PopoverContent>
+                        </Popover>
                     </div>
-
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={handleShareWebsite}
-                        className="h-8 w-8 rounded-full hover:bg-white/10 text-secondary-foreground/60 hover:text-foreground transition-all"
-                        title="Share Website"
-                    >
-                        <Share2 className="h-4 w-4" />
-                    </Button>
 
                     <ModeToggle id="tour-theme-toggle" mode={themeMode} onToggle={onToggleTheme} />
 

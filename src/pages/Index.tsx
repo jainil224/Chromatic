@@ -661,6 +661,24 @@ const Index = () => {
           onNumColorsChange={setPickerNumColors}
         />
       </Suspense>
+
+      {/* Floating Share FAB — always visible, bottom-right */}
+      <button
+        onClick={handleShareWebsite}
+        className="fixed bottom-6 right-6 z-50 group flex items-center gap-0 px-4 py-3 rounded-full
+                   bg-primary text-primary-foreground font-bold
+                   shadow-[0_8px_30px_rgba(0,0,0,0.3),0_0_30px_rgba(var(--primary),0.35)]
+                   hover:shadow-[0_8px_40px_rgba(0,0,0,0.4),0_0_50px_rgba(var(--primary),0.5)]
+                   hover:scale-[1.06] active:scale-95
+                   transition-all duration-300 ease-out"
+        title="Share Chromatic"
+        aria-label="Share Chromatic"
+      >
+        <Share2 className="h-4 w-4 shrink-0" />
+        <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-[130px] group-hover:ml-2 transition-all duration-300 text-sm font-bold">
+          Share Chromatic
+        </span>
+      </button>
     </div>
   );
 };
