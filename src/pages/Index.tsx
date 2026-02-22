@@ -145,6 +145,14 @@ const Index = () => {
     setVisibleSectionsCount(6);
   }, []);
 
+  // Reset scroll position when category or search changes
+  useEffect(() => {
+    const scrollView = document.getElementById('main-scroll-view');
+    if (scrollView) {
+      scrollView.scrollTo({ top: 0, behavior: 'instant' });
+    }
+  }, [selectedCategory, searchQuery]);
+
 
 
   // Smart search: Auto-select category based on search query (triggered on Enter)
@@ -174,9 +182,13 @@ const Index = () => {
   }, []);
 
   const handleBrowse = useCallback(() => {
-    const grid = document.getElementById('palette-grid');
-    grid?.scrollIntoView({ behavior: 'smooth' });
-  }, []);
+    if (!selectedCategory) {
+      handleSelectCategory('Bold');
+    } else {
+      const grid = document.getElementById('palette-grid');
+      grid?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [selectedCategory, handleSelectCategory]);
 
   const handleMaker = useCallback(() => navigate('/palette-maker'), [navigate]);
   const handleCustomize = useCallback(() => navigate('/customize'), [navigate]);
