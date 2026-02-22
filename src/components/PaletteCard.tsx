@@ -1,6 +1,6 @@
-import { memo } from "react";
+import { memo, useState } from "react";
 import type { Palette } from "@/data/palettes";
-import { Heart, MoreVertical, Edit2, Trash2, Sparkles } from "lucide-react";
+import { Heart, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +19,9 @@ interface PaletteCardProps {
   isCustom?: boolean;
   onEdit?: (palette: any) => void;
   onDelete?: (id: string) => void;
+  // Admin-only props
+  isAdmin?: boolean;
+  onAdminDelete?: (id: string) => void;
 }
 
 export const PaletteCard = memo(function PaletteCard({
@@ -32,11 +35,15 @@ export const PaletteCard = memo(function PaletteCard({
   isCustom = false,
   onEdit,
   onDelete,
+  isAdmin = false,
+  onAdminDelete,
 }: PaletteCardProps) {
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
   // Show "NEW" badge only if tag exists AND approved within last 3 days
   const isNewArrival = (() => {
     if (!palette.tags?.includes('new_arrival')) return false;
-    if (!palette.approved_at) return true; // tag exists but no timestamp → show badge
+    // Only show NEW if we have a known approval timestamp AND it's within 3 days
+    if (!palette.approved_at) return false;
     const elapsed = Date.now() - new Date(palette.approved_at).getTime();
     return elapsed < 3 * 24 * 60 * 60 * 1000; // 3 days in ms
   })();
@@ -77,7 +84,7 @@ export const PaletteCard = memo(function PaletteCard({
             />
           ))}
 
-          {/* NEW badge */}
+          {/* NEW badge — for community new arrivals (teal) */}
           {isNewArrival && (
             <div
               className="absolute top-1.5 left-1.5 flex items-center gap-1 px-2 py-0.5 rounded-full font-black uppercase select-none pointer-events-none"
@@ -92,6 +99,23 @@ export const PaletteCard = memo(function PaletteCard({
             >
               <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#000', display: 'inline-block', opacity: 0.5 }} />
               NEW
+            </div>
+          )}
+
+          {/* NEW badge — for user-created palettes (amber/gold) */}
+          {isCustom && !isNewArrival && (
+            <div
+              className="absolute top-1.5 left-1.5 flex items-center gap-1 px-2.5 py-1 rounded-full font-black uppercase select-none pointer-events-none"
+              style={{
+                fontSize: 9,
+                letterSpacing: '0.15em',
+                background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                color: '#000',
+                boxShadow: '0 0 10px rgba(245,158,11,0.45), 0 0 20px rgba(245,158,11,0.2)',
+                animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              }}
+            >
+              ✦ NEW
             </div>
           )}
         </div>
@@ -130,6 +154,55 @@ export const PaletteCard = memo(function PaletteCard({
 
       {/* Action Buttons Container */}
       <div className="absolute right-4 bottom-4 z-10 flex items-center gap-1">
+
+        {/* Admin Delete Button — only visible when admin is logged in */}
+        {isAdmin && onAdminDelete && (
+          deleteConfirm ? (
+            // Confirm state: show Yes/Cancel
+            <div className="flex items-center gap-1 animate-fade-up">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onAdminDelete(palette.id);
+                  setDeleteConfirm(false);
+                }}
+                className="flex h-7 items-center gap-1 rounded-full bg-red-600 px-2.5 text-[10px] font-black uppercase tracking-wider text-white transition-all hover:bg-red-500"
+                aria-label="Confirm delete"
+              >
+                Delete
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setDeleteConfirm(false);
+                }}
+                className="flex h-7 items-center rounded-full border border-white/10 bg-secondary/80 px-2.5 text-[10px] font-bold uppercase text-secondary-foreground/70 transition-all hover:bg-secondary"
+                aria-label="Cancel delete"
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            // Default state: subtle trash icon
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setDeleteConfirm(true);
+              }}
+              className="flex h-8 w-8 items-center justify-center rounded-full text-red-500/40 transition-all hover:bg-red-500/10 hover:text-red-500 opacity-0 group-hover:opacity-100"
+              aria-label="Delete palette (admin)"
+              title="Admin: Remove from site"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          )
+        )}
 
         {/* Favorite Button */}
         {onToggleFavorite && (

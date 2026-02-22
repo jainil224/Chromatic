@@ -10,6 +10,7 @@ interface SupabasePalette {
     tags: string[] | null;
     created_at: string;
     section: string | null;
+    approved_at: string | null;  // null = not yet approved / old palette
 }
 
 export function usePalettes(section?: string) {
@@ -30,6 +31,7 @@ export function usePalettes(section?: string) {
                     tags: payload.new.tags || undefined,
                     created_at: payload.new.created_at,
                     section: payload.new.section || undefined,
+                    approved_at: payload.new.approved_at || undefined,
                 };
                 setPalettes(prev => [newPalette, ...prev]);
             } else if (payload.eventType === 'UPDATE') {
@@ -55,6 +57,7 @@ export function usePalettes(section?: string) {
                         category: updated.category || undefined,
                         tags: updated.tags || undefined,
                         section: updated.section || undefined,
+                        approved_at: updated.approved_at || undefined,
                     };
                 }));
             } else if (payload.eventType === 'DELETE') {
@@ -138,6 +141,7 @@ export function usePalettes(section?: string) {
                     tags: p.tags || undefined,
                     created_at: p.created_at,
                     section: p.section || undefined,
+                    approved_at: p.approved_at || undefined,  // ← carry approved_at through
                 }));
 
                 setPalettes(transformedPalettes);

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tag Input Component</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0a0a12;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            padding: 2rem;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 520px;
+            background: #13131f;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 18px;
+            padding: 2rem;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.35);
+            margin-bottom: 10px;
+        }
+
+        /* ── Tag Input Wrapper ─────────────────────────── */
+        .tag-input-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: #0d0d1a;
+            border: 1.5px solid rgba(255, 255, 255, 0.09);
+            border-radius: 12px;
+            cursor: text;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            min-height: 52px;
+        }
+
+        .tag-input-wrapper:focus-within {
+            border-color: rgba(99, 102, 241, 0.55);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+        }
+
+        /* ── Individual Tag Pill ───────────────────────── */
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px 4px 12px;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #a5b4fc;
+            animation: tagPop 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: background 0.15s, border-color 0.15s;
+            white-space: nowrap;
+        }
+
+        .tag:hover {
+            background: rgba(99, 102, 241, 0.25);
+            border-color: rgba(99, 102, 241, 0.5);
+        }
+
+        .tag-remove {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: rgba(165, 180, 252, 0.7);
+            cursor: pointer;
+            font-size: 10px;
+            line-height: 1;
+            transition: background 0.15s, color 0.15s;
+            flex-shrink: 0;
+            padding: 0;
+        }
+
+        .tag-remove:hover {
+            background: rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        /* ── Actual text input (invisible) ─────────────── */
+        .tag-text-input {
+            flex: 1;
+            min-width: 120px;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 13px;
+            font-family: inherit;
+            caret-color: #818cf8;
+            padding: 2px 0;
+        }
+
+        .tag-text-input::placeholder {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 13px;
+        }
+
+        /* ── Hint text ─────────────────────────────────── */
+        .hint {
+            margin-top: 8px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.2);
+            letter-spacing: 0.02em;
+        }
+
+        /* ── Tag count badge ───────────────────────────── */
+        .tag-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 6px;
+            border-radius: 999px;
+            background: rgba(99, 102, 241, 0.2);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            font-size: 10px;
+            font-weight: 700;
+            color: #a5b4fc;
+            margin-left: auto;
+            transition: all 0.2s;
+        }
+
+        .tag-count[data-count="0"] {
+            opacity: 0;
+        }
+
+        /* ── Output preview ────────────────────────────── */
+        .output {
+            margin-top: 20px;
+            padding: 14px;
+            background: #0d0d1a;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            font-size: 11px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            color: rgba(99, 102, 241, 0.7);
+            word-break: break-all;
+            min-height: 40px;
+            letter-spacing: 0.03em;
+            transition: color 0.2s;
+        }
+
+        .output.empty {
+            color: rgba(255, 255, 255, 0.15);
+            font-style: italic;
+            font-family: inherit;
+            letter-spacing: 0;
+        }
+
+        /* ── Pop animation ─────────────────────────────── */
+        @keyframes tagPop {
+            0% {
+                transform: scale(0.6);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* ── Header row ────────────────────────────────── */
+        .header-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .title {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.75);
+            letter-spacing: 0.01em;
+        }
+
+        /* Clear all button */
+        .clear-btn {
+            margin-left: auto;
+            background: none;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 11px;
+            padding: 3px 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: none;
+        }
+
+        .clear-btn.visible {
+            display: inline-block;
+        }
+
+        .clear-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+
+        <div class="header-row">
+            <span class="title">Tags</span>
+            <span class="tag-count" id="tagCount" data-count="0">0</span>
+            <button class="clear-btn" id="clearBtn" onclick="clearAll()">Clear all</button>
+        </div>
+
+        <label class="label" for="tagInput">Press Space, Comma, or Enter to add a tag</label>
+
+        <div class="tag-input-wrapper" id="tagWrapper" onclick="focusInput()">
+            <!-- Tags are injected here dynamically -->
+            <input class="tag-text-input" id="tagInput" type="text" placeholder="Type a tag..." autocomplete="off"
+                spellcheck="false" />
+        </div>
+
+        <p class="hint">Separators: <strong>Space &nbsp;·&nbsp; Comma &nbsp;·&nbsp; Enter</strong></p>
+
+        <div class="output empty" id="output">No tags yet...</div>
+
+    </div>
+
+    <script>
+        const input = document.getElementById('tagInput');
+        const wrapper = document.getElementById('tagWrapper');
+        const output = document.getElementById('output');
+        const countEl = document.getElementById('tagCount');
+        const clearBtn = document.getElementById('clearBtn');
+
+        let tags = [];
+
+        /* ── Focus the hidden input when clicking anywhere in the wrapper */
+        function focusInput() {
+            input.focus();
+        }
+
+        /* ── Create a single tag from a word ────────────── */
+        function addTag(word) {
+            const cleaned = word.trim().toUpperCase();
+            if (!cleaned || tags.includes(cleaned)) return; // skip empty / duplicates
+
+            tags.push(cleaned);
+
+            const pill = document.createElement('span');
+            pill.className = 'tag';
+            pill.dataset.value = cleaned;
+            pill.innerHTML = `
+        ${cleaned}
+        <button class="tag-remove" onclick="removeTag('${cleaned}')" title="Remove">✕</button>
+      `;
+
+            // Insert before the input field
+            wrapper.insertBefore(pill, input);
+            updateUI();
+        }
+
+        /* ── Split raw input and add all tags ───────────── */
+        function processInput(raw) {
+            // Split on space AND comma
+            const words = raw.split(/[\s,]+/);
+            words.forEach(w => addTag(w));
+            input.value = '';
+        }
+
+        /* ── Remove a tag ───────────────────────────────── */
+        function removeTag(value) {
+            tags = tags.filter(t => t !== value);
+            const pill = wrapper.querySelector(`.tag[data-value="${value}"]`);
+            if (pill) pill.remove();
+            updateUI();
+        }
+
+        /* ── Clear all tags ─────────────────────────────── */
+        function clearAll() {
+            tags = [];
+            wrapper.querySelectorAll('.tag').forEach(t => t.remove());
+            input.value = '';
+            updateUI();
+        }
+
+        /* ── Update counter + output preview ────────────── */
+        function updateUI() {
+            // Count badge
+            countEl.textContent = tags.length;
+            countEl.dataset.count = tags.length;
+
+            // Clear button visibility
+            tags.length > 0 ? clearBtn.classList.add('visible') : clearBtn.classList.remove('visible');
+
+            // Output preview
+            if (tags.length === 0) {
+                output.textContent = 'No tags yet...';
+                output.classList.add('empty');
+            } else {
+                output.textContent = JSON.stringify(tags);
+                output.classList.remove('empty');
+            }
+        }
+
+        /* ── Keyboard events ────────────────────────────── */
+        input.addEventListener('keydown', (e) => {
+            // Enter or Comma → create tag from current input
+            if (e.key === 'Enter' || e.key === ',') {
+                e.preventDefault();
+                if (input.value.trim()) processInput(input.value);
+                return;
+            }
+
+            // Backspace on empty input → remove last tag
+            if (e.key === 'Backspace' && input.value === '' && tags.length > 0) {
+                removeTag(tags[tags.length - 1]);
+                return;
+            }
+        });
+
+        /* ── Space triggers tag creation ─────────────────── */
+        input.addEventListener('keyup', (e) => {
+            if (e.key === ' ' || e.key === 'Spacebar') {
+                if (input.value.trim()) processInput(input.value);
+            }
+        });
+
+        /* ── Handle paste (can contain multiple words) ───── */
+        input.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pasted = e.clipboardData.getData('text');
+            processInput(pasted);
+        });
+
+        /* ── Live input: if space/comma typed, split now ─── */
+        input.addEventListener('input', () => {
+            const val = input.value;
+            // If the current value contains a separator, process immediately
+            if (/[\s,]/.test(val)) {
+                processInput(val);
+            }
+        });
+    </script>
+
+</body>
+
+</html>

@@ -13,70 +13,28 @@ export interface UserPalette extends Palette {
 
 export const useUserPalettes = () => {
     const [userPalettes, setUserPalettes] = useState<UserPalette[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Fetch palettes from Supabase
-    const fetchPalettes = async () => {
+    // On mount: restore ONLY genuinely local palettes (offline fallbacks with "local-" prefix).
+    // Do NOT fetch from Supabase here — usePalettes() already does that and handles all
+    // approved DB palettes. Fetching here was marking every palette with isCustom:true
+    // which caused the amber NEW badge to appear on every card.
+    useEffect(() => {
         try {
-            setLoading(true);
-            setError(null);
-
-            const { data, error: fetchError } = await supabase
-                .from('palettes')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (fetchError) {
-                throw fetchError;
-            }
-
-            // Transform Supabase data to UserPalette format
-            const transformedPalettes: UserPalette[] = (data || []).map(palette => ({
-                id: palette.id,
-                name: palette.name,
-                colors: palette.colors,
-                tags: [], // You can add tags support later
-                createdAt: palette.created_at,
-                isCustom: true,
-                isNew: isWithin24Hours(palette.created_at),
-            }));
-
-            setUserPalettes(transformedPalettes);
-
-            // Also save to localStorage as backup
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(transformedPalettes));
-        } catch (err) {
-            console.error('Error fetching palettes:', err);
-            setError(err instanceof Error ? err.message : 'Failed to fetch palettes');
-
-            // Fallback to localStorage if Supabase fails
             const stored = localStorage.getItem(STORAGE_KEY);
             if (stored) {
-                try {
-                    setUserPalettes(JSON.parse(stored));
-                } catch (e) {
-                    console.error('Failed to parse localStorage palettes:', e);
-                }
+                const all: UserPalette[] = JSON.parse(stored);
+                // Keep only local-fallback palettes, not stale copies of DB rows
+                const localOnly = all.filter(p => p.id.startsWith('local-'));
+                setUserPalettes(localOnly);
             }
-        } finally {
-            setLoading(false);
+        } catch {
+            // ignore parse errors
         }
-    };
-
-    // Check if palette was created within last 24 hours
-    const isWithin24Hours = (createdAt: string): boolean => {
-        const created = new Date(createdAt);
-        const now = new Date();
-        const diffMs = now.getTime() - created.getTime();
-        const diffHours = diffMs / (1000 * 60 * 60);
-        return diffHours < 24;
-    };
-
-    // Initial fetch
-    useEffect(() => {
-        fetchPalettes();
     }, []);
+
+    const fetchPalettes = async () => { /* no-op — usePalettes handles DB reads */ };
 
     // Submit new palette for review via Edge Function
     const addPalette = async (palette: Omit<UserPalette, 'id' | 'createdAt' | 'isCustom' | 'isNew'> & { section?: string }) => {
@@ -147,40 +105,13 @@ export const useUserPalettes = () => {
         }
     };
 
-    // Delete palette from Supabase
-    const deletePalette = async (id: string) => {
-        try {
-            const { error: deleteError } = await supabase
-                .from('palettes')
-                .delete()
-                .eq('id', id);
-
-            if (deleteError) {
-                throw deleteError;
-            }
-
-            // Remove from local state
-            setUserPalettes(prev => prev.filter(p => p.id !== id));
-
-            // Update localStorage backup
-            const updated = userPalettes.filter(p => p.id !== id);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-
-            toast.success('Palette deleted from database!');
-        } catch (err) {
-            console.error('Error deleting palette:', err);
-            toast.error('Failed to delete palette from database');
-
-            // Still remove from local state as fallback
-            setUserPalettes(prev => prev.filter(p => p.id !== id));
-        }
-    };
+    // NOTE: deletePalette is intentionally removed from this hook.
+    // Only admins can delete palettes — handled exclusively in AdminDashboard.
 
     return {
         userPalettes,
         addPalette,
         updatePalette,
-        deletePalette,
         loading,
         error,
         refetch: fetchPalettes,

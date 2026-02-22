@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dynamic Palette Counter</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #09090f;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 48px;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            padding: 2rem;
+        }
+
+        /* ── NAVBAR COUNTER PILL (replica of real app) ──────────── */
+        .navbar-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px 8px 12px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border-radius: 999px;
+            box-shadow:
+                0 0 20px rgba(245, 158, 11, 0.35),
+                0 0 40px rgba(245, 158, 11, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            cursor: default;
+            user-select: none;
+        }
+
+        /* Shimmer */
+        .navbar-pill::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            60%,
+            100% {
+                transform: translateX(200%);
+            }
+        }
+
+        .pill-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+
+        .pill-label {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(0, 0, 0, 0.75);
+            white-space: nowrap;
+        }
+
+        .pill-count {
+            font-size: 17px;
+            font-weight: 900;
+            color: #000;
+            letter-spacing: -0.02em;
+            line-height: 1;
+            /* Flip animation slot */
+            display: inline-block;
+            position: relative;
+        }
+
+        /* ── COUNTER WIDGET ─────────────────────────────────────── */
+        .counter-widget {
+            background: #111118;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 20px;
+            padding: 32px 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .widget-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.25);
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        /* Live counter display */
+        .count-display {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .count-number {
+            font-size: 72px;
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            color: #fff;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+            transition: color 0.2s;
+        }
+
+        .count-number.flash {
+            color: #f59e0b;
+        }
+
+        .count-unit {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.3);
+            padding-bottom: 14px;
+        }
+
+        /* Delta badge */
+        .delta-badge {
+            text-align: center;
+            height: 24px;
+            margin-bottom: 28px;
+        }
+
+        .delta {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            opacity: 0;
+            transform: translateY(6px);
+            transition: opacity 0.25s, transform 0.25s;
+        }
+
+        .delta.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .delta.up {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+        }
+
+        .delta.down {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+        }
+
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 24px;
+        }
+
+        /* Stats row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 12px 14px;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.2);
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.8);
+            letter-spacing: -0.02em;
+        }
+
+        /* Buttons */
+        .btn-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 13px;
+            border: none;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #000;
+            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-add:hover {
+            box-shadow: 0 4px 28px rgba(245, 158, 11, 0.5);
+            filter: brightness(1.05);
+        }
+
+        .btn-remove {
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .btn-remove:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        /* Log  */
+        .log-title {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.2);
+            margin-bottom: 10px;
+            margin-top: 28px;
+        }
+
+        .log {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 10px;
+            padding: 12px 14px;
+            max-height: 140px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.05) transparent;
+        }
+
+        .log-entry {
+            font-size: 11px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            color: rgba(255, 255, 255, 0.35);
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            animation: slideIn 0.2s ease;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-entry .log-time {
+            color: rgba(255, 255, 255, 0.2);
+            flex-shrink: 0;
+        }
+
+        .log-entry.add .log-msg {
+            color: #34d399;
+        }
+
+        .log-entry.rem .log-msg {
+            color: #f87171;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Pulse ring when count changes */
+        @keyframes ring {
+            0% {
+                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5);
+            }
+
+            70% {
+                box-shadow: 0 0 0 14px rgba(245, 158, 11, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+            }
+        }
+
+        .counter-widget.pulse-ring {
+            animation: ring 0.5s ease;
+        }
+
+        /* Integration note */
+        .note {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.2);
+            text-align: center;
+            max-width: 420px;
+            line-height: 1.8;
+            letter-spacing: 0.01em;
+        }
+
+        .note code {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 4px;
+            padding: 1px 5px;
+            font-size: 10px;
+            color: #a5b4fc;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ── Navbar counter pill (visual replica of what's in the app) -->
+    <div class="navbar-pill" id="navbarPill">
+        <div class="pill-icon">🎨</div>
+        <span class="pill-label">Colors Palettes:</span>
+        <span class="pill-count" id="pillCount">1,416</span>
+    </div>
+
+    <!-- ── Counter widget -->
+    <div class="counter-widget" id="counterWidget">
+
+        <p class="widget-title">Live Palette Counter</p>
+
+        <div class="count-display">
+            <div class="count-number" id="countDisplay">1,416</div>
+            <div class="count-unit">palettes</div>
+        </div>
+
+        <div class="delta-badge">
+            <span class="delta" id="deltaEl"></span>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="stat-label">Added Today</div>
+                <div class="stat-value" id="addedToday">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Removed Today</div>
+                <div class="stat-value" id="removedToday">0</div>
+            </div>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn btn-add" onclick="addPalette()">➕ Add Palette</button>
+            <button class="btn btn-remove" onclick="removePalette()">🗑 Remove</button>
+        </div>
+
+        <p class="log-title">Activity Log</p>
+        <div class="log" id="log"></div>
+
+    </div>
+
+    <p class="note">
+        This demo uses in-memory state.<br />
+        For production, replace <code>count</code> with a Supabase<br />
+        <code>SELECT COUNT(*) FROM palettes</code> and subscribe via<br />
+        <code>supabase.channel('palettes').on('postgres_changes', ...)</code>
+    </p>
+
+    <script>
+        // ── State ─────────────────────────────────────────────────
+        let count = 1416;
+        let addedToday = 0;
+        let removedToday = 0;
+
+        // ── DOM refs ──────────────────────────────────────────────
+        const countDisplay = document.getElementById('countDisplay');
+        const pillCount = document.getElementById('pillCount');
+        const deltaEl = document.getElementById('deltaEl');
+        const addedEl = document.getElementById('addedToday');
+        const removedEl = document.getElementById('removedToday');
+        const logEl = document.getElementById('log');
+        const widgetEl = document.getElementById('counterWidget');
+
+        // ── Format number with commas ─────────────────────────────
+        const fmt = (n) => n.toLocaleString('en-US');
+
+        // ── Animate count (smooth roll-up/down) ───────────────────
+        function animateCount(from, to, duration = 320) {
+            const start = performance.now();
+            const diff = to - from;
+
+            const tick = (now) => {
+                const elapsed = Math.min(now - start, duration);
+                const ease = 1 - Math.pow(1 - elapsed / duration, 3); // ease-out cubic
+                const current = Math.round(from + diff * ease);
+
+                countDisplay.textContent = fmt(current);
+                pillCount.textContent = fmt(current);
+
+                if (elapsed < duration) {
+                    requestAnimationFrame(tick);
+                } else {
+                    countDisplay.textContent = fmt(to);
+                    pillCount.textContent = fmt(to);
+                }
+            };
+
+            requestAnimationFrame(tick);
+        }
+
+        // ── Show delta badge ──────────────────────────────────────
+        let deltaTimer = null;
+        function showDelta(type, amount) {
+            deltaEl.className = `delta ${type} show`;
+            deltaEl.textContent = type === 'up' ? `+${amount} palette added` : `−${amount} palette removed`;
+
+            clearTimeout(deltaTimer);
+            deltaTimer = setTimeout(() => {
+                deltaEl.classList.remove('show');
+            }, 2400);
+        }
+
+        // ── Flash number color ────────────────────────────────────
+        function flashCount() {
+            countDisplay.classList.add('flash');
+            widgetEl.classList.add('pulse-ring');
+            setTimeout(() => {
+                countDisplay.classList.remove('flash');
+                widgetEl.classList.remove('pulse-ring');
+            }, 500);
+        }
+
+        // ── Add a log entry ───────────────────────────────────────
+        function addLog(type, msg) {
+            const now = new Date().toLocaleTimeString('en-US', { hour12: false });
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `
+        <span class="log-msg">${msg}</span>
+        <span class="log-time">${now}</span>
+      `;
+            // Prepend (newest on top)
+            logEl.insertBefore(entry, logEl.firstChild);
+            // Keep max 20 entries
+            while (logEl.children.length > 20) {
+                logEl.removeChild(logEl.lastChild);
+            }
+        }
+
+        // ── Core update function ─────────────────────────────────
+        // This is the single source of truth.
+        // In production: call updateCounter(newCountFromSupabase)
+        function updateCounter(newCount, source = '') {
+            const delta = newCount - count;
+            const prev = count;
+            count = newCount;
+
+            animateCount(prev, count);
+            flashCount();
+
+            if (delta > 0) {
+                addedToday += delta;
+                addedEl.textContent = addedToday;
+                showDelta('up', delta);
+                addLog('add', `Palette added${source ? ' — ' + source : ''} → total ${fmt(count)}`);
+            } else if (delta < 0) {
+                removedToday += Math.abs(delta);
+                removedEl.textContent = removedToday;
+                showDelta('down', Math.abs(delta));
+                addLog('rem', `Palette removed → total ${fmt(count)}`);
+            }
+        }
+
+        // ── User actions ──────────────────────────────────────────
+        function addPalette() {
+            updateCounter(count + 1, 'Admin approved');
+        }
+
+        function removePalette() {
+            if (count <= 0) return;
+            updateCounter(count - 1);
+        }
+
+        // ── Supabase real-time integration template ───────────────
+        // Uncomment and configure when integrating with Supabase.
+        // Replace the in-memory updateCounter calls with this:
+        /*
+        import { createClient } from '@supabase/supabase-js';
+    
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+        // 1. Fetch initial count
+        async function fetchCount() {
+          const { count: total } = await supabase
+            .from('palettes')
+            .select('*', { count: 'exact', head: true });
+          count = total;
+          countDisplay.textContent = fmt(count);
+          pillCount.textContent    = fmt(count);
+        }
+    
+        // 2. Subscribe to real-time changes
+        supabase
+          .channel('palette-count')
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'palettes' }, () => {
+            updateCounter(count + 1, 'DB insert');
+          })
+          .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'palettes' }, () => {
+            updateCounter(count - 1);
+          })
+          .subscribe();
+    
+        fetchCount();
+        */
+
+        // ── Initial log entry ─────────────────────────────────────
+        addLog('add', `Counter initialized — ${fmt(count)} palettes`);
+    </script>
+
+</body>
+
+</html>

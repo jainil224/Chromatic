@@ -16,6 +16,9 @@ interface PaletteSectionProps {
   gridClassName?: string;
   onEditPalette?: (palette: any) => void;
   onDeletePalette?: (id: string) => void;
+  // Admin-only
+  isAdmin?: boolean;
+  onAdminDelete?: (id: string) => void;
 }
 
 export const PaletteSection = memo(function PaletteSection({
@@ -31,6 +34,8 @@ export const PaletteSection = memo(function PaletteSection({
   gridClassName,
   onEditPalette,
   onDeletePalette,
+  isAdmin = false,
+  onAdminDelete,
 }: PaletteSectionProps) {
   const Icon = Palette;
 
@@ -73,6 +78,8 @@ export const PaletteSection = memo(function PaletteSection({
             isCustom={(palette as any).isCustom}
             onEdit={onEditPalette}
             onDelete={onDeletePalette}
+            isAdmin={isAdmin}
+            onAdminDelete={onAdminDelete}
           />
         ))}
       </div>

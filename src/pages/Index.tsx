@@ -21,6 +21,8 @@ import { toast } from "sonner";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useUserPalettes, type UserPalette } from "@/hooks/useUserPalettes";
 import { usePalettes } from "@/hooks/usePalettes";
+import { useAdminSession } from "@/hooks/useAdminSession";
+import { supabase } from "@/lib/supabase";
 import * as DefaultPalettes from "@/data/palettes";
 
 const Index = () => {
@@ -36,8 +38,19 @@ const Index = () => {
   const [isImagePickerOpen, setIsImagePickerOpen] = useState(false);
   const [editingPalette, setEditingPalette] = useState<UserPalette | null>(null);
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
-  const { userPalettes, addPalette, updatePalette, deletePalette } = useUserPalettes();
+  const { userPalettes, addPalette, updatePalette } = useUserPalettes();
   const { palettes: supabasePalettes, loading: palettesLoading, error: palettesError } = usePalettes();
+  const { isAdmin } = useAdminSession();
+
+  // Admin: remove a palette permanently from the live site
+  const handleAdminDelete = useCallback(async (id: string) => {
+    const { error } = await supabase.from('palettes').delete().eq('id', id);
+    if (error) {
+      toast.error('Failed to delete palette. Make sure you are logged in as admin.');
+    } else {
+      toast.success('Palette removed from the live site.');
+    }
+  }, []);
 
   // Defer search query to keep input responsive
   const deferredSearchQuery = useDeferredValue(searchQuery);
@@ -325,7 +338,8 @@ const Index = () => {
     'Skin', 'Kid', 'Food', 'Coffee', 'Wedding', 'Christmas',
   ];
 
-  // Helper to get palettes for a specific category (Strict Filtering with Smart Meta-Categories)
+  // Helper to get palettes for a specific category — STRICT matching only.
+  // A palette only appears in a category if it is explicitly tagged, categorised, or sectioned for it.
   const getPalettesByCategory = useCallback((category: string) => {
     const catLower = category.toLowerCase();
 
@@ -334,31 +348,13 @@ const Index = () => {
       return favoritePalettes;
     }
 
-    // Define Meta-Categories (collections of tags)
-    const metaCategories: Record<string, string[]> = {
-      'warm': ['red', 'orange', 'yellow', 'amber', 'gold', 'crimson', 'ruby', 'rose', 'coral', 'peach', 'sunset', 'tangerine', 'apricot', 'chocolate', 'cocoa', 'bronze', 'terracotta', 'warm'],
-      'cold': ['blue', 'cyan', 'teal', 'green', 'purple', 'indigo', 'violet', 'navy', 'sky', 'ocean', 'aqua', 'turquoise', 'ice', 'frost', 'denim', 'midnight', 'leaf', 'sage', 'mint', 'emerald', 'jade', 'forest', 'pine', 'seafoam', 'cold'],
-      'summer': ['gold', 'yellow', 'orange', 'blue', 'sky', 'ocean', 'beach', 'sand', 'teal', 'turquoise', 'coral', 'peach', 'sunset', 'sun', 'bright', 'lemon', 'lime', 'summer'],
-      'night': ['night', 'dark', 'midnight', 'stellar', 'cosmic', 'nebula', 'galaxy', 'star', 'moon', 'void', 'abyss'],
-      'glow': ['glow', 'neon', 'bright', 'electric', 'vibrant', 'shine', 'spark'],
-      'happy': ['yellow', 'orange', 'pink', 'bright', 'gold', 'lemon', 'lime', 'mint', 'coral', 'bubblegum', 'rainbow', 'happy'],
-    };
-
     return allPalettes.filter(p => {
-      // 1. Tag match (Strict)
-      if (p.tags?.includes(catLower)) return true;
-
-      // 2. Meta-Category Match (Smart Filtering)
-      if (metaCategories[catLower]) {
-        // If ANY of the palette's tags match ANY of the meta-category tags -> Include it
-        if (p.tags?.some(tag => metaCategories[catLower].includes(tag))) return true;
-      }
-
-      // 3. Category field match
+      // 1. Exact tag match
+      if (p.tags?.some(t => t.toLowerCase() === catLower)) return true;
+      // 2. Exact category field match
       if (p.category?.toLowerCase() === catLower) return true;
-      // 4. Section field match
+      // 3. Exact section field match
       if (p.section?.toLowerCase() === catLower) return true;
-
       return false;
     });
   }, [allPalettes, favoritePalettes]);
@@ -372,12 +368,12 @@ const Index = () => {
 
   // Determine which sections to render
   const sectionsToRender = useMemo((): DashboardSection[] => {
+    // Search results
     if (searchQuery) {
-      // specific search logic
       return [{ title: "Search Results", palettes: filteredPalettes, mode: 'dark' as const, key: 'search' }];
     }
+    // Single category view — strict, only that category's palettes
     if (selectedCategory) {
-      // Single category view
       const palettes = getPalettesByCategory(selectedCategory);
       const isLight = ["light", "bright", "pale", "soft", "cream", "wedding", "spring"].some(k => selectedCategory.toLowerCase().includes(k));
       return [{
@@ -387,31 +383,9 @@ const Index = () => {
         key: 'selected-cat'
       }];
     }
-
-    // Home view: Render all known sections — each palette only appears ONCE (first matching section wins)
-    const seenIds = new Set<string>();
-    const sections: DashboardSection[] = [];
-
-    for (const cat of HOME_CATEGORIES) {
-      const rawPalettes = getPalettesByCategory(cat);
-      // Filter out palettes already shown in an earlier section
-      const uniquePalettes = rawPalettes.filter(p => !seenIds.has(p.id));
-      // Mark all as seen
-      uniquePalettes.forEach(p => seenIds.add(p.id));
-
-      if (uniquePalettes.length === 0) continue;
-
-      const isLight = ["light", "bright", "pale", "soft", "cream", "wedding", "spring"].some(k => cat.toLowerCase().includes(k));
-      sections.push({
-        title: `${cat} Palettes`,
-        palettes: uniquePalettes,
-        mode: (isLight ? 'light' : 'dark' as const),
-        key: cat
-      });
-    }
-
-    return sections;
-  }, [selectedCategory, searchQuery, filteredPalettes, getPalettesByCategory, HOME_CATEGORIES]);
+    // Home (no category, no search) — no palette sections, just show the Hero
+    return [];
+  }, [selectedCategory, searchQuery, filteredPalettes, getPalettesByCategory]);
 
   // Derived sections to actually show (performance optimization)
   const visibleSections = useMemo((): DashboardSection[] => {
@@ -449,101 +423,113 @@ const Index = () => {
         onLogoClick={handleLogoClick}
       />
 
-      <main className="flex-1 min-h-0 pt-[80px] overflow-hidden">
-        {/* Middle: Content Area (Independent Scroll) */}
-        <div id="main-scroll-view" className="h-full overflow-y-auto thin-scrollbar">
-          {/* HEROS SECTION - Full Width */}
-          <div className="w-full animate-fade-in">
-            <Hero
-              onBrowse={handleBrowse}
-              onMaker={handleMaker}
-              onCustomize={handleCustomize}
-              onPickFromImage={handlePickFromImage}
+      {/* ── FIXED VERTICAL SIDEBAR ─────────────────────────────────────────
+           Fixed left sidebar below the 80px Navbar.
+           Contains the vertical CategoryMenu — scrolls independently.
+           Palette grid sits to its right and scrolls up/down. */}
+      <aside
+        className="fixed left-0 bottom-0 z-[38] overflow-y-auto thin-scrollbar"
+        style={{
+          top: 80,
+          width: 220,
+          borderRight: '1px solid rgba(255,255,255,0.05)',
+          background: 'rgba(var(--background-rgb, 10,10,18), 0.85)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+        }}
+      >
+        <div className="px-4 py-6">
+          <Suspense fallback={
+            <div className="space-y-2">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="h-8 bg-secondary/20 animate-pulse rounded-lg" />
+              ))}
+            </div>
+          }>
+            <CategoryMenu
+              selectedCategory={selectedCategory}
+              onSelectCategory={handleSelectCategory}
             />
-          </div>
+          </Suspense>
+        </div>
+      </aside>
+
+      <main className="flex-1 min-h-0 pt-[80px] overflow-hidden" style={{ paddingLeft: 220 }}>
+        {/* Content Area — scrolls ONLY vertically */}
+        <div id="main-scroll-view" className="h-full overflow-y-auto thin-scrollbar">
+          {/* HERO — shown only on the home dashboard (no category / search active) */}
+          {!selectedCategory && !searchQuery && (
+            <div className="w-full animate-fade-in">
+              <Hero
+                onBrowse={handleBrowse}
+                onMaker={handleMaker}
+                onCustomize={handleCustomize}
+                onPickFromImage={handlePickFromImage}
+              />
+            </div>
+          )}
 
           <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8 py-12">
 
-            {/* HORIZONTAL CATEGORY MENU (Sticky) */}
-            <div className="sticky top-0 z-40 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 py-4 mb-8">
-              <Suspense fallback={<div className="h-12 bg-secondary/10 animate-pulse rounded-full" />}>
-                <CategoryMenu
-                  horizontal
-                  selectedCategory={selectedCategory}
-                  onSelectCategory={handleSelectCategory}
-                />
-              </Suspense>
-            </div>
 
-            {/* DASHBOARD / PALETTE GRID CONTENT */}
-            <div id="palette-grid" className="space-y-16 pb-32 animate-fade-up">
-              <Suspense fallback={<div className="h-96 w-full flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>}>
-                {visibleSections.map((section, idx) => (
-                  <PaletteSection
-                    key={section.key || section.title}
-                    title={section.title}
-                    mode={section.mode}
-                    palettes={section.palettes}
-                    selectedPalette={selectedPalette}
-                    onSelectPalette={handleSelectPalette}
-                    animationOffset={idx * 0.1}
-                    isFavorite={isFavorite}
-                    onToggleFavorite={toggleFavorite}
-                    onEditPalette={(p: UserPalette) => {
-                      setEditingPalette(p);
-                      setIsModalOpen(true);
-                    }}
-                    onDeletePalette={deletePalette}
-                  />
-                ))}
+            {/* PALETTE GRID — shown only when a category or search is active */}
+            {(selectedCategory || searchQuery) && (
+              <div id="palette-grid" className="space-y-16 pb-32 animate-fade-up">
+                <Suspense fallback={<div className="h-96 w-full flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>}>
+                  {visibleSections.map((section, idx) => (
+                    <PaletteSection
+                      key={section.key || section.title}
+                      title={section.title}
+                      mode={section.mode}
+                      palettes={section.palettes}
+                      selectedPalette={selectedPalette}
+                      onSelectPalette={handleSelectPalette}
+                      animationOffset={idx * 0.1}
+                      isFavorite={isFavorite}
+                      onToggleFavorite={toggleFavorite}
+                      onEditPalette={(p: UserPalette) => {
+                        setEditingPalette(p);
+                        setIsModalOpen(true);
+                      }}
+                      isAdmin={isAdmin}
+                      onAdminDelete={handleAdminDelete}
+                    />
+                  ))}
 
-                {/* Load More Button */}
-                {!searchQuery && !selectedCategory && visibleSectionsCount < sectionsToRender.length && (
-                  <div className="flex justify-center py-10 opacity-0 animate-fade-up">
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      onClick={loadMoreSections}
-                      className="rounded-full px-10 gap-2 border-primary/20 hover:border-primary/50 bg-primary/5 backdrop-blur-sm"
-                    >
-                      <Plus className="h-4 w-4" />
-                      Load More Collections
-                    </Button>
-                  </div>
-                )}
-
-                {visibleSections.length === 0 && !palettesLoading && (
-                  <div className="flex flex-col items-center justify-center py-20 opacity-0 animate-fade-up">
-                    <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-secondary">
-                      {selectedCategory === 'Favorites' ? (
-                        <Heart className="h-8 w-8 text-red-500/60" />
-                      ) : (
-                        <Search className="h-8 w-8 text-secondary-foreground/60" />
-                      )}
+                  {/* Empty state */}
+                  {visibleSections.length === 0 && !palettesLoading && (
+                    <div className="flex flex-col items-center justify-center py-20 opacity-0 animate-fade-up">
+                      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-secondary">
+                        {selectedCategory === 'Favorites' ? (
+                          <Heart className="h-8 w-8 text-red-500/60" />
+                        ) : (
+                          <Search className="h-8 w-8 text-secondary-foreground/60" />
+                        )}
+                      </div>
+                      <h3 className="font-display text-xl text-foreground mb-2">
+                        {selectedCategory === 'Favorites' ? "No favorites yet" : "No palettes found"}
+                      </h3>
+                      <p className="font-mono text-sm text-secondary-foreground/70 text-center max-w-md">
+                        {selectedCategory === 'Favorites'
+                          ? "Tap the heart on any palette to save it to your collection."
+                          : "Try adjusting your search filters."}
+                      </p>
+                      <Button variant="link" onClick={() => { setSearchQuery(''); handleSelectCategory(null); }} className="mt-4">
+                        {selectedCategory === 'Favorites' ? "Browse all palettes" : "Clear Filters"}
+                      </Button>
                     </div>
-                    <h3 className="font-display text-xl text-foreground mb-2">
-                      {selectedCategory === 'Favorites' ? "No favorites yet" : "No palettes found"}
-                    </h3>
-                    <p className="font-mono text-sm text-secondary-foreground/70 text-center max-w-md">
-                      {selectedCategory === 'Favorites'
-                        ? "Tap the heart on any palette to save it to your collection."
-                        : "Try adjusting your search filters."}
-                    </p>
-                    <Button variant="link" onClick={() => { setSearchQuery(''); handleSelectCategory(null); }} className="mt-4">
-                      {selectedCategory === 'Favorites' ? "Browse all palettes" : "Clear Filters"}
-                    </Button>
-                  </div>
-                )}
-              </Suspense>
-            </div>
+                  )}
+                </Suspense>
+              </div>
+            )}
 
-            {/* SUPPORTING LANDING CONTENT */}
-            <div className="mt-20">
-              <WhyChromatic />
-            </div>
-            <div className="mt-32">
-              <AboutCreator />
-            </div>
+            {/* SUPPORTING LANDING CONTENT — home only */}
+            {!selectedCategory && !searchQuery && (
+              <>
+                <div className="mt-20"><WhyChromatic /></div>
+                <div className="mt-32"><AboutCreator /></div>
+              </>
+            )}
 
             {/* Unified Footer */}
             <footer className="pt-24 pb-20 border-t border-white/[0.03] mt-32">

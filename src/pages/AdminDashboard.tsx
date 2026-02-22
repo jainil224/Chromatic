@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
-import { Loader2, Sparkles, LogOut, ArrowLeft, Check, X } from "lucide-react";
+import { Loader2, Sparkles, LogOut, ArrowLeft, Check, X, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn, numericToIp } from "@/lib/utils";
 
@@ -45,6 +45,7 @@ const AdminDashboard = () => {
     const [actionLoading, setActionLoading] = useState<string | null>(null);
     const [selectedCategories, setSelectedCategories] = useState<Record<string, string>>({});
     const [editedTags, setEditedTags] = useState<Record<string, string>>({});
+    const [editedNames, setEditedNames] = useState<Record<string, string>>({});
     const navigate = useNavigate();
 
     useEffect(() => { fetchAll(); }, []);
@@ -111,6 +112,9 @@ const AdminDashboard = () => {
         const category = selectedCategories[submission.id];
         if (!category) { toast.error("Select a category first"); return; }
 
+        // Use admin-edited name if provided, otherwise keep original
+        const finalName = editedNames[submission.id]?.trim() || submission.name;
+
         setActionLoading(submission.id);
         try {
             // ── 1. Duplicate detection ────────────────────────────────────────
@@ -135,15 +139,16 @@ const AdminDashboard = () => {
                 return;
             }
 
-            // ── 2. Build final tags (include new_arrival) ─────────────────────
+            // ── 2. Build final tags ───────────────────────────────────────────
+            // Only use: category the admin selected + admin-entered extra tags + new_arrival.
+            // Original submission tags are intentionally excluded so they don't bleed in.
             const extraTags = editedTags[submission.id]
-                ? editedTags[submission.id].split(',').map(t => t.trim()).filter(Boolean)
+                ? editedTags[submission.id].split(',').map(t => t.trim().toLowerCase()).filter(Boolean)
                 : [];
             const finalTags = Array.from(new Set([
-                ...(submission.tags || []),
-                category.toLowerCase(),
-                ...extraTags,
-                'new_arrival',   // ← automatically added
+                category.toLowerCase(),  // e.g. 'bold'
+                ...extraTags,            // e.g. ['jainil', 'patel', 'done']
+                'new_arrival',           // always added so the NEW badge shows
             ]));
 
             const approvedAt = new Date().toISOString();
@@ -163,6 +168,7 @@ const AdminDashboard = () => {
                     .order('created_at', { ascending: false }).limit(1).single();
                 if (newPal) {
                     await supabase.from('palettes').update({
+                        name: finalName,
                         section: category.toLowerCase(),
                         approved_at: approvedAt,
                         tags: finalTags,
@@ -171,6 +177,7 @@ const AdminDashboard = () => {
             } else {
                 // Legacy palettes table
                 const { error } = await supabase.from('palettes').update({
+                    name: finalName,
                     section: category.toLowerCase(),
                     category: category.toLowerCase(),
                     tags: finalTags,
@@ -179,7 +186,7 @@ const AdminDashboard = () => {
                 if (error) throw error;
             }
 
-            toast.success(`✅ "${submission.name}" approved as ${category} — now live with NEW badge!`);
+            toast.success(`✅ "${finalName}" approved as ${category} — now live with NEW badge!`);
             setSubmissions(prev => prev.filter(s => s.id !== submission.id));
         } catch (err: any) {
             toast.error(err.message || "Failed to approve");
@@ -204,6 +211,26 @@ const AdminDashboard = () => {
             setSubmissions(prev => prev.filter(s => s.id !== submission.id));
         } catch (err: any) {
             toast.error(err.message || "Failed to reject");
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    // ── Admin-only: permanently delete an approved palette from the live site ──
+    const handleDeleteLive = async (palette: Submission) => {
+        if (!confirm(`🗑️ Permanently delete "${palette.name}" from the live site?\n\nThis cannot be undone.`)) return;
+        setActionLoading(palette.id);
+        try {
+            const { error } = await supabase
+                .from('palettes')
+                .delete()
+                .eq('id', palette.id);
+            if (error) throw error;
+
+            setApprovedPalettes(prev => prev.filter(p => p.id !== palette.id));
+            toast.success(`🗑️ "${palette.name}" permanently removed from the live site.`);
+        } catch (err: any) {
+            toast.error(err.message || "Failed to delete palette");
         } finally {
             setActionLoading(null);
         }
@@ -352,8 +379,11 @@ const AdminDashboard = () => {
                                 onCategoryChange={(v) => setSelectedCategories(p => ({ ...p, [item.id]: v }))}
                                 editedTags={editedTags[item.id] || ''}
                                 onTagsChange={(v) => setEditedTags(p => ({ ...p, [item.id]: v }))}
+                                editedName={editedNames[item.id] ?? item.name}
+                                onNameChange={(v) => setEditedNames(p => ({ ...p, [item.id]: v }))}
                                 onApprove={() => handleApprove(item)}
                                 onReject={() => handleReject(item)}
+                                onDeleteLive={() => handleDeleteLive(item)}
                                 isLoading={actionLoading === item.id}
                             />
                         ))}
@@ -375,8 +405,11 @@ interface CardProps {
     onCategoryChange: (v: string) => void;
     editedTags: string;
     onTagsChange: (v: string) => void;
+    editedName: string;
+    onNameChange: (v: string) => void;
     onApprove: () => void;
     onReject: () => void;
+    onDeleteLive: () => void;
     isLoading: boolean;
 }
 
@@ -388,7 +421,7 @@ const BADGE_COLORS: Record<TabType, { bg: string; color: string; label: string }
 
 const PaletteCard = ({
     item, activeTab, selectedCategory, onCategoryChange,
-    editedTags, onTagsChange, onApprove, onReject, isLoading,
+    editedTags, onTagsChange, editedName, onNameChange, onApprove, onReject, onDeleteLive, isLoading,
 }: CardProps) => {
     const badge = BADGE_COLORS[activeTab];
     const date = new Date(item.submitted_at).toLocaleDateString('en-US', {
@@ -434,10 +467,45 @@ const PaletteCard = ({
                     <span style={{ fontSize: 11, color: '#2a2a2a', fontFamily: 'monospace' }}>{item.source === 'palette_submissions' ? 'NEW DB' : 'LEGACY'}</span>
                 </div>
 
-                {/* Name */}
-                <h3 style={{ fontSize: 24, fontWeight: 900, letterSpacing: '-0.02em', color: '#fff', marginBottom: 14, lineHeight: 1.1, textTransform: 'uppercase' }}>
-                    {item.name}
-                </h3>
+                {/* Name — inline editable for admin */}
+                <div style={{ marginBottom: 14, position: 'relative' }}>
+                    <input
+                        value={editedName}
+                        onChange={e => onNameChange(e.target.value)}
+                        onFocus={e => {
+                            e.currentTarget.style.borderColor = '#00f5d460';
+                            e.currentTarget.style.background = '#111';
+                        }}
+                        onBlur={e => {
+                            e.currentTarget.style.borderColor = 'transparent';
+                            e.currentTarget.style.background = 'transparent';
+                        }}
+                        style={{
+                            fontSize: 24, fontWeight: 900, letterSpacing: '-0.02em',
+                            color: '#fff', lineHeight: 1.1, textTransform: 'uppercase',
+                            background: 'transparent',
+                            border: '1.5px solid transparent',
+                            borderRadius: 8,
+                            outline: 'none',
+                            width: '100%',
+                            padding: '4px 8px',
+                            marginLeft: -8,
+                            cursor: 'text',
+                            transition: 'border-color 0.2s, background 0.2s',
+                            fontFamily: 'inherit',
+                            boxSizing: 'border-box',
+                        }}
+                        title="Click to edit palette name"
+                    />
+                    {/* Edit hint — shows only when name differs from original */}
+                    {editedName !== item.name && (
+                        <span style={{
+                            position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)',
+                            fontSize: 10, color: '#f59e0b', fontWeight: 700, letterSpacing: '0.1em',
+                            textTransform: 'uppercase', pointerEvents: 'none',
+                        }}>✏️ edited</span>
+                    )}
+                </div>
 
                 {/* Meta */}
                 <div style={{ fontSize: 13, color: '#555', lineHeight: 2.1, marginBottom: 18 }}>
@@ -544,16 +612,55 @@ const PaletteCard = ({
                     </>
                 )}
 
-                {/* Read-only view for approved/rejected */}
+                {/* Read-only view for approved/rejected + admin delete for approved */}
                 {activeTab !== 'pending' && item.colors.length > 0 && (
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                        {item.colors.map((c, i) => (
-                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                <div style={{ width: 12, height: 12, borderRadius: 3, background: c }} />
-                                <span style={{ fontSize: 9, fontFamily: 'monospace', color: '#444' }}>{c.toUpperCase()}</span>
-                            </div>
-                        ))}
-                    </div>
+                    <>
+                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: activeTab === 'approved' ? 14 : 0 }}>
+                            {item.colors.map((c, i) => (
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                    <div style={{ width: 12, height: 12, borderRadius: 3, background: c }} />
+                                    <span style={{ fontSize: 9, fontFamily: 'monospace', color: '#444' }}>{c.toUpperCase()}</span>
+                                </div>
+                            ))}
+                        </div>
+                        {/* Admin-only: remove from live site */}
+                        {activeTab === 'approved' && (
+                            <button
+                                onClick={onDeleteLive}
+                                disabled={isLoading}
+                                style={{
+                                    width: '100%',
+                                    padding: '12px',
+                                    borderRadius: 10,
+                                    background: 'transparent',
+                                    border: '1px solid #3f1212',
+                                    color: '#ef4444',
+                                    fontWeight: 700,
+                                    fontSize: 13,
+                                    cursor: isLoading ? 'not-allowed' : 'pointer',
+                                    letterSpacing: '0.08em',
+                                    textTransform: 'uppercase',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: 8,
+                                    transition: 'all 0.15s',
+                                    opacity: isLoading ? 0.5 : 1,
+                                }}
+                                onMouseEnter={e => !isLoading && (
+                                    (e.currentTarget as HTMLButtonElement).style.background = '#ef444415',
+                                    (e.currentTarget as HTMLButtonElement).style.borderColor = '#ef4444'
+                                )}
+                                onMouseLeave={e => (
+                                    (e.currentTarget as HTMLButtonElement).style.background = 'transparent',
+                                    (e.currentTarget as HTMLButtonElement).style.borderColor = '#3f1212'
+                                )}
+                            >
+                                {isLoading ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                                Remove from Live Site
+                            </button>
+                        )}
+                    </>
                 )}
             </div>
         </div>
