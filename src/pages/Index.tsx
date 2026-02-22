@@ -663,7 +663,10 @@ const Index = () => {
       </Suspense>
 
       {/* Floating Bottom Dock — always visible, centered */}
-      <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 rounded-2xl bg-background/80 backdrop-blur-xl border border-white/10 shadow-[0_8px_40px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.05)] ring-1 ring-white/5">
+      <div
+        className="fixed left-1/2 -translate-x-1/2 z-50 flex items-center gap-0.5 sm:gap-2 px-1.5 sm:px-3 py-1.5 sm:py-2 rounded-2xl bg-background/80 backdrop-blur-xl border border-white/10 shadow-[0_8px_40px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.05)] ring-1 ring-white/5"
+        style={{ bottom: 'max(1.25rem, env(safe-area-inset-bottom, 1.25rem))' }}
+      >
         {/* Pixels */}
         <button
           onClick={handlePickFromImage}

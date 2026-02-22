@@ -122,7 +122,7 @@ export const Navbar = ({
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && onSearchSubmit?.()}
                             placeholder="Search..."
-                            className="w-full rounded-full border border-white/5 bg-white/5 py-1.5 pl-8 sm:pl-9 pr-7 sm:pr-8 font-mono text-[10px] sm:text-xs text-foreground placeholder:text-secondary-foreground/30 focus:bg-white/10 focus:border-white/10 focus:ring-1 focus:ring-white/10 focus:outline-none transition-all"
+                            className="w-full rounded-full border border-white/5 bg-white/5 py-2 sm:py-1.5 pl-8 sm:pl-9 pr-7 sm:pr-8 font-mono text-[11px] sm:text-xs text-foreground placeholder:text-secondary-foreground/30 focus:bg-white/10 focus:border-white/10 focus:ring-1 focus:ring-white/10 focus:outline-none transition-all min-h-[44px] sm:min-h-0"
                         />
                         {searchQuery && (
                             <button
@@ -220,7 +220,7 @@ export const Navbar = ({
                     {/* Mobile Menu Trigger moved into Dock */}
                     <Sheet>
                         <SheetTrigger asChild>
-                            <Button variant="ghost" size="icon" className="lg:hidden h-8 w-8 rounded-full hover:bg-white/5">
+                            <Button variant="ghost" size="icon" className="lg:hidden h-10 w-10 sm:h-8 sm:w-8 rounded-full hover:bg-white/5">
                                 <Menu className="h-4 w-4" />
                             </Button>
                         </SheetTrigger>

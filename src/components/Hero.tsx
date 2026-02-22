@@ -103,7 +103,7 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize, liv
     }, []);
 
     return (
-        <section className="relative w-full overflow-hidden py-24 lg:py-32">
+        <section className="relative w-full overflow-hidden py-16 sm:py-24 lg:py-32">
             {/* Minimal Background - Removed opaque background to allow global theme to show through */}
             <div className="absolute inset-0 -z-10 overflow-hidden">
                 {/* Global background handles the base color and gradients now */}
@@ -123,7 +123,7 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize, liv
                             {/* Main Heading — colors sync with the foreground palette card */}
                             {/* heroPalettes[4] = same palette shown in the foreground card */}
                             <h1
-                                className="font-display text-4xl xs:text-5xl font-bold leading-tight tracking-tight text-white md:text-7xl lg:text-8xl animate-fade-up transition-all duration-700 ease-in-out"
+                                className="font-display text-3xl xs:text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl md:text-7xl lg:text-8xl animate-fade-up transition-all duration-700 ease-in-out"
                                 style={{
                                     textShadow: `0 0 40px ${heroPalettes[4]?.[2]}20`
                                 }}
@@ -152,7 +152,7 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize, liv
                             </h1>
 
                             {/* Description */}
-                            <p className="max-w-[580px] font-mono text-sm xs:text-base text-secondary-foreground/80 md:text-lg animate-fade-up [animation-delay:0.1s] leading-relaxed">
+                            <p className="max-w-[580px] font-mono text-xs xs:text-sm text-secondary-foreground/80 sm:text-base md:text-lg animate-fade-up [animation-delay:0.1s] leading-relaxed">
                                 Generate, customize, and share stunning color palettes powered by intelligent analysis and community creativity.
                             </p>
                         </div>
@@ -170,7 +170,7 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize, liv
                             </Button>
 
                             {/* Tool Cards */}
-                            <div className="grid grid-cols-3 gap-3">
+                            <div className="grid grid-cols-3 gap-2 sm:gap-3">
                                 {/* Pixels Card */}
                                 <button
                                     onClick={onPickFromImage}
@@ -220,7 +220,7 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize, liv
                     </div>
 
                     {/* Right Visual Component */}
-                    <div className="relative h-[350px] xs:h-[450px] lg:h-[650px] w-full animate-fade-in [animation-delay:0.3s]">
+                    <div className="relative h-[280px] xs:h-[350px] sm:h-[450px] lg:h-[650px] w-full animate-fade-in [animation-delay:0.3s]">
                         <HeroIllustration
                             palettes={heroPalettes}
                             isShuffling={isShuffling}
