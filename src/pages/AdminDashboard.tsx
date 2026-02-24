@@ -269,41 +269,48 @@ const AdminDashboard = () => {
     ];
 
     return (
-        <div className="min-h-screen text-white" style={{ background: '#080808', fontFamily: "'Space Grotesk', 'Inter', sans-serif" }}>
+        <div className="min-h-screen relative overflow-hidden theme-transition">
+            {/* Background Gradients (Fixed in Background) */}
+            <div className="fixed inset-0 -z-10">
+                <div className="absolute inset-0 bg-background theme-transition" />
+                <div className="absolute -left-1/4 top-0 h-[500px] w-[500px] rounded-full blur-3xl theme-transition bg-[var(--blob-1)]" />
+                <div className="absolute -right-1/4 bottom-0 h-[600px] w-[600px] rounded-full blur-3xl theme-transition bg-[var(--blob-2)]" />
+            </div>
+            <div className="grain pointer-events-none fixed inset-0 -z-10" />
 
             {/* Top Bar */}
-            <header style={{ borderBottom: '1px solid #1a1a1a', background: '#0d0d0d' }} className="sticky top-0 z-50">
+            <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/5">
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <div style={{ width: 42, height: 42, borderRadius: 10, background: 'linear-gradient(135deg, #00f5d4, #7b2fff)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+                        <div className="w-[42px] h-[42px] rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-[0_0_20px_-5px_hsl(var(--primary)/0.4)]">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-primary-foreground"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
                         </div>
                         <div>
-                            <span style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', color: '#fff' }}>
-                                CHROMATIC <span style={{ color: '#00f5d4' }}>ADMIN</span>
+                            <span className="text-2xl font-display font-black tracking-tight text-foreground">
+                                CHROMATIC <span className="text-primary">ADMIN</span>
                             </span>
-                            <span style={{ display: 'block', fontSize: 11, color: '#444', letterSpacing: '0.3em', textTransform: 'uppercase', fontFamily: 'monospace' }}>by Jainil</span>
+                            <span className="block text-[10px] text-text-dim tracking-[0.3em] uppercase font-mono mt-0.5">by Jainil</span>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-3">
                         <button
                             onClick={fetchAll}
-                            style={{ padding: '9px 20px', borderRadius: 10, border: '1px solid #222', background: '#111', color: '#888', fontSize: 14, cursor: 'pointer', fontWeight: 600 }}
+                            className="px-4 py-2 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 text-secondary-foreground text-sm font-semibold transition-all"
                         >
                             ↺ Refresh
                         </button>
                         <button
                             onClick={() => navigate('/')}
-                            style={{ padding: '9px 20px', borderRadius: 10, border: '1px solid #222', background: '#111', color: '#aaa', fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600 }}
+                            className="px-4 py-2 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 text-secondary-foreground text-sm font-semibold flex items-center gap-2 transition-all"
                         >
-                            <ArrowLeft size={14} /> Exit
+                            <ArrowLeft size={16} /> Exit
                         </button>
                         <button
                             onClick={async () => { await supabase.auth.signOut(); navigate('/admin/login'); }}
-                            style={{ padding: '9px 22px', borderRadius: 10, border: '1px solid #00f5d430', background: '#00f5d410', color: '#00f5d4', fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700 }}
+                            className="px-5 py-2 rounded-xl bg-destructive/10 border border-destructive/20 hover:bg-destructive/20 text-destructive text-sm font-bold flex items-center gap-2 transition-all shadow-[0_0_20px_-5px_hsl(var(--destructive)/0.2)]"
                         >
-                            <LogOut size={14} /> Logout
+                            <LogOut size={16} /> Logout
                         </button>
                     </div>
                 </div>
@@ -312,56 +319,47 @@ const AdminDashboard = () => {
             <main className="max-w-7xl mx-auto px-6 py-8">
 
                 {/* Tab Bar */}
-                <div className="flex items-center gap-4 mb-10">
+                <div className="flex items-center gap-4 mb-12">
                     {tabs.map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            style={{
-                                padding: '13px 32px',
-                                borderRadius: 8,
-                                border: activeTab === tab.id ? '2px solid #00f5d4' : '2px solid #222',
-                                background: activeTab === tab.id ? '#00f5d415' : 'transparent',
-                                color: activeTab === tab.id ? '#00f5d4' : '#444',
-                                fontSize: 16,
-                                fontWeight: 800,
-                                letterSpacing: '0.12em',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 10,
-                            }}
+                            className={cn(
+                                "relative px-8 py-3.5 rounded-2xl border transition-all duration-300 font-display text-lg font-bold tracking-tight flex items-center gap-3 overflow-hidden group",
+                                activeTab === tab.id
+                                    ? "bg-primary/10 border-primary/50 text-foreground ring-1 ring-primary/20 shadow-[0_0_30px_-5px_hsl(var(--primary)/0.2)]"
+                                    : "bg-white/5 border-white/10 text-text-dim hover:bg-white/10 hover:border-white/20 hover:text-foreground"
+                            )}
                         >
                             {tab.label}
                             {tab.count !== undefined && (
-                                <span style={{
-                                    background: activeTab === tab.id ? '#00f5d4' : '#222',
-                                    color: activeTab === tab.id ? '#000' : '#555',
-                                    borderRadius: 20,
-                                    padding: '2px 10px',
-                                    fontSize: 13,
-                                    fontWeight: 900,
-                                }}>
+                                <span className={cn(
+                                    "px-2 min-w-[24px] h-6 flex items-center justify-center rounded-full text-xs font-black font-mono transition-colors",
+                                    activeTab === tab.id ? "bg-primary text-primary-foreground" : "bg-white/10 text-text-dim"
+                                )}>
                                     {tab.count}
                                 </span>
+                            )}
+                            {activeTab === tab.id && (
+                                <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 animate-[premium-shimmer_3s_infinite]" />
                             )}
                         </button>
                     ))}
 
-                    <div style={{ marginLeft: 'auto', fontSize: 13, color: '#333', fontFamily: 'monospace' }}>
+                    <div className="ml-auto text-xs text-text-dim font-mono tracking-widest uppercase opacity-50">
                         reviewing {currentList.length} items
                     </div>
                 </div>
 
                 {/* Content */}
                 {loading ? (
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 300 }}>
-                        <Loader2 className="animate-spin" size={32} style={{ color: '#00f5d4' }} />
+                    <div className="flex flex-col items-center justify-center h-[400px] gap-4">
+                        <Loader2 className="animate-spin text-primary" size={48} />
+                        <p className="text-sm font-mono text-text-dim animate-pulse uppercase tracking-[0.2em]">Synchronizing data...</p>
                     </div>
                 ) : currentList.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '100px 0', color: '#333' }}>
-                        <div style={{ fontSize: 64, marginBottom: 16 }}>
+                    <div className="flex flex-col items-center justify-center h-[400px] gap-4 text-center">
+                        <div className="text-6xl mb-4 grayscale opacity-40">
                             {activeTab === 'pending' ? '📭' : activeTab === 'approved' ? '✅' : '🗑️'}
                         </div>
                         <p style={{ fontSize: 18, fontWeight: 600, color: '#444', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
@@ -429,99 +427,74 @@ const PaletteCard = ({
     });
 
     return (
-        <div style={{
-            background: '#0e0e0e',
-            border: '1px solid #1c1c1c',
-            borderRadius: 12,
-            overflow: 'hidden',
-            transition: 'border-color 0.2s, box-shadow 0.2s',
-        }}
-            onMouseEnter={e => {
-                (e.currentTarget as HTMLDivElement).style.borderColor = '#00f5d440';
-                (e.currentTarget as HTMLDivElement).style.boxShadow = '0 0 30px #00f5d408';
-            }}
-            onMouseLeave={e => {
-                (e.currentTarget as HTMLDivElement).style.borderColor = '#1c1c1c';
-                (e.currentTarget as HTMLDivElement).style.boxShadow = 'none';
-            }}
-        >
+        <div className="group relative bg-card/30 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden transition-all duration-500 hover:border-white/20 hover:-translate-y-2 hover:shadow-[0_20px_50px_-20px_rgba(0,0,0,0.5),0_0_30px_-5px_hsl(var(--primary)/0.1)]">
             {/* Color Strip */}
-            <div style={{ display: 'flex', height: 180 }}>
+            <div className="flex h-[180px] w-full">
                 {item.colors.map((c, i) => (
-                    <div key={i} style={{ flex: 1, background: c, position: 'relative' }} title={c} />
+                    <div key={i} className="flex-1 relative cursor-pointer" style={{ background: c }} title={c} />
                 ))}
             </div>
 
             {/* Body */}
-            <div style={{ padding: '20px 22px 22px' }}>
+            <div className="p-6">
 
                 {/* Status Badge + Source */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                    <span style={{
-                        padding: '5px 14px', borderRadius: 20,
-                        background: badge.bg, color: badge.color,
-                        fontSize: 11, fontWeight: 900, letterSpacing: '0.15em', textTransform: 'uppercase',
-                    }}>
+                <div className="flex justify-between items-center mb-6">
+                    <span className={cn(
+                        "px-3 py-1 rounded-full text-[10px] font-black font-mono tracking-[0.2em] transition-all",
+                        activeTab === 'pending' ? "bg-amber-500/10 text-amber-500 ring-1 ring-amber-500/20" :
+                            activeTab === 'approved' ? "bg-emerald-500/10 text-emerald-500 ring-1 ring-emerald-500/20" :
+                                "bg-rose-500/10 text-rose-500 ring-1 ring-rose-500/20"
+                    )}>
                         {badge.label}
                     </span>
-                    <span style={{ fontSize: 11, color: '#2a2a2a', fontFamily: 'monospace' }}>{item.source === 'palette_submissions' ? 'NEW DB' : 'LEGACY'}</span>
+                    <span className="text-[10px] font-mono text-text-dim/50 tracking-widest">{item.source === 'palette_submissions' ? 'NEW DB' : 'LEGACY'}</span>
                 </div>
 
                 {/* Name — inline editable for admin */}
-                <div style={{ marginBottom: 14, position: 'relative' }}>
+                <div className="mb-6 relative group/name">
                     <input
                         value={editedName}
                         onChange={e => onNameChange(e.target.value)}
-                        onFocus={e => {
-                            e.currentTarget.style.borderColor = '#00f5d460';
-                            e.currentTarget.style.background = '#111';
-                        }}
-                        onBlur={e => {
-                            e.currentTarget.style.borderColor = 'transparent';
-                            e.currentTarget.style.background = 'transparent';
-                        }}
-                        style={{
-                            fontSize: 24, fontWeight: 900, letterSpacing: '-0.02em',
-                            color: '#fff', lineHeight: 1.1, textTransform: 'uppercase',
-                            background: 'transparent',
-                            border: '1.5px solid transparent',
-                            borderRadius: 8,
-                            outline: 'none',
-                            width: '100%',
-                            padding: '4px 8px',
-                            marginLeft: -8,
-                            cursor: 'text',
-                            transition: 'border-color 0.2s, background 0.2s',
-                            fontFamily: 'inherit',
-                            boxSizing: 'border-box',
-                        }}
+                        className="w-full bg-transparent border-none p-0 text-2xl font-display font-black tracking-tight text-foreground uppercase outline-none focus:text-primary transition-colors cursor-text"
                         title="Click to edit palette name"
                     />
+                    <div className="h-0.5 w-0 bg-primary group-hover/name:w-full transition-all duration-300" />
+
                     {/* Edit hint — shows only when name differs from original */}
                     {editedName !== item.name && (
-                        <span style={{
-                            position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)',
-                            fontSize: 10, color: '#f59e0b', fontWeight: 700, letterSpacing: '0.1em',
-                            textTransform: 'uppercase', pointerEvents: 'none',
-                        }}>✏️ edited</span>
+                        <span className="absolute -right-1 -top-4 text-[9px] font-black text-amber-500 uppercase tracking-widest bg-amber-500/10 px-1.5 py-0.5 rounded ring-1 ring-amber-500/20">
+                            Edited
+                        </span>
                     )}
                 </div>
 
                 {/* Meta */}
-                <div style={{ fontSize: 13, color: '#555', lineHeight: 2.1, marginBottom: 18 }}>
-                    <div><span style={{ color: '#444' }}>Category: </span>{item.category || '—'}</div>
-                    <div><span style={{ color: '#444' }}>IP: </span>
+                <div className="space-y-2.5 mb-8">
+                    <div className="flex items-center gap-2 text-[13px]">
+                        <span className="text-text-dim/60 font-mono uppercase tracking-wider text-[11px] w-20">Category</span>
+                        <span className="text-foreground font-medium">{item.category || '—'}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-[13px]">
+                        <span className="text-text-dim/60 font-mono uppercase tracking-wider text-[11px] w-20">IP Origin</span>
                         {item.ip_address_numeric ? (
                             <a href={`https://www.whois.com/whois/${numericToIp(item.ip_address_numeric)}`}
                                 target="_blank" rel="noopener noreferrer"
-                                style={{ color: '#00f5d470', textDecoration: 'none', fontFamily: 'monospace' }}>
+                                className="text-primary/70 hover:text-primary transition-colors font-mono font-medium truncate">
                                 {numericToIp(item.ip_address_numeric)}
                             </a>
-                        ) : 'Hidden'}
+                        ) : <span className="text-text-dim/40 italic">System</span>}
                     </div>
-                    <div><span style={{ color: '#444' }}>Date: </span>{date}</div>
+                    <div className="flex items-center gap-2 text-[13px]">
+                        <span className="text-text-dim/60 font-mono uppercase tracking-wider text-[11px] w-20">Received</span>
+                        <span className="text-foreground/80 font-medium">{date}</span>
+                    </div>
                     {item.tags && item.tags.length > 0 && (
-                        <div><span style={{ color: '#444' }}>Tags: </span>{item.tags.join(', ')}</div>
+                        <div className="flex flex-wrap gap-1.5 pt-1.5">
+                            {item.tags.map(t => (
+                                <span key={t} className="px-2 py-0.5 bg-white/5 border border-white/5 rounded text-[10px] text-text-dim font-mono">{t}</span>
+                            ))}
+                        </div>
                     )}
                 </div>
 
@@ -529,83 +502,46 @@ const PaletteCard = ({
                 {activeTab === 'pending' && (
                     <>
                         {/* Category Select */}
-                        <div style={{ marginBottom: 10, position: 'relative' }}>
+                        <div className="mb-3 relative group/select">
                             <select
-                                style={{
-                                    width: '100%', background: '#111', border: '1px solid #222',
-                                    borderRadius: 10, padding: '12px 16px', color: selectedCategory ? '#fff' : '#555',
-                                    fontSize: 15, fontWeight: 600, outline: 'none', cursor: 'pointer',
-                                    appearance: 'none',
-                                }}
+                                className="w-full bg-background/40 border border-white/5 rounded-xl px-4 py-3 text-sm font-semibold text-foreground outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all cursor-pointer appearance-none"
                                 value={selectedCategory}
                                 onChange={e => onCategoryChange(e.target.value)}
                             >
-                                <option value="" style={{ background: '#111' }}>— Select Category —</option>
+                                <option value="" className="bg-background">Assign Category</option>
                                 {CATEGORIES.map(c => (
-                                    <option key={c} value={c} style={{ background: '#111' }}>{c}</option>
+                                    <option key={c} value={c} className="bg-background">{c}</option>
                                 ))}
                             </select>
-                            <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', color: '#444', pointerEvents: 'none', fontSize: 12 }}>▼</span>
+                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-text-dim text-[10px] pointer-events-none group-hover/select:text-primary transition-colors">▼</span>
                         </div>
 
                         {/* Tags Input */}
-                        <div style={{ marginBottom: 16 }}>
+                        <div className="mb-6">
                             <input
-                                style={{
-                                    width: '100%', background: '#111', border: '1px solid #1a1a1a',
-                                    borderRadius: 10, padding: '12px 16px', color: '#ccc',
-                                    fontSize: 14, outline: 'none', boxSizing: 'border-box',
-                                }}
-                                placeholder="Extra tags (comma separated)"
+                                className="w-full bg-background/40 border border-white/5 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-text-dim/30 outline-none focus:border-primary/50 transition-all font-mono"
+                                placeholder="metadata, keywords, comma-separated"
                                 value={editedTags}
                                 onChange={e => onTagsChange(e.target.value)}
                             />
                         </div>
 
                         {/* Approve / Reject */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                        <div className="grid grid-cols-2 gap-3">
                             <button
                                 onClick={onApprove}
                                 disabled={isLoading}
-                                style={{
-                                    padding: '15px', borderRadius: 10,
-                                    background: isLoading ? '#065f46' : '#059669',
-                                    border: 'none',
-                                    color: '#fff', fontWeight: 900, fontSize: 15,
-                                    cursor: isLoading ? 'not-allowed' : 'pointer',
-                                    letterSpacing: '0.08em', textTransform: 'uppercase',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                                    transition: 'all 0.15s',
-                                    boxShadow: '0 4px 20px #05966940',
-                                }}
-                                onMouseEnter={e => !isLoading && ((e.currentTarget as HTMLButtonElement).style.background = '#10b981')}
-                                onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.background = '#059669')}
-                                onMouseDown={e => (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.97)'}
-                                onMouseUp={e => (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'}
+                                className="flex items-center justify-center gap-2 h-14 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-black text-sm tracking-widest transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_10px_30px_-10px_rgba(16,185,129,0.5)] disabled:opacity-50 disabled:grayscale"
                             >
-                                {isLoading ? <Loader2 size={17} className="animate-spin" /> : <Check size={17} strokeWidth={3} />}
+                                {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} strokeWidth={3} />}
                                 APPROVE
                             </button>
                             <button
                                 onClick={onReject}
                                 disabled={isLoading}
-                                style={{
-                                    padding: '15px', borderRadius: 10,
-                                    background: '#dc2626',
-                                    border: 'none',
-                                    color: '#fff', fontWeight: 900, fontSize: 15,
-                                    cursor: isLoading ? 'not-allowed' : 'pointer',
-                                    letterSpacing: '0.08em', textTransform: 'uppercase',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                                    transition: 'all 0.15s',
-                                    boxShadow: '0 4px 20px #dc262640',
-                                }}
-                                onMouseEnter={e => !isLoading && ((e.currentTarget as HTMLButtonElement).style.background = '#ef4444')}
-                                onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.background = '#dc2626')}
-                                onMouseDown={e => (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.97)'}
-                                onMouseUp={e => (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'}
+                                className="flex items-center justify-center gap-2 h-14 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-black text-sm tracking-widest transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_10px_30px_-10px_rgba(244,63,94,0.5)] disabled:opacity-50 disabled:grayscale"
                             >
-                                {isLoading ? <Loader2 size={17} className="animate-spin" /> : <X size={17} strokeWidth={3} />}
+                                {isLoading ? <Loader2 size={18} className="animate-spin" /> : <X size={18} strokeWidth={3} />}
                                 REJECT
                             </button>
                         </div>
@@ -615,11 +551,11 @@ const PaletteCard = ({
                 {/* Read-only view for approved/rejected + admin delete for approved */}
                 {activeTab !== 'pending' && item.colors.length > 0 && (
                     <>
-                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: activeTab === 'approved' ? 14 : 0 }}>
+                        <div className="flex flex-wrap gap-2 mb-6">
                             {item.colors.map((c, i) => (
-                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                    <div style={{ width: 12, height: 12, borderRadius: 3, background: c }} />
-                                    <span style={{ fontSize: 9, fontFamily: 'monospace', color: '#444' }}>{c.toUpperCase()}</span>
+                                <div key={i} className="flex items-center gap-1.5 px-2 py-1 bg-white/5 rounded-lg border border-white/5">
+                                    <div className="w-3 h-3 rounded-full shadow-sm" style={{ background: c }} />
+                                    <span className="text-[10px] font-mono text-text-dim/80">{c.toUpperCase()}</span>
                                 </div>
                             ))}
                         </div>
@@ -628,36 +564,10 @@ const PaletteCard = ({
                             <button
                                 onClick={onDeleteLive}
                                 disabled={isLoading}
-                                style={{
-                                    width: '100%',
-                                    padding: '12px',
-                                    borderRadius: 10,
-                                    background: 'transparent',
-                                    border: '1px solid #3f1212',
-                                    color: '#ef4444',
-                                    fontWeight: 700,
-                                    fontSize: 13,
-                                    cursor: isLoading ? 'not-allowed' : 'pointer',
-                                    letterSpacing: '0.08em',
-                                    textTransform: 'uppercase',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: 8,
-                                    transition: 'all 0.15s',
-                                    opacity: isLoading ? 0.5 : 1,
-                                }}
-                                onMouseEnter={e => !isLoading && (
-                                    (e.currentTarget as HTMLButtonElement).style.background = '#ef444415',
-                                    (e.currentTarget as HTMLButtonElement).style.borderColor = '#ef4444'
-                                )}
-                                onMouseLeave={e => (
-                                    (e.currentTarget as HTMLButtonElement).style.background = 'transparent',
-                                    (e.currentTarget as HTMLButtonElement).style.borderColor = '#3f1212'
-                                )}
+                                className="w-full flex items-center justify-center gap-2 h-12 rounded-xl border border-rose-500/20 bg-rose-500/5 text-rose-500 font-bold text-xs tracking-widest uppercase hover:bg-rose-500 hover:text-white transition-all duration-300 disabled:opacity-50"
                             >
                                 {isLoading ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-                                Remove from Live Site
+                                DECOMMISSION FROM LIVE
                             </button>
                         )}
                     </>
