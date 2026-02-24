@@ -106,38 +106,37 @@ export const PaletteCard = memo(function PaletteCard({
             />
           ))}
 
-          {/* NEW badge — for community new arrivals (teal) */}
-          {isNewArrival && (
+          {/* Premium Refined NEW Badge */}
+          {(isNewArrival || isCustom) && (
             <div
-              className="absolute top-1.5 left-1.5 flex items-center gap-1 px-2 py-0.5 rounded-full font-black uppercase select-none pointer-events-none"
+              className="absolute -top-1.5 -left-1.5 z-20 flex items-center gap-1 px-2.5 py-1 rounded-full font-black uppercase select-none pointer-events-none transition-all duration-300 shadow-[0_4px_12px_rgba(0,0,0,0.5)] border border-white/30 overflow-hidden"
               style={{
-                fontSize: 9,
-                letterSpacing: '0.15em',
-                background: 'linear-gradient(135deg, #00f5d4, #06b6d4)',
+                fontSize: 'min(10px, 2.5vw)',
+                letterSpacing: '0.05em',
+                background: `linear-gradient(135deg, ${palette.colors[0]}, ${palette.colors[1] || palette.colors[0]})`,
                 color: '#000',
-                boxShadow: '0 0 8px #00f5d460, 0 0 16px #00f5d420',
-                animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-              }}
+                animation: 'premium-pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                // @ts-ignore
+                '--pulse-color': `${palette.colors[0]}80`,
+                // @ts-ignore
+                '--pulse-color-soft': `${palette.colors[0]}40`,
+              } as React.CSSProperties}
             >
-              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#000', display: 'inline-block', opacity: 0.5 }} />
-              NEW
-            </div>
-          )}
+              {/* Glassy Shine Overlay */}
+              <div
+                className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/50 to-transparent skew-x-[-20deg]"
+                style={{
+                  animation: 'sweeping-shine 3s infinite ease-in-out',
+                  width: '100%',
+                  opacity: 0.6,
+                }}
+              />
 
-          {/* NEW badge — for user-created palettes (amber/gold) */}
-          {isCustom && !isNewArrival && (
-            <div
-              className="absolute top-1.5 left-1.5 flex items-center gap-1 px-2.5 py-1 rounded-full font-black uppercase select-none pointer-events-none"
-              style={{
-                fontSize: 9,
-                letterSpacing: '0.15em',
-                background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                color: '#000',
-                boxShadow: '0 0 10px rgba(245,158,11,0.45), 0 0 20px rgba(245,158,11,0.2)',
-                animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-              }}
-            >
-              ✦ NEW
+              <span className="relative z-10 flex items-center gap-1 px-1">
+                <span className="sm:inline hidden">✨</span>
+                <span className="sm:hidden inline text-[8px]">⚡</span>
+                <span className="font-black drop-shadow-[0_1px_1px_rgba(255,255,255,0.3)]">NEW</span>
+              </span>
             </div>
           )}
         </div>

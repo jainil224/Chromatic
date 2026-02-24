@@ -124,6 +124,31 @@
     }
   }
 
+  @keyframes premium-pulse {
+
+    0%,
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 15px var(--pulse-color, rgba(255, 255, 255, 0.4)), 0 0 30px var(--pulse-color-soft, rgba(255, 255, 255, 0.2));
+    }
+
+    50% {
+      transform: scale(1.08);
+      box-shadow: 0 0 25px var(--pulse-color, rgba(255, 255, 255, 0.6)), 0 0 50px var(--pulse-color-soft, rgba(255, 255, 255, 0.3));
+    }
+  }
+
+  @keyframes sweeping-shine {
+    0% {
+      left: -100%;
+    }
+
+    50%,
+    100% {
+      left: 100%;
+    }
+  }
+
   @keyframes heart-pulse {
 
     0%,
