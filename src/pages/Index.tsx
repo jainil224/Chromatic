@@ -28,7 +28,7 @@ import * as DefaultPalettes from "@/data/palettes";
 const Index = () => {
   const navigate = useNavigate();
   const [themeMode, setThemeMode] = useState<ThemeMode>(() =>
-    (localStorage.getItem('chromatic_theme') as ThemeMode) || 'dark'
+    (localStorage.getItem('chromatic_theme') as ThemeMode) || 'midnight'
   );
   const [selectedPalette, setSelectedPalette] = useState<Palette | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -416,13 +416,26 @@ const Index = () => {
         key: 'selected-cat'
       }];
     }
-    // Home (no category, no search) — no palette sections, just show the Hero
-    return [];
+    // Home (no category, no search) — show curated sections by default
+    return HOME_CATEGORIES.map(cat => ({
+      title: cat,
+      palettes: getPalettesByCategory(cat),
+      mode: ["light", "bright", "pale", "soft", "cream", "wedding", "spring"].some(k => cat.toLowerCase().includes(k)) ? 'light' as const : 'dark' as const,
+      key: `home-${cat}`
+    }));
   }, [selectedCategory, searchQuery, filteredPalettes, getPalettesByCategory]);
 
   // Derived sections to actually show (performance optimization)
   const visibleSections = useMemo((): DashboardSection[] => {
-    if (searchQuery || selectedCategory) return sectionsToRender;
+    // When a category or search is active, we might have many palettes in one section.
+    // For extreme performance, we could also slice palettes here, but let's start with sections.
+    if (searchQuery || selectedCategory) {
+      return sectionsToRender.map(section => ({
+        ...section,
+        // Limit palettes in search/category view initially to 24 for smoothness
+        palettes: section.palettes.slice(0, 48)
+      }));
+    };
     return sectionsToRender.slice(0, visibleSectionsCount);
   }, [sectionsToRender, visibleSectionsCount, searchQuery, selectedCategory]);
 
@@ -431,12 +444,12 @@ const Index = () => {
   }, [sectionsToRender.length]);
 
   return (
-    <div className="h-screen overflow-hidden flex flex-col bg-background theme-transition">
-      {/* Background Gradients (Fixed in Background) */}
-      <div className="fixed inset-0 -z-10">
+    <div className="h-screen overflow-hidden flex flex-col bg-background theme-transition select-none">
+      {/* Background Gradients (Fixed in Background) - Optimized with will-change */}
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute inset-0 bg-background theme-transition" />
-        <div className="absolute -left-1/4 top-0 h-[500px] w-[500px] rounded-full blur-3xl theme-transition bg-[var(--blob-1)]" />
-        <div className="absolute -right-1/4 bottom-0 h-[600px] w-[600px] rounded-full blur-3xl theme-transition bg-[var(--blob-2)]" />
+        <div className="absolute -left-1/4 top-0 h-[500px] w-[500px] rounded-full blur-[120px] theme-transition bg-[var(--blob-1)] will-change-transform opacity-30" />
+        <div className="absolute -right-1/4 bottom-0 h-[600px] w-[600px] rounded-full blur-[120px] theme-transition bg-[var(--blob-2)] will-change-transform opacity-30" />
       </div>
       <div className="grain pointer-events-none fixed inset-0 -z-10" />
 
@@ -516,56 +529,67 @@ const Index = () => {
           </div>
 
           <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8 py-12">
-            {/* PALETTE GRID — shown only when a category or search is active */}
-            {(selectedCategory || searchQuery) && (
-              <div id="palette-grid" className="space-y-16 pb-32 animate-fade-up">
-                <Suspense fallback={<div className="h-96 w-full flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>}>
-                  {visibleSections.map((section, idx) => (
-                    <PaletteSection
-                      key={section.key || section.title}
-                      title={section.title}
-                      mode={section.mode}
-                      palettes={section.palettes}
-                      selectedPalette={selectedPalette}
-                      onSelectPalette={handleSelectPalette}
-                      animationOffset={idx * 0.1}
-                      isFavorite={isFavorite}
-                      onToggleFavorite={toggleFavorite}
-                      onEditPalette={(p: UserPalette) => {
-                        setEditingPalette(p);
-                        setIsModalOpen(true);
-                      }}
-                      isAdmin={isAdmin}
-                      onAdminDelete={handleAdminDelete}
-                    />
-                  ))}
+            {/* PALETTE GRID — shown on home and when filtering */}
+            <div id="palette-grid" className="space-y-16 pb-32 animate-fade-up">
+              <Suspense fallback={<div className="h-96 w-full flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>}>
+                {visibleSections.map((section, idx) => (
+                  <PaletteSection
+                    key={section.key || section.title}
+                    title={section.title}
+                    mode={section.mode}
+                    palettes={section.palettes}
+                    selectedPalette={selectedPalette}
+                    onSelectPalette={handleSelectPalette}
+                    animationOffset={idx * 0.1}
+                    isFavorite={isFavorite}
+                    onToggleFavorite={toggleFavorite}
+                    onEditPalette={(p: UserPalette) => {
+                      setEditingPalette(p);
+                      setIsModalOpen(true);
+                    }}
+                    isAdmin={isAdmin}
+                    onAdminDelete={handleAdminDelete}
+                  />
+                ))}
 
-                  {/* Empty state */}
-                  {visibleSections.length === 0 && !palettesLoading && (
-                    <div className="flex flex-col items-center justify-center py-20 opacity-0 animate-fade-up">
-                      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-secondary">
-                        {selectedCategory === 'Favorites' ? (
-                          <Heart className="h-8 w-8 text-red-500/60" />
-                        ) : (
-                          <Search className="h-8 w-8 text-secondary-foreground/60" />
-                        )}
-                      </div>
-                      <h3 className="font-display text-xl text-foreground mb-2">
-                        {selectedCategory === 'Favorites' ? "No favorites yet" : "No palettes found"}
-                      </h3>
-                      <p className="font-mono text-sm text-secondary-foreground/70 text-center max-w-md">
-                        {selectedCategory === 'Favorites'
-                          ? "Tap the heart on any palette to save it to your collection."
-                          : "Try adjusting your search filters."}
-                      </p>
-                      <Button variant="link" onClick={() => { setSearchQuery(''); handleSelectCategory(null); }} className="mt-4">
-                        {selectedCategory === 'Favorites' ? "Browse all palettes" : "Clear Filters"}
-                      </Button>
+                {/* Load More Trigger */}
+                {!selectedCategory && !searchQuery && visibleSectionsCount < sectionsToRender.length && (
+                  <div className="flex justify-center pt-8">
+                    <Button
+                      variant="ghost"
+                      onClick={loadMoreSections}
+                      className="rounded-full px-8 py-6 border border-white/5 bg-white/5 hover:bg-white/10 text-secondary-foreground/60 transition-all font-mono text-xs uppercase tracking-widest"
+                    >
+                      Load More Categories
+                    </Button>
+                  </div>
+                )}
+
+                {/* Empty state */}
+                {visibleSections.length === 0 && !palettesLoading && (
+                  <div className="flex flex-col items-center justify-center py-20 opacity-0 animate-fade-up">
+                    <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-secondary">
+                      {selectedCategory === 'Favorites' ? (
+                        <Heart className="h-8 w-8 text-red-500/60" />
+                      ) : (
+                        <Search className="h-8 w-8 text-secondary-foreground/60" />
+                      )}
                     </div>
-                  )}
-                </Suspense>
-              </div>
-            )}
+                    <h3 className="font-display text-xl text-foreground mb-2">
+                      {selectedCategory === 'Favorites' ? "No favorites yet" : "No palettes found"}
+                    </h3>
+                    <p className="font-mono text-sm text-secondary-foreground/70 text-center max-w-md">
+                      {selectedCategory === 'Favorites'
+                        ? "Tap the heart on any palette to save it to your collection."
+                        : "Try adjusting your search filters."}
+                    </p>
+                    <Button variant="link" onClick={() => { setSearchQuery(''); handleSelectCategory(null); }} className="mt-4">
+                      {selectedCategory === 'Favorites' ? "Browse all palettes" : "Clear Filters"}
+                    </Button>
+                  </div>
+                )}
+              </Suspense>
+            </div>
 
             {/* SUPPORTING LANDING CONTENT — home only */}
             {!selectedCategory && !searchQuery && (

@@ -337,14 +337,15 @@
   /* Select buttons that are palette cards. They have bg-card and border classes. */
   .palette-card-btn {
     position: relative;
-    /* Extreme Glassmorphism */
-    background-color: hsl(var(--card) / 0.3);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border: 1px solid hsla(0, 0%, 100%, 0.1);
+    /* Simplified background for performance */
+    background-color: hsl(var(--card) / 0.8);
+    border: 1px solid hsla(0, 0%, 100%, 0.05);
 
     /* Smooth transition */
-    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    transition: transform 0.4s cubic-bezier(0.2, 0, 0.2, 1),
+      box-shadow 0.4s ease,
+      border-color 0.4s ease;
+    will-change: transform;
   }
 
   .palette-card-btn:hover {
@@ -462,16 +463,18 @@
     box-shadow: 0 0 40px -10px hsl(var(--primary) / 0.4);
   }
 
-  /* Subtle grain texture overlay */
-  .grain::before {
-    content: '';
-    position: absolute;
+  /* Subtle grain texture overlay - optimized */
+  .grain {
+    position: fixed;
     inset: 0;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    opacity: 0.04;
+    opacity: 0.02;
+    /* Lowered for performance and subtlety */
     mix-blend-mode: overlay;
     pointer-events: none;
     z-index: 1;
+    will-change: transform;
+    /* Hint for compositing */
   }
 }
 

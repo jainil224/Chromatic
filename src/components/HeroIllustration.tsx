@@ -58,8 +58,8 @@ export const HeroIllustration = memo(({ palettes, isShuffling }: HeroIllustratio
                 }}
             >
                 <div className={cn(
-                    "group relative overflow-hidden rounded-[2rem] border p-0 backdrop-blur-[40px] transition-all duration-500",
-                    "bg-black/40 border-white/10 ring-1 ring-white/10 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.9)]",
+                    "group relative overflow-hidden rounded-[2rem] border p-0 transition-all duration-500",
+                    "bg-card border-white/10 ring-1 ring-white/10 shadow-2xl",
                     isShuffling ? "ring-2 ring-primary/40" : "hover:border-white/20 hover:-translate-y-1"
                 )}>
                     {/* Visual Content (The Palette) - Smaller size */}

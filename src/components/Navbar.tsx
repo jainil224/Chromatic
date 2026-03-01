@@ -87,7 +87,7 @@ export const Navbar = ({
 
     return (
         <header className="fixed top-0 sm:top-6 left-1/2 -translate-x-1/2 z-50 w-full sm:w-[95%] max-w-[1200px] pointer-events-none transition-all duration-300">
-            <div className="glass-dock pulse-glow flex items-center justify-between px-3 sm:px-4 py-2 pointer-events-auto ring-1 ring-white/10 shadow-2xl rounded-none sm:rounded-full">
+            <div className="glass-dock flex items-center justify-between px-3 sm:px-4 py-2 pointer-events-auto ring-1 ring-white/10 shadow-2xl rounded-none sm:rounded-full">
                 {/* Branding Pill */}
                 <div className="flex items-center gap-2 pr-3 sm:pr-4 border-r border-white/10">
                     <button
@@ -115,9 +115,9 @@ export const Navbar = ({
                                 {allPalettesCount.toLocaleString()}
                             </span>
                         </div>
-                        {/* Shimmer effect */}
+                        {/* Shimmer effect - Removed continuous animation for performance */}
                         <div className="absolute inset-0 overflow-hidden rounded-full pointer-events-none">
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_3s_infinite]" />
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                     </button>
                 </div>

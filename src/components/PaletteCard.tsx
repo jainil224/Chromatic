@@ -106,36 +106,18 @@ export const PaletteCard = memo(function PaletteCard({
             />
           ))}
 
-          {/* Premium Refined NEW Badge */}
+          {/* Standard NEW Badge - Optimized for performance */}
           {(isNewArrival || isCustom) && (
             <div
-              className="absolute -top-1.5 -left-1.5 z-20 flex items-center gap-1 px-2.5 py-1 rounded-full font-black uppercase select-none pointer-events-none transition-all duration-300 shadow-[0_4px_12px_rgba(0,0,0,0.5)] border border-white/30 overflow-hidden"
+              className="absolute -top-1.5 -left-1.5 z-20 flex items-center gap-1 px-2.5 py-1 rounded-full font-black uppercase select-none pointer-events-none shadow-md border border-white/20 bg-primary text-primary-foreground"
               style={{
                 fontSize: 'min(10px, 2.5vw)',
                 letterSpacing: '0.05em',
-                background: `linear-gradient(135deg, ${palette.colors[0]}, ${palette.colors[1] || palette.colors[0]})`,
-                color: '#000',
-                animation: 'premium-pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                // @ts-ignore
-                '--pulse-color': `${palette.colors[0]}80`,
-                // @ts-ignore
-                '--pulse-color-soft': `${palette.colors[0]}40`,
-              } as React.CSSProperties}
+              }}
             >
-              {/* Glassy Shine Overlay */}
-              <div
-                className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/50 to-transparent skew-x-[-20deg]"
-                style={{
-                  animation: 'sweeping-shine 3s infinite ease-in-out',
-                  width: '100%',
-                  opacity: 0.6,
-                }}
-              />
-
               <span className="relative z-10 flex items-center gap-1 px-1">
                 <span className="sm:inline hidden">✨</span>
-                <span className="sm:hidden inline text-[8px]">⚡</span>
-                <span className="font-black drop-shadow-[0_1px_1px_rgba(255,255,255,0.3)]">NEW</span>
+                <span className="font-black">NEW</span>
               </span>
             </div>
           )}
@@ -158,10 +140,8 @@ export const PaletteCard = memo(function PaletteCard({
           </div>
         </div>
 
-        {/* Shimmer effect overlay */}
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-700">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-[premium-shimmer_4s_infinite]" />
-        </div>
+        {/* Static shimmer replacement indicating it's clickable without the heavy animation */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-300 bg-white/5 mix-blend-overlay" />
 
         {/* Selection Indicator */}
         {isSelected && !isCustom && (

@@ -192,13 +192,13 @@ export const PaletteBuilder = memo(({ colors, onRemoveColor, onClearPalette, onR
 
                                 <button
                                     onClick={() => onRemoveColor(color.hex)}
-                                    className="absolute right-2 top-2 rounded-full bg-black/40 text-white p-1.5 opacity-0 backdrop-blur-md transition-all duration-200 hover:bg-black/60 group-hover:opacity-100 pointer-events-auto z-10 translate-y-1 group-hover:translate-y-0"
+                                    className="absolute right-2 top-2 rounded-full bg-black/60 text-white p-1.5 opacity-0 transition-all duration-200 hover:bg-black/80 group-hover:opacity-100 pointer-events-auto z-10 translate-y-1 group-hover:translate-y-0"
                                     aria-label="Remove color"
                                 >
                                     <X className="h-3.5 w-3.5" />
                                 </button>
 
-                                <div className="flex flex-col gap-1 p-3 bg-card/95 backdrop-blur-sm">
+                                <div className="flex flex-col gap-1 p-3 bg-card border-t border-white/5">
                                     <span className="font-semibold text-sm text-foreground truncate">{color.name}</span>
                                     <div className="flex flex-col gap-0.5">
                                         <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-wider">{color.hex}</span>

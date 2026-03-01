@@ -76,6 +76,16 @@
 </head>
 
 <body>
+  <script>
+    (function () {
+      try {
+        var theme = localStorage.getItem('chromatic_theme') || 'midnight';
+        if (theme !== 'dark') {
+          document.body.classList.add(theme + '-mode');
+        }
+      } catch (e) { }
+    })();
+  </script>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
 </body>

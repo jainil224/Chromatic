@@ -123,27 +123,18 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize, liv
                             {/* Main Heading — colors sync with the foreground palette card */}
                             {/* heroPalettes[4] = same palette shown in the foreground card */}
                             <h1
-                                className="font-display text-3xl xs:text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl md:text-7xl lg:text-8xl animate-fade-up transition-all duration-700 ease-in-out"
-                                style={{
-                                    textShadow: `0 0 40px ${heroPalettes[4]?.[2]}20`
-                                }}
+                                className="font-display text-3xl xs:text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl md:text-7xl lg:text-8xl animate-fade-up transition-colors duration-700 ease-in-out"
                             >
                                 AI-Powered <span className="relative inline-block">
                                     <span
                                         className="transition-colors duration-700 ease-in-out"
-                                        style={{
-                                            color: heroPalettes[4]?.[1],
-                                            textShadow: `0 0-24px ${heroPalettes[4]?.[1]}60`
-                                        }}
+                                        style={{ color: heroPalettes[4]?.[1] }}
                                     >
                                         Color
                                     </span>{" "}
                                     <span
                                         className="transition-colors duration-700 ease-in-out"
-                                        style={{
-                                            color: heroPalettes[4]?.[3],
-                                            textShadow: `0 0 24px ${heroPalettes[4]?.[3]}60`
-                                        }}
+                                        style={{ color: heroPalettes[4]?.[3] }}
                                     >
                                         Palettes
                                     </span>
@@ -220,7 +211,7 @@ export const Hero = memo(({ onBrowse, onMaker, onPickFromImage, onCustomize, liv
                     </div>
 
                     {/* Right Visual Component */}
-                    <div className="relative h-[280px] xs:h-[350px] sm:h-[450px] lg:h-[650px] w-full animate-fade-in [animation-delay:0.3s]">
+                    <div className="relative h-[280px] xs:h-[350px] sm:h-[450px] lg:h-[650px] w-full animate-fade-in [animation-delay:0.3s] will-change-transform">
                         <HeroIllustration
                             palettes={heroPalettes}
                             isShuffling={isShuffling}

@@ -66,10 +66,10 @@ export const ColorGrid = memo(({ colors, selectedColors, onColorSelect }: ColorG
                                     {/* Selection Indicator */}
                                     <div className={cn(
                                         "absolute inset-0 flex items-center justify-center transition-all duration-300",
-                                        isSelected ? "opacity-100 bg-black/10 backdrop-blur-[1px]" : "opacity-0"
+                                        isSelected ? "opacity-100 bg-black/20" : "opacity-0"
                                     )}>
                                         {isSelected && (
-                                            <div className="bg-background/20 backdrop-blur-md rounded-full p-2 shadow-sm">
+                                            <div className="bg-background/40 rounded-full p-2 shadow-sm">
                                                 <Check className="h-6 w-6 text-white drop-shadow-md" />
                                             </div>
                                         )}
@@ -95,7 +95,7 @@ export const ColorGrid = memo(({ colors, selectedColors, onColorSelect }: ColorG
                                             <div
                                                 role="button"
                                                 onClick={(e) => copyToClipboard(shade.hex, e)}
-                                                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white/80 transition-colors backdrop-blur-md"
+                                                className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-white transition-colors"
                                                 title="Copy Hex"
                                             >
                                                 <Copy className="h-3 w-3" />

@@ -20,12 +20,7 @@ export const WhyChromatic = memo(() => {
 
                 {/* SEO Description Content */}
                 <div
-                    className="mb-16 rounded-3xl border p-8 md:p-12 backdrop-blur-xl transition-colors duration-500 animate-fade-up w-full"
-                    style={{
-                        borderColor: 'var(--glass-border)',
-                        backgroundColor: 'var(--glass-bg)',
-                        boxShadow: 'var(--glass-shadow)'
-                    }}
+                    className="mb-16 rounded-3xl border border-white/10 p-8 md:p-12 bg-card/60 transition-colors duration-500 animate-fade-up w-full shadow-lg"
                 >
                     <h3 className="mb-6 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
                         Chromatic Colours. – Find Perfect Combinations
