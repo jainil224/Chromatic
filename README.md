@@ -8,7 +8,7 @@ https://chromatic-colorpalette.vercel.app/
 
 ## ✨ Features
 
-- **Curated Selection**: 789+ hand-picked palettes.
+- **Curated Selection**: 1455+ hand-picked palettes.
 - **Categorized**: Easily browse by themes like Dark, Light, Pastel, Vintage, and more.
 - **Copy to Clipboard**: One-click hex code copying.
 - **Custom Palettes**: Create and save your own color combinations.
