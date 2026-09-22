@@ -39,7 +39,7 @@ https://chromatic-colorpalette.vercel.app/
 2.  Navigate to the project directory:
     ```sh
     cd Chromatic
-    `````
+    ```
 
 3.  Install dependencies:
     ```sh
